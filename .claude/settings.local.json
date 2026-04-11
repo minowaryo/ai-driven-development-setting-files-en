@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(cp -r /c/workspace/ai-driven-development-setting-files/. /c/workspace/ai-driven-development-setting-files-en/)",
+      "Bash(rm -rf /c/workspace/ai-driven-development-setting-files-en/.git)",
+      "Bash(python3 -c ':*)",
+      "Bash(git init:*)",
+      "Bash(git remote:*)",
+      "Bash(git add:*)",
+      "Bash(git commit -m ':*)",
+      "Bash(git push:*)"
+    ]
+  }
+}
