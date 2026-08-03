@@ -29,6 +29,8 @@
 - [ ] Is there a Feature Test for the happy path?
 - [ ] Is there a test for authorization (unauthenticated / unauthorized)?
 - [ ] Is there a test for validation errors?
+- [ ] Did you follow TDD (Red → Green → Refactor) — did the test exist before the implementation?
+- [ ] If a critical flow changed, did you add a Playwright E2E test and does `npx playwright test` pass?
 
 ### Documentation
 - [ ] For DB changes → has `docs/architecture/data-model.md` been updated?
@@ -55,6 +57,7 @@
 ### Tests
 - [ ] Do the tests actually cover failing cases?
 - [ ] Are test names clear and descriptive?
+- [ ] Are E2E tests scoped to "critical flows only" (no misuse for exhaustive coverage)?
 
 ### Documentation
 - [ ] Are design changes reflected in the docs?

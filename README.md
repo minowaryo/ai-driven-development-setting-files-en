@@ -28,19 +28,26 @@ Primary Sources Layer       → docs/original-docs/ (human input only — AI edi
 ├── AGENTS.md                          # Codex entry point
 │
 ├── PLAN.md                            # Development plan (in-progress task management)
+├── .mcp.json                          # Project-scoped MCP servers (e.g. Playwright)
 ├── .claude/
 │   ├── rules/
 │   │   ├── 00-global.md               # Global policy, development flow, quality gates
 │   │   ├── 10-laravel.md              # Laravel-specific rules
+│   │   ├── 15-frontend.md             # Frontend-specific rules (content depends on the ADR-0005 selection; default is Vue.js + Inertia.js)
 │   │   ├── 20-mysql.md                # MySQL-specific rules
-│   │   ├── 30-testing.md              # Test strategy
+│   │   ├── 30-testing.md              # Test strategy (TDD, Playwright E2E)
 │   │   ├── 40-security.md             # Security rules
 │   │   ├── 50-review.md               # Review guidelines
 │   │   └── 60-docs.md                 # Documentation update rules
+│   ├── agents/
+│   │   ├── test-writer.md             # TDD Red-phase-only sub-agent
+│   │   └── tdd-implementer.md         # TDD Green-phase-only sub-agent
 │   └── commands/
 │       ├── review.md                  # /review command
 │       ├── adr.md                     # /adr command
-│       └── generate-mock.md           # /generate-mock command
+│       ├── generate-mock.md           # /generate-mock command
+│       ├── tdd.md                     # /tdd command (Red → Green → Refactor)
+│       └── generate-e2e-test.md       # /generate-e2e-test command
 │
 └── docs/
     ├── ai-context/                    # AI summary layer (most important)
@@ -67,7 +74,11 @@ Primary Sources Layer       → docs/original-docs/ (human input only — AI edi
     │   ├── ADR-0001-use-laravel.md
     │   ├── ADR-0002-use-mysql.md
     │   ├── ADR-0003-auth-strategy.md
-    │   └── ADR-0004-ai-development-policy.md
+    │   ├── ADR-0004-ai-development-policy.md
+    │   ├── ADR-0005-frontend-stack.md
+    │   ├── ADR-0006-e2e-testing-playwright.md
+    │   ├── ADR-0007-tdd-enforcement-probity.md
+    │   └── ADR-0008-tdd-e2e-harness-tooling.md
     ├── development/                   # Development process
     │   ├── coding-standards.md
     │   ├── testing-strategy.md
@@ -89,6 +100,7 @@ Primary Sources Layer       → docs/original-docs/ (human input only — AI edi
 6. Generate HTML mockups with `/generate-mock` and have the business side review them
 7. Incorporate feedback into `use-cases.md` and get final human approval (Gate 2)
 8. Design and approve `docs/architecture/data-model.md` before starting AI code generation (Gate 3)
+9. Use the `/tdd` command to proceed through Red (write a failing test) → test case approval (Gate 4) → Green (implement) → Refactor
 
 ## AI-Driven Development Pipeline
 
@@ -105,9 +117,13 @@ Mockup creation → business review → feedback incorporated into use-cases.md
       ↓  AI may draft data-model.md
 [Gate 3] data-model.md — reviewer approved
       ↓
-AI code generation (Claude Code / Codex)
+AI test case generation (Red — /tdd command)
       ↓
-AI test generation
+[Gate 4] test case approval ★ reviewer confirms before implementation (Green) starts
+      ↓
+AI implementation code generation (Green — Claude Code / Codex)
+      ↓
+Refactor
       ↓
 Human review and merge
 ```
@@ -123,4 +139,4 @@ This repository is an English translation of the original Japanese template:
 
 - **Source repository**: `ai-driven-development-setting-files`
 - **Branch**: `main`
-- **Commit**: `104c26e` (feat: add original-docs as read-only source material directory)
+- **Commit**: `a4ff08b` (docs: reset project-specific docs to template placeholders)

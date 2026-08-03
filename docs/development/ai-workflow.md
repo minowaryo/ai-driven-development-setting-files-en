@@ -24,13 +24,16 @@
    - Organize the scope of impact of changes
    - Present the implementation approach and get agreement
 
-3. Implement
-   - Implement according to the plan
-   - Do not go out of scope
+3. Implement (via the `/tdd` command)
+   - Proceed through the cycle: Red → Gate 4 (test case approval) → Green → Refactor
+   - Do not stray beyond the planned scope
 
-4. Test
-   - Add and run Feature Tests
+4. Test (and verify)
+   - In addition to running the tests, use the `verify` skill to confirm actual behavior (tests being Green doesn't guarantee the feature works)
+   - Run `/review` before merging
 ```
+
+See `.claude/rules/30-testing.md` for the sub-agent setup, when to run each skill, and how to decide on adopting `@nizos/probity`.
 
 ### Effective Prompts
 
@@ -72,4 +75,5 @@ AI-generated code must satisfy:
 1. `php artisan test` passes
 2. `./vendor/bin/pint --test` passes
 3. `./vendor/bin/phpstan analyse` passes
-4. Review in `docs/development/review-checklist.md` is complete
+4. If a critical flow changed, `npx playwright test` passes
+5. Review in `docs/development/review-checklist.md` is complete

@@ -15,10 +15,23 @@
 After cloning this repository, complete the following steps in order before touching any code.
 AI cannot provide accurate assistance until these files are filled in.
 
-### Step 1 — Fill in ai-context (do this first)
+### Step 1 — Select the frontend stack → fill in ai-context (do this first)
+
+**1a. Frontend stack selection**
+
+- Review the selection criteria and comparison table in `docs/adr/ADR-0005-frontend-stack.md` and decide this project's frontend stack
+- Record the selection with the `/adr` command as `docs/adr/ADR-XXXX-frontend-stack-selection.md` (if you choose anything other than the default recommendation — Vue 3 + Inertia.js + Pinia — or are torn between candidates, document the reasoning and the rejected options)
+
+**1b. Reflect the confirmed selection into the rule file**
+
+- Rewrite `.claude/rules/15-frontend.md` to match the selected stack (if you selected Vue 3 + Inertia.js + Pinia, the default content can be used as-is)
+- Rewrite the Frontend section of `docs/ai-context/module-map.md` to match the actual directory layout (do not leave it as the placeholder example)
+
+**1c. Fill in ai-context**
 
 > Before creating these files, place primary source materials (requirement notes, screen sketches, etc.) in `docs/original-docs/` and reference them.
 > After Step 1 is complete, do not use `docs/original-docs/` as the default reference.
+> Transcribe the 1a selection result into the Frontend row of `project-summary.md`.
 
 | File | Content | Priority |
 |---|---|---|
@@ -57,6 +70,15 @@ docs/adr/ADR-xxxx-[title].md     ← Created each time a technology decision is 
 
 ### Step 4 — Code generation and implementation (only after Gates 2 and 3 are passed)
 
+Implementation proceeds via the `/tdd` command using **TDD (Red → Green → Refactor)**.
+
+```
+Red → [Gate 4: test case approval ★ implementation (Green) prohibited until passed] → Green → Refactor → /review
+```
+
+> Unlike Gates 0-3 (passed once per project), Gate 4 is repeated per feature/UC every time the TDD cycle runs.
+> See `.claude/rules/30-testing.md` for the phase-by-phase steps, sub-agent setup, and when to run each skill.
+
 ---
 
 ## Read first (every session)
@@ -74,6 +96,7 @@ docs/adr/ADR-xxxx-[title].md     ← Created each time a technology decision is 
 | Requirements / UC reference | `docs/product/requirements.md` + `docs/product/use-cases.md` |
 | Code implementation (feature development) | `docs/product/use-cases.md` + `docs/architecture/data-model.md` + `docs/product/mockups/` |
 | UI implementation / mock-based development | `docs/product/ui-guidelines.md` + `docs/product/mockups/` |
+| Frontend component changes | `.claude/rules/15-frontend.md` (implementation rules for the selected frontend stack — see `docs/adr/ADR-0005-frontend-stack.md`) |
 | Auth / authorization changes | `docs/architecture/authz-authn.md` |
 | DB schema changes | `docs/architecture/data-model.md` + `docs/adr/` |
 | Architecture / core design changes | `docs/adr/` |
@@ -87,6 +110,7 @@ docs/adr/ADR-xxxx-[title].md     ← Created each time a technology decision is 
 - **Workflow**: Proceed in the order: Explore → Plan → Implement → Test
 - Always read `docs/ai-context/` at the start of a session
 - **Do not generate code until Gate 2 (use-cases.md approval) is complete**
+- **Do not start implementation (Green phase) until Gate 4 (test case approval) is complete** (`.claude/rules/30-testing.md`)
 - `docs/original-docs/` is read-only (editing, deleting, and creating files prohibited)
 - Review documentation before touching code
 - Always check `docs/adr/` before making large-scale changes
@@ -101,6 +125,7 @@ See `.claude/rules/` for detailed rules:
 
 - `.claude/rules/00-global.md` - Global policy, development flow, quality gates
 - `.claude/rules/10-laravel.md` - Laravel-specific rules
+- `.claude/rules/15-frontend.md` - Frontend-specific rules (content is rewritten per project based on the selection in `docs/adr/ADR-0005-frontend-stack.md`; default content is Vue.js + Inertia.js)
 - `.claude/rules/20-mysql.md` - MySQL-specific rules
 - `.claude/rules/30-testing.md` - Test strategy
 - `.claude/rules/40-security.md` - Security

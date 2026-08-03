@@ -17,6 +17,9 @@
 | UI / design spec change | `docs/product/ui-guidelines.md` |
 | Mockup added / updated | `docs/product/mockups/README.md` (update screen list) |
 | Mockup feedback incorporated into UC | `docs/product/use-cases.md` + `docs/product/mockups/README.md` |
+| Frontend screen / component added | `docs/ai-context/module-map.md` |
+| State management (store for whichever stack was selected — Pinia, Vuex, Redux, etc.) added / changed | `docs/architecture/overview.md` |
+| Frontend technology decision (library change, etc.) | `docs/adr/ADR-XXXX-xxx.md` (create new) |
 
 ## Documentation Update Principles
 

@@ -24,6 +24,9 @@ Adopt the following AI-driven development policy.
 
 ### Development Workflow
 
+> Updated 2026-07-15: as part of formalizing TDD practice ([[ADR-0007-tdd-enforcement-probity]] / [[ADR-0008-tdd-e2e-harness-tooling]]),
+> the order was changed so that test generation happens before code generation (added Gate 4: test case approval).
+
 ```
 requirements.md (defined by humans)
       ↓
@@ -31,9 +34,13 @@ use-cases.md (human review and approval ← quality gate)
       ↓
 data-model.md / openapi.yaml
       ↓
-AI code generation (Claude Code / Codex)
+AI test case generation (Red — /tdd command)
       ↓
-AI test generation
+Gate 4: test case approval (human review)
+      ↓
+AI implementation code generation (Green, Claude Code / Codex)
+      ↓
+Refactor
       ↓
 Human review and merge
 ```
@@ -75,3 +82,5 @@ Human review and merge
 - `AGENTS.md`
 - `.claude/rules/00-global.md`
 - `docs/development/ai-workflow.md`
+- ADR-0007-tdd-enforcement-probity
+- ADR-0008-tdd-e2e-harness-tooling

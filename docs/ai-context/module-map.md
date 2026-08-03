@@ -15,6 +15,19 @@
 | `app/Listeners/` | Event handlers | Offload heavy processing to Queue |
 | `app/Jobs/` | Async jobs | Run via Horizon |
 
+## Frontend (fill in based on the stack selected in `docs/adr/ADR-0005-frontend-stack.md`)
+
+> The table below is an example for when the selected stack is **Vue 3 + Inertia.js + Pinia** (the default recommendation).
+> If Blade / Livewire / React / etc. was selected instead, replace it with that stack's directory layout.
+
+| Path | Role | Notes |
+|---|---|---|
+| `resources/js/Pages/` | Inertia page components (one per route) | Returned via the Controller's `return` |
+| `resources/js/Components/` | Generic / shared components | Keep single-responsibility and reusable |
+| `resources/js/Composables/` | Composables for logic separation (`use~` naming) | Consolidate component logic here |
+| `resources/js/stores/` | Pinia stores (`useXxxStore` naming) | Do not put local state here |
+| `resources/js/app.js` | Entry point | Inertia initialization |
+
 ## Database
 
 | Path | Role |
