@@ -45,6 +45,16 @@ Proposed
 - [Links to related ADRs and documents]
 ```
 
+## Variant for Recording a Deferral (Not Adopted)
+
+Record a "considered it, but not adopting it for now" conclusion using the same ADR format as any other decision. If you skip writing an ADR and leave it only in verbal or chat discussion, the same evaluation tends to get repeated later.
+
+- **Title**: append `— Not Adopted` at the end, so the conclusion is clear without opening the file from the index
+- **Status**: `Accepted` is still correct (what's approved is the decision not to adopt, not the adoption of the tool itself)
+- **Decision**: state clearly that it is not being adopted now, and the conditions/timing under which it should be reconsidered (e.g. "revisit once XYZ becomes a real problem in production")
+- **Rationale**: state the reason for deferring (e.g. "premature" at this stage). Writing down the intended configuration policy for future adoption (exclusion paths, etc.) ahead of time makes reconsidering and adopting it later smoother
+- Reference implementation: `meta/adr/ADR-0007-tdd-enforcement-probity.md` (this repo's example of the "optional adoption" pattern — see also "Harness-design ADR patterns" in `meta/adr/README.md`)
+
 ## When to Write an ADR
 
 - Adopting a new library or framework
@@ -52,3 +62,4 @@ Proposed
 - Changing security policy
 - Large-scale DB schema changes
 - Changing AI development policy
+- Deciding, after evaluation, deliberately not to adopt something (a deferral — see the variant above)

@@ -69,3 +69,5 @@ YYYY-MM-DD
 ## Consequences
 [Impact and trade-offs of this decision]
 ```
+
+For how to phrase the Title, Status, and Decision when recording a "considered it, but not adopting it for now" (deferral) conclusion, see the "Variant for Recording a Deferral (Not Adopted)" section in `.claude/commands/adr.md`.
