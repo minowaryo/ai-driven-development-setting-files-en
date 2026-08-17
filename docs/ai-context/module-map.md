@@ -15,7 +15,7 @@
 | `app/Listeners/` | Event handlers | Offload heavy processing to Queue |
 | `app/Jobs/` | Async jobs | Run via Horizon |
 
-## Frontend (fill in based on the stack selected in `docs/adr/ADR-0005-frontend-stack.md`)
+## Frontend (fill in based on the stack selected in `meta/adr/ADR-0005-frontend-stack.md`)
 
 > The table below is an example for when the selected stack is **Vue 3 + Inertia.js + Pinia** (the default recommendation).
 > If Blade / Livewire / React / etc. was selected instead, replace it with that stack's directory layout.

@@ -23,4 +23,4 @@ Related rules: `.claude/rules/30-testing.md`, `.claude/rules/10-laravel.md`, `.c
 1. List of implemented files
 2. Execution results (Green confirmation)
 3. Self-check confirming nothing was implemented beyond what the tests require
-4. Recommend using the `verify` skill to confirm actual behavior — Green tests alone do not guarantee the feature is complete, since mocking gaps or coverage gaps can slip through (include a suggestion to run `/generate-e2e-test` if the change includes UI changes)
+4. Recommend using the `run` skill to confirm actual behavior — Green tests alone do not guarantee the feature is complete, since mocking gaps or coverage gaps can slip through (include a suggestion to run `/generate-e2e-test` if the change includes UI changes)

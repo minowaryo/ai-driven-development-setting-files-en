@@ -1,5 +1,24 @@
 # PLAN.md
 
+## Separate template/harness ADRs from project ADRs (2026-08-17)
+
+### Decision
+
+- `docs/adr/` is reserved exclusively for the ADRs of the project built from this template. It now starts empty; the first project ADR should be `ADR-0001`.
+- The 9 ADRs that document this template/harness's own design (ADR-0001 through ADR-0009) were moved to `meta/adr/`, a new top-level directory outside `docs/`. This keeps them out of any future "reset project docs" sweep of `docs/`, and out of the project's own ADR numbering sequence.
+- Added a new `ADR-0009-review-escalation-mechanism.md`, documenting the `review-score` mechanism (see below), along with the other harness features ported over in this same pass: the `docs/credentials/` handling policy (`.gitignore` + `.claude/rules/40-security.md`), the optional/non-blocking UAT step (`.claude/rules/00-global.md` + `docs/product/uat-scenarios.md` / `uat-results/`), the CRUD-coverage rule for new data models (`.claude/rules/30-testing.md` / `50-review.md` / `.claude/commands/review.md`), a dedicated `.claude/rules/31-e2e-testing.md` split out of `30-testing.md`, and the "API Conventions" / "Error Handling Policy" sections in `docs/development/coding-standards.md`.
+- All cross-references to these 9 files (in `CLAUDE.md`, `AGENTS.md`, `.claude/rules/`, `docs/ai-context/`, `docs/architecture/`, `docs/development/`) were repointed to `meta/adr/`. References to `docs/adr/` that describe creating a *new* project ADR (e.g. `/adr` command, `CLAUDE.md` Step 1a/3, Gate rules) were left unchanged.
+- Added `docs/adr/README.md` and `meta/adr/README.md` explaining the split so it isn't rediscovered by accident later.
+- Added a `/review` Step 0 that runs `.claude/hooks/review-score.sh` (a local, AI-free script scoring the diff since `git merge-base main HEAD`) to auto-select the normal vs. enhanced review level.
+
+### Files touched
+
+`meta/adr/ADR-0001` through `ADR-0009` (moved from `docs/adr/`), `docs/adr/README.md` (new), `meta/adr/README.md` (new), `.claude/hooks/review-score.sh` (new), `.gitignore` (new), `docs/credentials/README.md` (new), `docs/product/org-permission-philosophy.md` (new), `docs/product/uat-scenarios.md` (new), `docs/product/uat-results/README.md` (new), `docs/product/user-guide.md` (new), `docs/ai-context/known-pitfalls.md` (new), `.claude/rules/31-e2e-testing.md` (new, split from `30-testing.md`), `README.md`, `CLAUDE.md`, `AGENTS.md`, `.claude/rules/00-global.md`, `.claude/rules/15-frontend.md`, `.claude/rules/30-testing.md`, `.claude/rules/40-security.md`, `.claude/rules/50-review.md`, `.claude/rules/60-docs.md`, `.claude/commands/review.md`, `.claude/commands/generate-e2e-test.md`, `.claude/commands/tdd.md`, `.claude/agents/tdd-implementer.md`, `docs/ai-context/common-commands.md`, `docs/ai-context/module-map.md`, `docs/development/ai-workflow.md`, `docs/development/coding-standards.md`, `docs/development/testing-strategy.md`, `docs/architecture/authz-authn.md`.
+
+### Status
+
+Completed. No open follow-ups.
+
 ## Frontend stack selection process built into Gate 0 (2026-08-03)
 
 ### Decision

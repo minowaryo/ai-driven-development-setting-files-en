@@ -40,7 +40,7 @@ npx playwright show-report
 
 ## Playwright MCP (browser automation tool, optional)
 
-> Already defined in `.mcp.json`. See `docs/adr/ADR-0008-tdd-e2e-harness-tooling.md` for details.
+> Already defined in `.mcp.json`. See `meta/adr/ADR-0008-tdd-e2e-harness-tooling.md` for details.
 > Use only against a local development environment — never connect it to a production URL or a real-data environment.
 
 ```bash
@@ -51,7 +51,7 @@ claude mcp add playwright npx @playwright/mcp@latest
 
 ## TDD Enforcement Tool (Probity, optional)
 
-> See `docs/adr/ADR-0007-tdd-enforcement-probity.md` for details.
+> See `meta/adr/ADR-0007-tdd-enforcement-probity.md` for details.
 
 ```bash
 # Initial setup

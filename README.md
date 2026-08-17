@@ -10,14 +10,16 @@ This repository is a template that includes:
 - **AI-summarized documents** (`docs/ai-context/`)
 - **Design document templates** (`docs/product/`, `docs/architecture/`, `docs/adr/`)
 - **Development process documents** (`docs/development/`, `docs/security/`)
+- **The template's own meta ADRs** (`meta/adr/`) — records of design decisions for this template/AI development harness itself, managed separately from the project's own decisions (`docs/adr/`)
 
-## 4-Layer Structure
+## 5-Layer Structure
 
 ```
 AI Rules Layer              → CLAUDE.md, AGENTS.md, .claude/rules/
 Human Design Knowledge      → docs/architecture/, docs/product/, docs/adr/
 AI Summary Layer            → docs/ai-context/
 Primary Sources Layer       → docs/original-docs/ (human input only — AI editing prohibited, referenced in Steps 1-2 only)
+Template's Own Layer        → meta/adr/ (outside the project's own decision-making cycle — no editing or renumbering needed)
 ```
 
 ## File Structure
@@ -49,6 +51,19 @@ Primary Sources Layer       → docs/original-docs/ (human input only — AI edi
 │       ├── tdd.md                     # /tdd command (Red → Green → Refactor)
 │       └── generate-e2e-test.md       # /generate-e2e-test command
 │
+├── meta/
+│   └── adr/                           # The template/harness's own ADRs (managed separately from the project's ADRs — no editing or renumbering needed)
+│       ├── README.md
+│       ├── ADR-0001-use-laravel.md
+│       ├── ADR-0002-use-mysql.md
+│       ├── ADR-0003-auth-strategy.md
+│       ├── ADR-0004-ai-development-policy.md
+│       ├── ADR-0005-frontend-stack.md
+│       ├── ADR-0006-e2e-testing-playwright.md
+│       ├── ADR-0007-tdd-enforcement-probity.md
+│       ├── ADR-0008-tdd-e2e-harness-tooling.md
+│       └── ADR-0009-review-escalation-mechanism.md
+│
 └── docs/
     ├── ai-context/                    # AI summary layer (most important)
     │   ├── project-summary.md         # Full project summary
@@ -70,15 +85,8 @@ Primary Sources Layer       → docs/original-docs/ (human input only — AI edi
     │   ├── overview.md
     │   ├── data-model.md
     │   └── authz-authn.md
-    ├── adr/                           # Architecture Decision Records
-    │   ├── ADR-0001-use-laravel.md
-    │   ├── ADR-0002-use-mysql.md
-    │   ├── ADR-0003-auth-strategy.md
-    │   ├── ADR-0004-ai-development-policy.md
-    │   ├── ADR-0005-frontend-stack.md
-    │   ├── ADR-0006-e2e-testing-playwright.md
-    │   ├── ADR-0007-tdd-enforcement-probity.md
-    │   └── ADR-0008-tdd-e2e-harness-tooling.md
+    ├── adr/                           # Decision records for the project itself (starts empty right after applying the template — numbering starts at ADR-0001)
+    │   └── README.md                  # Notes on its role (how it differs from meta/adr/)
     ├── development/                   # Development process
     │   ├── coding-standards.md
     │   ├── testing-strategy.md

@@ -57,7 +57,7 @@ Notes:
 ```
 Please create an ADR for [decision content].
 
-Template: Refer to existing ADRs in docs/adr/
+Template: Refer to the existing ADRs in meta/adr/ for formatting (docs/adr/ starts empty for this project's own decisions)
 Required sections: Context / Decision / Rationale / Consequences
 ```
 

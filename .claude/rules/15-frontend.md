@@ -2,7 +2,7 @@
 
 > **Purpose of this file**: the canonical home for frontend implementation rules.
 > Record the implementation rules for whichever frontend stack this project selected
-> via the process in `docs/adr/ADR-0005-frontend-stack.md`.
+> via the process in `meta/adr/ADR-0005-frontend-stack.md`.
 > The content below covers the default recommendation, **Vue 3 + Inertia.js + Pinia**.
 > If a project selects a different stack (Blade / Livewire / React / etc.), rewrite
 > this file's own content for that stack (do not rename the file or change its path).

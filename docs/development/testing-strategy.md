@@ -18,12 +18,12 @@
 - **PestPHP** (recommended) or PHPUnit
 - Feature Test: End-to-end tests using an HTTP client
 - Unit Test: Logic tests for individual classes
-- E2E Test: **Playwright** (see `ADR-0006-e2e-testing-playwright.md`). Critical flows only
+- E2E Test: **Playwright** (see `meta/adr/ADR-0006-e2e-testing-playwright.md`). Critical flows only
 
 ## TDD (Red-Green-Refactor)
 
 - Explicitly instruct the Red → Green → Refactor cycle for ordinary feature development, not just bug fixes (see `.claude/rules/30-testing.md` for the detailed steps and example prompts)
-- If you want to enforce this mechanically, consider adopting `@nizos/probity` (see `ADR-0007-tdd-enforcement-probity.md` — optional)
+- If you want to enforce this mechanically, consider adopting `@nizos/probity` (see `meta/adr/ADR-0007-tdd-enforcement-probity.md` — optional)
 
 ## Priority
 
@@ -41,7 +41,7 @@
    - User registration flow
    - Payment flow
    - Critical business flows
-   - See the "E2E Test (Playwright)" section in `.claude/rules/30-testing.md` for layout and run commands
+   - See `.claude/rules/31-e2e-testing.md` for layout and run commands
 
 ## Test Data Management
 

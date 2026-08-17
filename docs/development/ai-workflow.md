@@ -1,7 +1,7 @@
 # ai-workflow.md — AI Development Workflow
 
 > Rules for using Claude Code / Codex.
-> Related ADR: `docs/adr/ADR-0004-ai-development-policy.md`
+> Related ADR: `meta/adr/ADR-0004-ai-development-policy.md`
 
 ## Role Breakdown
 
@@ -29,7 +29,7 @@
    - Do not stray beyond the planned scope
 
 4. Test (and verify)
-   - In addition to running the tests, use the `verify` skill to confirm actual behavior (tests being Green doesn't guarantee the feature works)
+   - In addition to running the tests, use the `run` skill to confirm actual behavior (tests being Green doesn't guarantee the feature works)
    - Run `/review` before merging
 ```
 
@@ -43,6 +43,8 @@ See `docs/ai-context/prompt-patterns.md`.
 
 **Every time (required):**
 - `docs/ai-context/project-summary.md`
+- `docs/ai-context/glossary.md`
+- `docs/ai-context/module-map.md`
 - `docs/ai-context/common-commands.md`
 
 **Task-specific:**

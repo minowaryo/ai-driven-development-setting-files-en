@@ -9,7 +9,7 @@ Accepted
 ## Context
 
 `.claude/rules/30-testing.md` defined "E2E Test (critical user flows)" as the top tier of the test pyramid, but the concrete tool, file location, and run commands were undefined.
-`docs/adr/ADR-0005-frontend-stack.md` now has each project select its own frontend stack, but regardless of which stack is chosen — including the default recommendation, Vue 3 + Inertia.js — we need a way to actually verify browser-level user interactions (screen transitions, form input, validation display) with a UI integration test.
+`meta/adr/ADR-0005-frontend-stack.md` now has each project select its own frontend stack, but regardless of which stack is chosen — including the default recommendation, Vue 3 + Inertia.js — we need a way to actually verify browser-level user interactions (screen transitions, form input, validation display) with a UI integration test.
 
 Options considered:
 
@@ -23,7 +23,7 @@ Adopt **Playwright** (`@playwright/test`).
 
 - Location: `tests/e2e/`
 - Scope: only the critical flows documented in `docs/product/use-cases.md` (not for exhaustive coverage)
-- Target app: a Laravel app started with `php artisan serve` (how the screen renders depends on the frontend stack selected via `docs/adr/ADR-0005-frontend-stack.md`; Playwright applies equally to Blade, Livewire, or Inertia)
+- Target app: a Laravel app started with `php artisan serve` (how the screen renders depends on the frontend stack selected via `meta/adr/ADR-0005-frontend-stack.md`; Playwright applies equally to Blade, Livewire, or Inertia)
 
 ## Rationale
 
@@ -32,7 +32,7 @@ Adopt **Playwright** (`@playwright/test`).
 - Its auto-waiting mechanism curbs the flakiness that often arises from unrendered elements during SPA-style page transitions with no full reload (when Vue/React + Inertia.js is selected); it runs just as stably against ordinary full-reload transitions in Blade / Livewire
 - Trace capture, screenshots, and video recording are built in, keeping the cost of investigating failures low
 - Strong TypeScript affinity, making it easy to share types when the frontend uses Vue 3 / React + TypeScript (optional)
-- The same E2E tool can be reused regardless of the frontend stack chosen in `docs/adr/ADR-0005-frontend-stack.md`, making it easy to share testing know-how across projects
+- The same E2E tool can be reused regardless of the frontend stack chosen in `meta/adr/ADR-0005-frontend-stack.md`, making it easy to share testing know-how across projects
 
 ### Alternatives rejected
 - **Cypress**: constraints around multi-tab / multi-origin make it a poor fit for flows involving external redirects via Inertia (e.g. payments)

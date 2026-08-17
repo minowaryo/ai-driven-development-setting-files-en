@@ -1,7 +1,7 @@
 # authz-authn.md — Authentication & Authorization Policy
 
 > Always refer to this document before making changes related to authentication or authorization.
-> Related ADR: `docs/adr/ADR-0003-auth-strategy.md`
+> Related ADR: `meta/adr/ADR-0003-auth-strategy.md`
 
 ## Authentication
 

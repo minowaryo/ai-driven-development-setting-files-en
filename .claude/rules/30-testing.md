@@ -4,7 +4,7 @@
 
 1. **Feature Test (highest priority)**: Integration tests from HTTP request to response
 2. **Unit Test**: Complex business logic and calculation logic
-3. **E2E Test (Playwright)**: Critical user flows (see the end of this file for details)
+3. **E2E Test (Playwright)**: Critical user flows (see `.claude/rules/31-e2e-testing.md` for details; no need to read it during the normal TDD cycle)
 
 ## Files to Read Before Writing Tests
 
@@ -24,7 +24,7 @@
 
 ## TDD Workflow (shared by Claude Code / Codex)
 
-> Related ADR: `docs/adr/ADR-0007-tdd-enforcement-probity.md`
+> Related ADR: `meta/adr/ADR-0007-tdd-enforcement-probity.md`
 
 Claude Code / Codex tend to write the implementation first and bolt tests on afterward.
 **Explicitly instruct the Red → Green → Refactor cycle for ordinary feature development, not just bug fixes.**
@@ -54,15 +54,16 @@ Claude Code / Codex tend to write the implementation first and bolt tests on aft
 - After the tests are written in the Red phase, **a human must review and approve the test content before moving on to the Green phase (implementation)** (Gate 4 in `.claude/rules/00-global.md`)
   - Review points: does the test fail for the intended reason, and do the test cases cover the happy path / error cases / authorization described in `use-cases.md`?
   - The `/tdd` command will not auto-advance to the Green phase until this approval is given
-- If you want to enforce this mechanically, consider adopting `@nizos/probity` (see `docs/adr/ADR-0007-tdd-enforcement-probity.md`). This guideline applies regardless of whether that tool is adopted
+- If you want to enforce this mechanically, consider adopting `@nizos/probity` (see `meta/adr/ADR-0007-tdd-enforcement-probity.md`). This guideline applies regardless of whether that tool is adopted
 
 ### Running skills after the Green phase completes
 
 "Tests pass" does not necessarily mean "the feature works" (mocking gaps or coverage gaps in the tests can hide this). When the Green phase completes, do the following before moving to the next phase:
 
-1. Run the **`verify` skill** to actually exercise the feature and confirm it behaves as expected
+1. Run the **`run` skill** to actually launch the app and confirm the feature behaves as expected
 2. If the target is a UC critical flow (`docs/product/use-cases.md`) and includes UI changes, add Playwright E2E tests with **`/generate-e2e-test`**
 3. After Refactor completes, run **`/review`** before merging (see `.claude/rules/50-review.md`)
+   - The review-score auto-computed as Step 0 of `/review` (see `meta/adr/ADR-0009-review-escalation-mechanism.md`) automatically selects the normal or enhanced review level
 
 ## Naming Convention
 
@@ -96,6 +97,16 @@ test('example', function () {
 - [ ] Boundary values and edge cases
 - [ ] Side effects of delete and update operations
 
+## CRUD Coverage Rule When Adding a Data Model
+
+When a new data model (migration / Eloquent Model) is added, cover the create/edit/delete operations that **`docs/product/use-cases.md` defines as user-facing operations for that model** with Feature Tests (also cover list/detail retrieval if the UC includes them).
+
+- Scope is limited to "operations that use-cases.md actually defines as provided." Do not add unnecessary edit/delete functionality or tests **just to satisfy this rule** for models that have no such functionality defined — pivot tables only manipulated through a parent model, reference-only master data, log/audit tables, etc. (out-of-scope implementation is prohibited; see `.claude/rules/00-global.md`)
+- For each provided operation, prepare at least one test case per model (a single integration test covering a full flow is acceptable)
+- For operations involving authorization (Policy), verify both the "authorized" and "unauthorized" cases for each provided operation
+- Cross-check coverage against the model definitions in `docs/architecture/data-model.md` and the operation scope in `docs/product/use-cases.md` to confirm nothing is missed
+- Confirm this rule is satisfied when running `/review` (see `.claude/rules/50-review.md`)
+
 ## Commands
 
 ```bash
@@ -109,77 +120,4 @@ php artisan test tests/Feature/UserTest.php
 php artisan test --coverage
 ```
 
----
-
-## E2E Test (Playwright)
-
-> Related ADR: `docs/adr/ADR-0006-e2e-testing-playwright.md`
-
-### Scope
-
-- Cover **only the critical flows** documented in `docs/product/use-cases.md` (do not use Playwright for exhaustive coverage)
-- Examples: sign-up through login, the payment flow, screen-transition control by authorization role
-- Individual screen rendering and per-field validation are covered by (server-side) Feature Tests — do not duplicate them in Playwright
-
-### Layout & naming conventions
-
-| Item | Convention |
-|---|---|
-| Location | `tests/e2e/` |
-| File name | `{UC-number}-{flow-summary}.spec.ts` (e.g. `uc01-user-registration.spec.ts`) |
-| Test name | Written in English, based on the UC title in `use-cases.md` |
-
-```ts
-// tests/e2e/uc01-user-registration.spec.ts
-import { test, expect } from '@playwright/test';
-
-test('a user can create an account from the registration form', async ({ page }) => {
-  await page.goto('/register');
-  await page.getByLabel('Email').fill('test@example.com');
-  await page.getByLabel('Password').fill('password');
-  await page.getByRole('button', { name: 'Register' }).click();
-
-  await page.waitForURL('/dashboard');
-  await expect(page.getByText('Welcome')).toBeVisible();
-});
-```
-
-### Inertia.js-specific notes (when Vue/React + Inertia.js was selected in `docs/adr/ADR-0005-frontend-stack.md`)
-
-- Because Inertia transitions between pages without a full reload, asserting on an element immediately after `page.click()` can evaluate before rendering completes. **Always use `page.waitForURL()` after a transition, or rely on the destination element's visibility wait (`toBeVisible()`'s built-in auto-retry)**
-- Avoid direct DOM manipulation such as `document.querySelector` in test code too — use Playwright's role-based selectors (`getByRole` / `getByLabel`, etc.), consistent with the ban on direct DOM manipulation in `.claude/rules/15-frontend.md`
-- Validation error display depends on `useForm()`'s `errors`, so explicitly wait for the relevant message to appear after form submission
-- This section does not apply to non-Inertia stacks such as Blade / Livewire — use `page.waitForURL()` / a visibility wait as you would for an ordinary full-reload transition
-
-### Execution environment
-
-- The target app is a Laravel app started with `php artisan serve` (how the screen renders depends on the selected frontend stack — with Vue+Inertia, Vue is rendered via Inertia)
-- Configure `playwright.config.ts`'s `webServer` option to auto-start and wait for the Laravel server
-
-### Commands
-
-```bash
-# Initial setup
-npm install -D @playwright/test
-npx playwright install
-
-# Run all E2E tests
-npx playwright test
-
-# Run a specific file only
-npx playwright test tests/e2e/uc01-user-registration.spec.ts
-
-# Show the report from the most recent run (pass/fail list, screenshots, video)
-npx playwright show-report
-```
-
-### Visualizing results (optional, debugging only)
-
-**Regular runs (CI / day-to-day checks) always use the headless `npx playwright test` above** (fastest, no display).
-Only use the following individually when a human needs to visually investigate a failure.
-
-| Method | Command | Use |
-|---|---|---|
-| UI Mode | `npx playwright test --ui` | Step-by-step execution, rewinding the timeline for debugging (slower) |
-| HTML report | `npx playwright show-report` | View results, screenshots, and video after a headless run (no extra run needed) |
-| Trace Viewer | `npx playwright show-trace trace.zip` | Detailed investigation of a failure trace (network, DOM, action history) |
+> The E2E Test (Playwright) policy, layout conventions, and run commands live in `.claude/rules/31-e2e-testing.md` (only needed when running `/generate-e2e-test` — not part of the normal TDD cycle).

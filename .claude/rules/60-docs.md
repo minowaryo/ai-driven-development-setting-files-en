@@ -20,6 +20,11 @@
 | Frontend screen / component added | `docs/ai-context/module-map.md` |
 | State management (store for whichever stack was selected — Pinia, Vuex, Redux, etc.) added / changed | `docs/architecture/overview.md` |
 | Frontend technology decision (library change, etc.) | `docs/adr/ADR-XXXX-xxx.md` (create new) |
+| Business policy change for permissions / roles | `docs/product/org-permission-philosophy.md` + `docs/architecture/authz-authn.md` |
+| User-facing feature / usage change | `docs/product/user-guide.md` |
+| UAT scenario / result additions (optional) | `docs/product/uat-scenarios.md` / `docs/product/uat-results/` (see the UAT section in `.claude/rules/00-global.md`; non-blocking) |
+| Resolved a library/framework-specific pitfall | `docs/ai-context/known-pitfalls.md` (not loaded every time, so it doesn't need to be in the same PR as the code change — append whenever one is resolved) |
+| Gate condition / quality-gate process changes | `.claude/rules/00-global.md` (details table, absolute prohibitions) + `CLAUDE.md` (Step procedures) + `AGENTS.md` (for Codex — Gate definitions are duplicated there, so all 3 files need to stay in sync) |
 
 ## Documentation Update Principles
 

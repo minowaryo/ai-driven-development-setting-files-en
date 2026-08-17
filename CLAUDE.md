@@ -19,7 +19,7 @@ AI cannot provide accurate assistance until these files are filled in.
 
 **1a. Frontend stack selection**
 
-- Review the selection criteria and comparison table in `docs/adr/ADR-0005-frontend-stack.md` and decide this project's frontend stack
+- Review the selection criteria and comparison table in `meta/adr/ADR-0005-frontend-stack.md` and decide this project's frontend stack
 - Record the selection with the `/adr` command as `docs/adr/ADR-XXXX-frontend-stack-selection.md` (if you choose anything other than the default recommendation — Vue 3 + Inertia.js + Pinia — or are torn between candidates, document the reasoning and the rejected options)
 
 **1b. Reflect the confirmed selection into the rule file**
@@ -96,14 +96,18 @@ Red → [Gate 4: test case approval ★ implementation (Green) prohibited until 
 | Requirements / UC reference | `docs/product/requirements.md` + `docs/product/use-cases.md` |
 | Code implementation (feature development) | `docs/product/use-cases.md` + `docs/architecture/data-model.md` + `docs/product/mockups/` |
 | UI implementation / mock-based development | `docs/product/ui-guidelines.md` + `docs/product/mockups/` |
-| Frontend component changes | `.claude/rules/15-frontend.md` (implementation rules for the selected frontend stack — see `docs/adr/ADR-0005-frontend-stack.md`) |
-| Auth / authorization changes | `docs/architecture/authz-authn.md` |
+| Frontend component changes | `.claude/rules/15-frontend.md` (implementation rules for the selected frontend stack — see `meta/adr/ADR-0005-frontend-stack.md`) |
+| Auth / authorization changes | `docs/architecture/authz-authn.md` + `docs/product/org-permission-philosophy.md` (business-side permission philosophy) |
 | DB schema changes | `docs/architecture/data-model.md` + `docs/adr/` |
 | Architecture / core design changes | `docs/adr/` |
 | Adding / modifying tests | `docs/development/testing-strategy.md` + `docs/product/use-cases.md` + `docs/architecture/data-model.md` |
 | Security-related changes | `docs/security/secrets-handling.md` |
+| Creating credentials / API keys, etc. | `docs/credentials/` (follow the handling rules in `.claude/rules/40-security.md`) |
 | Release / deployment | `docs/operations/deployment.md` |
 | Change request (CR) | `docs/rcid/traceability-matrix.md` |
+| User-facing feature / usage change | `docs/product/user-guide.md` |
+| Performing UAT (acceptance testing, optional) | `docs/product/uat-scenarios.md` + `docs/product/uat-results/` (see the UAT section in `.claude/rules/00-global.md`; non-blocking) |
+| Hit an error or library-specific snag | `docs/ai-context/known-pitfalls.md` (check first for a known issue, and append once resolved) |
 
 ## Global rules
 
@@ -125,9 +129,10 @@ See `.claude/rules/` for detailed rules:
 
 - `.claude/rules/00-global.md` - Global policy, development flow, quality gates
 - `.claude/rules/10-laravel.md` - Laravel-specific rules
-- `.claude/rules/15-frontend.md` - Frontend-specific rules (content is rewritten per project based on the selection in `docs/adr/ADR-0005-frontend-stack.md`; default content is Vue.js + Inertia.js)
+- `.claude/rules/15-frontend.md` - Frontend-specific rules (content is rewritten per project based on the selection in `meta/adr/ADR-0005-frontend-stack.md`; default content is Vue.js + Inertia.js)
 - `.claude/rules/20-mysql.md` - MySQL-specific rules
-- `.claude/rules/30-testing.md` - Test strategy
+- `.claude/rules/30-testing.md` - Test strategy (Feature/Unit, TDD)
+- `.claude/rules/31-e2e-testing.md` - E2E test strategy (Playwright; only read when running `/generate-e2e-test`)
 - `.claude/rules/40-security.md` - Security
 - `.claude/rules/50-review.md` - Review guidelines
 - `.claude/rules/60-docs.md` - Documentation update rules

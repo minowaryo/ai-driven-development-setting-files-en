@@ -6,7 +6,7 @@ Check whether the following are filled in. If not, stop work and notify the user
 
 - [ ] Is `docs/ai-context/project-summary.md` filled in?
 - [ ] Is `docs/ai-context/glossary.md` filled in?
-- [ ] Does an ADR for the frontend stack selection exist under `docs/adr/` (has the selection process in `docs/adr/ADR-0005-frontend-stack.md` been completed)?
+- [ ] Does an ADR for the frontend stack selection exist under `docs/adr/` (has the selection process in `meta/adr/ADR-0005-frontend-stack.md` been completed)?
 - [ ] What is the approval status of `docs/product/use-cases.md`?
 
 ---
@@ -28,31 +28,19 @@ Explore → Plan → Implement → Test
 
 ## AI Development Pipeline
 
-```
-[Gate 0] docs/ai-context/ filled in
-    ↓
-[Gate 1] docs/product/requirements.md — reviewer approved
-    ↓  AI may draft use-cases.md
-use-cases.md created (AI draft → human revision)
-    ↓  AI may generate mockups (/generate-mock)
-Mockup creation, business review (docs/product/mockups/)
-    ↓  Incorporate mockup feedback into use-cases.md
-[Gate 2] docs/product/use-cases.md — final reviewer approval ★
-    ↓  AI may draft acceptance-criteria.md / data-model.md
-[Gate 3] docs/architecture/data-model.md — reviewer approved
-    ↓
-AI test case generation (Red — `/tdd` command, test-writer sub-agent)
-    ↓
-[Gate 4] Test case approval — reviewer confirms the failing test content ★
-    ↓  Implementation (Green) may not start until this gate is passed
-AI implementation code generation (Green — tdd-implementer sub-agent) → verify check → (if UI changed) add E2E tests
-    ↓
-Refactor (clean up while keeping tests Green)
-    ↓
-Human review and merge (`/review`)
-```
+> For the full pipeline diagram (document creation → Gate approval → TDD implementation), see `CLAUDE.md` Step 1-4 (do not duplicate the diagram in this file — if the diagram changes, update it only in `CLAUDE.md`).
+> See the "Quality Gate Details" table below for the condition and unlocks of each Gate 0-4.
+> See `.claude/rules/30-testing.md` for the detailed steps of each phase and when to run each skill.
+> See the next section for where UAT (optional, non-blocking) fits in.
 
-> See `.claude/rules/30-testing.md` for the detailed steps of each phase and when to run each skill. This diagram is only for understanding overall positioning.
+---
+
+## UAT (Acceptance Testing, Optional)
+
+- `docs/product/uat-scenarios.md` may be drafted by AI after merging
+- Real-device verification and final confirmation are done by a human (reviewer / business side), who records the results in `docs/product/uat-results/` (this final confirmation itself is required work, but it is not treated as a Gate)
+- **UAT belongs to none of Gates 0-4** and does not block the Gate 0-4 pipeline or TDD cycle of other features/UCs
+- Non-completion or non-approval of UAT is never a reason to halt subsequent development work (implementing another feature, starting the next TDD cycle, etc.)
 
 ---
 

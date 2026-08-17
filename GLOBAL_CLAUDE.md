@@ -1,5 +1,8 @@
 # Global Claude Code Memory
 
+> This file is a template for `~/.claude/CLAUDE.md` (user global settings).
+> Copy it into your own environment. Do not include project-specific information — only general rules.
+
 ## Language & Style Settings
 - Respond in English
 - Code comments in English, explanations in English
