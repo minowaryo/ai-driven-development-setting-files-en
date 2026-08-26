@@ -49,6 +49,24 @@ Unlike `docs/original-docs/` (reference-only, editing prohibited), `docs/credent
 - Operation type and timestamp
 - Error type and stack trace (minimal in production)
 
+### Audit Log Channel
+
+Audit entries for privileged or destructive operations go to a **dedicated `audit` channel**, not the default application log.
+
+- Define an `audit` channel in `config/logging.php` (`storage/logs/audit.log`, daily rotation, retention driven by a `LOG_AUDIT_DAYS` env var — add the key to `.env.example`)
+- Pin the channel's `level` to `info` **independently of `LOG_LEVEL`**, so raising the application log level in production can never silence the audit trail
+- Always write entries with this fixed minimal schema — no free-form message shapes, so the log stays machine-parsable:
+
+| Field | Content |
+|---|---|
+| `action` | Operation name (e.g. `employee.deleted`) |
+| `actor_id` | ID of the acting user (ID only — never name or email) |
+| `subject_type` | Class / table name of the target record |
+| `subject_id` | ID of the target record |
+
+- Never put PII (name, email, address, etc.) or the changed values themselves into an audit entry — `subject_type` + `subject_id` is enough to identify the record
+- The actor stamp columns on the record (see `.claude/rules/10-laravel.md`) and this channel are complementary: the columns hold the latest state, the channel holds the history
+
 ## Dependency Packages
 
 - Run `composer audit` regularly to check for vulnerabilities

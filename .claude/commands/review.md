@@ -38,6 +38,7 @@ Recently changed files (or specified files)
 - [ ] Is validation appropriate?
 - [ ] Are secrets or PII included in the code?
 - [ ] Is personal information being output in logs?
+- [ ] Are privileged / destructive operations recorded on the `audit` channel with the fixed minimal schema (`.claude/rules/40-security.md`)?
 
 ### Tests (see `.claude/rules/30-testing.md`)
 - [ ] Is a Feature Test added?

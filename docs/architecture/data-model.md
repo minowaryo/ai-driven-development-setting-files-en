@@ -51,6 +51,7 @@
 - Primary keys use `bigint` (auto increment)
 - Timestamps use `timestamp` (character set is utf8mb4)
 - Tables requiring soft deletion include `deleted_at`
+- Tables that need an audit trail include `created_by` / `updated_by` / `deleted_by` (nullable FK → `users(id)`, opt-in per table — see `.claude/rules/10-laravel.md`)
 - Monetary values use `decimal(15, 2)` (float is prohibited)
 - Always create an index on foreign keys
 

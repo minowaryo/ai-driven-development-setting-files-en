@@ -47,6 +47,7 @@ Check these yourself before opening a PR:
 - [ ] Is there an authorization check?
 - [ ] Are secrets included?
 - [ ] Is PII appearing in logs?
+- [ ] Are privileged / destructive operations recorded on the `audit` channel with the fixed minimal schema (`.claude/rules/40-security.md`)?
 
 ### Tests
 - [ ] Do the tests cover happy path and error cases?

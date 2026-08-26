@@ -22,6 +22,7 @@
 ### Security
 - [ ] Are secrets or API keys included in the code?
 - [ ] Is PII being output in logs?
+- [ ] Are privileged / destructive operations (delete, permission change, etc.) recorded on the `audit` channel?
 - [ ] Is validation appropriate (using FormRequest)?
 
 ### Tests

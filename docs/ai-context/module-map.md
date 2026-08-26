@@ -10,6 +10,7 @@
 | `app/Services/` | Business logic | One class, one responsibility |
 | `app/Actions/` | Single-operation actions | Aggregate in `execute()` method |
 | `app/Models/` | Eloquent models and relationships | Do not write business logic here |
+| `app/Concerns/` | Traits shared across Models (e.g. actor stamps) | Opt-in per model — do not apply globally |
 | `app/Policies/` | Authorization rules | Always call via Gate |
 | `app/Events/` | Domain events | Use past-tense names |
 | `app/Listeners/` | Event handlers | Offload heavy processing to Queue |
