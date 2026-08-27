@@ -52,7 +52,7 @@ At project kickoff, check the following against the comparison table and select 
 
 ### Selection process
 
-The selection is carried out as a required step of Gate 0 (`CLAUDE.md`'s Gate 0 Step 1a/1b/1c). Summary:
+The selection is carried out as a required step of Gate 0 (`SETUP.md`'s Gate 0 Step 1a/1b/1c). Summary:
 
 1. **Select**: decide the frontend technology based on the selection criteria above, and record it with the `/adr` command as
    `docs/adr/ADR-XXXX-frontend-stack-selection.md`
@@ -62,7 +62,7 @@ The selection is carried out as a required step of Gate 0 (`CLAUDE.md`'s Gate 0 
 3. **Reflect into ai-context**: reflect the selection in the tech-stack table of `docs/ai-context/project-summary.md`
    and the Frontend section of `docs/ai-context/module-map.md`
 
-See `CLAUDE.md`'s Gate 0 Step 1 for the detailed procedure.
+See `SETUP.md`'s Gate 0 Step 1 for the detailed procedure.
 
 ## Rationale (default recommendation: Vue 3 + Inertia.js + Pinia)
 

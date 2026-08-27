@@ -1,3 +1,6 @@
 # Local development credentials (see docs/credentials/README.md and .claude/rules/40-security.md)
 docs/credentials/*
 !docs/credentials/README.md
+
+# Local Claude Code settings (personal, machine-specific — never share team-wide permissions here)
+.claude/settings.local.json

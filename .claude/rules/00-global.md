@@ -28,7 +28,7 @@ Explore → Plan → Implement → Test
 
 ## AI Development Pipeline
 
-> For the full pipeline diagram (document creation → Gate approval → TDD implementation), see `CLAUDE.md` Step 1-4 (do not duplicate the diagram in this file — if the diagram changes, update it only in `CLAUDE.md`).
+> For the full pipeline diagram (document creation → Gate approval → TDD implementation), see `SETUP.md` Step 1-4 (do not duplicate the diagram in this file — if the diagram changes, update it only in `SETUP.md`).
 > See the "Quality Gate Details" table below for the condition and unlocks of each Gate 0-4.
 > See `.claude/rules/30-testing.md` for the detailed steps of each phase and when to run each skill.
 > See the next section for where UAT (optional, non-blocking) fits in.

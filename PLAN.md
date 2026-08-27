@@ -1,5 +1,22 @@
 # PLAN.md
 
+## Split one-time Gate 0 setup steps out of CLAUDE.md into SETUP.md (2026-08-27)
+
+### Decision
+
+- `CLAUDE.md`'s "Required Steps Before Starting the Project (Gate 0)" section (Steps 1-4: frontend stack selection, ai-context fill-in, requirements docs, architecture design, TDD pipeline diagram) was moved verbatim into a new top-level `SETUP.md`, read once at project kickoff. `CLAUDE.md` now only keeps a short pointer to it plus the steady-state per-session rules (Read first / Read when relevant / Global rules / Detailed rules), which are read every session.
+- Rationale: ~50 of `CLAUDE.md`'s ~140 lines were one-time kickoff instructions that every session's context was paying for regardless of relevance. Splitting them out reduces per-session context load without losing any content.
+- Cross-references to `CLAUDE.md`'s Step 1-4 procedure were repointed to `SETUP.md` in `.claude/rules/00-global.md`, `.claude/rules/60-docs.md`, `meta/adr/ADR-0005-frontend-stack.md`, and `README.md`. `AGENTS.md` was left unchanged — it never duplicated the Step 1-4 procedure, only the Gate summary table, which still applies.
+- Old `PLAN.md` entries below that reference "`CLAUDE.md` Step 1a/3" etc. describe the file layout as of when they were written and were left as-is (historical record, not rewritten).
+
+### Files touched
+
+`SETUP.md` (new), `CLAUDE.md`, `.claude/rules/00-global.md`, `.claude/rules/60-docs.md`, `meta/adr/ADR-0005-frontend-stack.md`, `README.md`.
+
+### Status
+
+Completed. No open follow-ups.
+
 ## Separate template/harness ADRs from project ADRs (2026-08-17)
 
 ### Decision
