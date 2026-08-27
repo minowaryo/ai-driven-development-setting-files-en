@@ -68,7 +68,7 @@ Explore → Plan → Implement → Test
 - Implementation without tests (always add regression tests for bug fixes)
 - Editing out-of-scope files
 - Including secrets or production credentials in prompts
-- Editing, deleting, or creating files in `docs/original-docs/` (reference only)
+- Editing, deleting, or creating files in `docs/original-docs/` (reference only), except editing its own `README.md`
 
 ---
 

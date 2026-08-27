@@ -35,9 +35,10 @@
 
 | Target | Reason |
 |---|---|
-| Everything under `docs/original-docs/` | Primary source materials brought in by humans. AI must not edit, delete, or move these files. |
+| Everything under `docs/original-docs/`, except its own `README.md` | Primary source materials brought in by humans. AI must not edit, delete, or move these files. |
 
 * Reading (loading) is permitted. Modifying, creating, and deleting are not.
+* Exception: `docs/original-docs/README.md` itself (the directory's own index/operation-notes file, not a source material) may be edited by AI — see its own "Notes for AI" section.
 
 ---
 

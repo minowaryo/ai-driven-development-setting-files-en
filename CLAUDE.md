@@ -52,7 +52,7 @@ at project kickoff — it is not part of the steady-state per-session reading li
 - Always read `docs/ai-context/` at the start of a session
 - **Do not generate code until Gate 2 (use-cases.md approval) is complete**
 - **Do not start implementation (Green phase) until Gate 4 (test case approval) is complete** (`.claude/rules/30-testing.md`)
-- `docs/original-docs/` is read-only (editing, deleting, and creating files prohibited)
+- `docs/original-docs/` is read-only (editing, deleting, and creating files prohibited), except its own `README.md`, which AI may edit
 - Review documentation before touching code
 - Always check `docs/adr/` before making large-scale changes
 - Authorization must always go through Policy / Gate (bypassing is prohibited)

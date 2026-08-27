@@ -54,7 +54,7 @@ Laravel + MySQL web application
 - Do not introduce schema-breaking migration without a migration plan
 - Do not bypass authorization layer (Policy / Gate)
 - Do not edit unrelated files
-- `docs/original-docs/` is read-only — never edit, delete, or create files in it
+- `docs/original-docs/` is read-only — never edit, delete, or create files in it, except its own `README.md`
 - Test case names must be derived from use-cases.md UC titles
 - Follow Red → Gate 4 approval → Green → Refactor for new features, not just bug fixes (`.claude/rules/30-testing.md`)
 
@@ -74,4 +74,4 @@ For every non-trivial change:
 - Bypassing Gate / Policy for authorization
 - Schema-breaking migrations without migration plan
 - Force-pushing to main/master
-- Editing, deleting, or creating files under `docs/original-docs/`
+- Editing, deleting, or creating files under `docs/original-docs/` (except its own `README.md`)
