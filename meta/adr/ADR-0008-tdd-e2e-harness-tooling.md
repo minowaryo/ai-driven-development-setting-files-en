@@ -41,7 +41,7 @@ Add `@playwright/mcp` so Claude Code can actually drive a browser against the lo
 - **Caveat (limitation)**: a sub-agent's `tools` frontmatter can restrict tool *types* (Read/Write/Bash, etc.) but **cannot restrict by file path** (e.g. "no writes under `app/`"). So this is not a hard enforcement mechanism — it's an aid for reinforcing prompt discipline. When true mechanical enforcement is needed, consider adopting Probity per [[ADR-0007-tdd-enforcement-probity]]
 
 ### Why slash commands
-- Matching the format of the existing `/adr`, `/review`, and `/generate-mock` commands keeps AI tool usage patterns consistent, in line with the philosophy in `docs/ai-context/prompt-patterns.md`
+- Matching the format of the existing `/adr`, `/review`, and `/generate-mock` commands keeps AI tool usage patterns consistent — packaging repeatable AI workflows as commands rather than ad-hoc prompts
 
 ## Consequences
 

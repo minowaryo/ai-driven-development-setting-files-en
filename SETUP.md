@@ -36,7 +36,6 @@ AI cannot provide accurate assistance until these files are filled in.
 | `docs/ai-context/module-map.md` | Directory structure and module responsibilities | Required |
 | `docs/ai-context/do-not-touch.md` | Areas and files AI must not modify | Required |
 | `docs/ai-context/common-commands.md` | Frequently used commands (migrate / test / lint, etc.) | Recommended |
-| `docs/ai-context/prompt-patterns.md` | Standard prompt templates | Optional |
 
 ### Step 2 — Create requirements documents
 

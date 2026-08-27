@@ -72,8 +72,7 @@ Template's Own Layer        → meta/adr/ (outside the project's own decision-ma
     │   ├── module-map.md              # Directory responsibility map
     │   ├── common-commands.md         # Frequently used commands
     │   ├── glossary.md                # Terminology glossary
-    │   ├── do-not-touch.md            # Areas AI must not modify
-    │   └── prompt-patterns.md         # Standard prompt templates
+    │   └── do-not-touch.md            # Areas AI must not modify
     ├── original-docs/                 # Primary source materials (human-provided, AI editing prohibited — reference only)
     │   └── README.md                  # File list and notes
     ├── product/                       # Business requirements and UI design

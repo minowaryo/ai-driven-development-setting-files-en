@@ -35,10 +35,6 @@
 
 See `.claude/rules/30-testing.md` for the sub-agent setup, when to run each skill, and how to decide on adopting `@nizos/probity`.
 
-### Effective Prompts
-
-See `docs/ai-context/prompt-patterns.md`.
-
 ### Context to Load for Claude Code
 
 **Every time (required):**
