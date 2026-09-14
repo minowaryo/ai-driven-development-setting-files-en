@@ -6,6 +6,13 @@
 # Deterministic: pure git + awk, no AI calls. A single awk pass over the Controllers
 # in scope, so cost stays flat as a project grows.
 #
+# Reports three things:
+#   - violations  : db-access / eloquent-write / role-check, per line
+#   - priority    : files that write data, guard it with hand-written role checks, and
+#                   never call a Policy — read these first; a *missing* object-level
+#                   check cannot be pattern-matched, but this says where to look
+#   - heuristic   : methods carrying many branches, i.e. possibly deciding in the Controller
+#
 # Usage:
 #   bash .claude/hooks/domain-boundary-check.sh             # Controllers changed on this branch
 #   bash .claude/hooks/domain-boundary-check.sh --audit-all # every tracked Controller
@@ -102,6 +109,7 @@ if [ ${#FILES[@]} -eq 0 ]; then
   echo "  (If this project keeps Controllers outside '${CONTROLLER_PATHS[*]}', add the path to CONTROLLER_PATHS in this script.)"
   echo "VIOLATIONS=0"
   echo "HEURISTICS=0"
+  echo "PRIORITY=0"
   exit 0
 fi
 
@@ -136,6 +144,7 @@ REPORT=$(printf '%s\n' "${FILES[@]}" | awk \
     header_printed = 0
     lineno = 0
     cur_method = ""; cur_branches = 0; peak_branches = 0; peak_method = ""
+    n_authz = 0; n_role = 0; n_write = 0
 
     while ((rc = (getline line < filename)) > 0) {
       lineno++
@@ -159,30 +168,32 @@ REPORT=$(printf '%s\n' "${FILES[@]}" | awk \
         cur_branches += gsub(/&&|\|\|/, "", t)
       }
 
+      # Blank out the two sanctioned shapes before testing, so that a write call
+      # merely *sharing a line* with them is still caught. (A line-wide "contains
+      # $this->" exclusion would let `$order->update([... $this->foo])` through.)
+      probe = line
+      gsub(/\$this->[A-Za-z_][A-Za-z0-9_]*(\([^)]*\))?/, "@SELF@", probe)
+      gsub(/(Storage|Cache|Session|Cookie|Log|Config|Redis|Mail|Queue|Bus|Event|Http|File|Artisan)::[A-Za-z_][A-Za-z0-9_]*(\([^)]*\))?(->[A-Za-z_][A-Za-z0-9_]*(\([^)]*\))?)*/, "@FACADE@", probe)
+
+      is_db    = (probe ~ /(^|[^[:alnum:]_>$])DB::/ || probe ~ /app\([[:space:]]*['"'"'"]db['"'"'"]/)
+      is_write = (probe ~ ("\\$[A-Za-z_][A-Za-z0-9_]*(\\([^)]*\\))?(->[A-Za-z_][A-Za-z0-9_]*(\\([^)]*\\))?)*->" WRITES "[[:space:]]*\\(") || \
+                  probe ~ ("[A-Z][A-Za-z0-9_]*::" WRITES "[[:space:]]*\\("))
+      is_role  = (line ~ /->role[[:space:]]*(===|!==|==|!=)/ || \
+                  line ~ /->(is_admin|isAdmin|hasRole|hasAnyRole|hasPermission)/ || \
+                  line ~ /in_array\([[:space:]]*\$[A-Za-z_][A-Za-z0-9_]*->role/)
+
+      # Per-file tallies for the priority signal below. Counted independently of the
+      # rule-group toggles and of which category wins for this line.
+      if (line ~ /\$this->authorize\(|Gate::|authorizeResource\(/) n_authz++
+      if (is_db || is_write) n_write++
+      if (is_role) n_role++
+
       hit = ""
       if (check_persistence == 1) {
-        # Blank out the two sanctioned shapes before testing, so that a write call
-        # merely *sharing a line* with them is still caught. (A line-wide "contains
-        # $this->" exclusion would let `$order->update([... $this->foo])` through.)
-        probe = line
-        gsub(/\$this->[A-Za-z_][A-Za-z0-9_]*(\([^)]*\))?/, "@SELF@", probe)
-        gsub(/(Storage|Cache|Session|Cookie|Log|Config|Redis|Mail|Queue|Bus|Event|Http|File|Artisan)::[A-Za-z_][A-Za-z0-9_]*(\([^)]*\))?(->[A-Za-z_][A-Za-z0-9_]*(\([^)]*\))?)*/, "@FACADE@", probe)
-
-        if (probe ~ /(^|[^[:alnum:]_>$])DB::/ || probe ~ /app\([[:space:]]*['"'"'"]db['"'"'"]/) {
-          hit = "db-access"
-        }
-        else if (probe ~ ("\\$[A-Za-z_][A-Za-z0-9_]*(\\([^)]*\\))?(->[A-Za-z_][A-Za-z0-9_]*(\\([^)]*\\))?)*->" WRITES "[[:space:]]*\\(") || \
-                 probe ~ ("[A-Z][A-Za-z0-9_]*::" WRITES "[[:space:]]*\\(")) {
-          hit = "eloquent-write"
-        }
+        if (is_db)         hit = "db-access"
+        else if (is_write) hit = "eloquent-write"
       }
-      if (hit == "" && check_role == 1) {
-        if (line ~ /->role[[:space:]]*(===|!==|==|!=)/ || \
-            line ~ /->(is_admin|isAdmin|hasRole|hasAnyRole|hasPermission)/ || \
-            line ~ /in_array\([[:space:]]*\$[A-Za-z_][A-Za-z0-9_]*->role/) {
-          hit = "role-check"
-        }
-      }
+      if (hit == "" && check_role == 1 && is_role) hit = "role-check"
       if (hit != "") report(hit, line)
     }
     close(filename)
@@ -190,6 +201,17 @@ REPORT=$(printf '%s\n' "${FILES[@]}" | awk \
     # getline returns -1 when the file cannot be read; report it instead of counting
     # an unreadable file as clean.
     if (rc < 0) printf "  ! could not read %s — not checked\n", filename
+
+    # Priority signal: this file mutates data, guards it with hand-written role
+    # checks, and never involves a Policy. That combination is where a missing
+    # object-level check hides — the script cannot see an *absent* check, but it can
+    # say which file to read first. Found a real IDOR on the one production codebase
+    # this was tested against (see ADR-0010).
+    if (n_write > 0 && n_role > 0 && n_authz == 0) {
+      priority++
+      priority_report = priority_report sprintf("    %s\n      %d write(s) + %d inline role check(s), and no authorize()/Gate call anywhere in the file\n", \
+                        filename, n_write, n_role)
+    }
 
     flush_method()
     if (check_density == 1 && peak_branches > density_threshold) {
@@ -203,31 +225,39 @@ REPORT=$(printf '%s\n' "${FILES[@]}" | awk \
     if (suppressed > 0)
       printf "\n  ... %d further violation(s) not listed (cap: %d per category per file, %d total)\n", \
              suppressed, max_per_file, max_total
+    if (priority > 0) {
+      printf "\n  READ THESE FIRST — writes guarded only by hand-written role checks:\n"
+      printf "%s", priority_report
+    }
     if (dense > 0) {
       printf "\n  Heuristic — a single method carries many branches (business decisions may live in the Controller):\n"
       printf "%s", dense_report
     }
     printf "VIOLATIONS=%d\n", violations + 0
     printf "HEURISTICS=%d\n", dense + 0
+    printf "PRIORITY=%d\n", priority + 0
   }
 ')
 
 VIOLATIONS=$(printf '%s\n' "$REPORT" | sed -n 's/^VIOLATIONS=//p')
 HEURISTICS=$(printf '%s\n' "$REPORT" | sed -n 's/^HEURISTICS=//p')
+PRIORITY=$(printf '%s\n' "$REPORT" | sed -n 's/^PRIORITY=//p')
 VIOLATIONS=${VIOLATIONS:-0}
 HEURISTICS=${HEURISTICS:-0}
-BODY=$(printf '%s\n' "$REPORT" | grep -vE '^(VIOLATIONS|HEURISTICS)=' || true)
+PRIORITY=${PRIORITY:-0}
+BODY=$(printf '%s\n' "$REPORT" | grep -vE '^(VIOLATIONS|HEURISTICS|PRIORITY)=' || true)
 
 if [ "$STATS_ONLY" -eq 1 ]; then
   echo "  Violations         : $VIOLATIONS"
   echo "  Heuristic warnings : $HEURISTICS"
+  echo "  Priority files     : $PRIORITY"
 else
   [ -n "$BODY" ] && printf '%s\n' "$BODY"
   echo
-  if [ "$VIOLATIONS" -eq 0 ] && [ "$HEURISTICS" -eq 0 ]; then
+  if [ "$VIOLATIONS" -eq 0 ] && [ "$HEURISTICS" -eq 0 ] && [ "$PRIORITY" -eq 0 ]; then
     echo "  >> No Domain Boundary violations detected in scope."
   else
-    echo "  >> $VIOLATIONS violation(s), $HEURISTICS heuristic warning(s)."
+    echo "  >> $VIOLATIONS violation(s), $HEURISTICS heuristic warning(s), $PRIORITY priority file(s)."
     echo "  >> These are pattern matches, not verdicts — confirm each against .claude/rules/10-laravel.md."
     echo "  >> This check cannot see business decisions written in plain PHP (see ADR-0010 limitations)."
   fi

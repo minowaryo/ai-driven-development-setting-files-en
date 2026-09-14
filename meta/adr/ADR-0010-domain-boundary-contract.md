@@ -65,6 +65,27 @@ It reports `db-access`, `eloquent-write`, and `role-check` findings, plus a per-
 branch-density heuristic. It exits 1 when it finds something so a project may gate CI or a
 pre-commit hook on it; `/review` treats the output as review material rather than a failure.
 
+### 3. Rank files, not just lines — the priority signal
+
+A flat list of line-level findings tells a reviewer that something is wrong but not where to
+start, and on a brownfield codebase the list is long. The script therefore also reports, per
+file, the combination **writes present + inline role checks present + no `authorize()` /
+`Gate` call anywhere in the file**. That is the shape in which a missing object-level
+authorization check hides: the file guards data mutation entirely by hand, with no Policy
+involved.
+
+This signal was not designed up front — it was derived from the validation run. Reading one
+flagged Controller on the real project uncovered a genuine IDOR: two nested routes bound
+`{mentoringSession}` and `{sessionLog}` independently (the project uses `scopeBindings()`
+nowhere), while the hand-written guard only checked the actor against the *parent* session,
+never that the log belonged to it — so a legitimate mentor of one session could edit or
+delete another session's logs. The combination above is what isolated that file, and on the
+same codebase it narrows **102 line findings across 21 Controllers down to 1 file**, which is
+the file that actually contained the defect.
+
+The script still cannot see the bug itself — an *absent* check matches no pattern. It can
+only say which file to read first, which is the honest limit of what pattern matching buys.
+
 ## Rationale
 
 - The enumerated contract costs nothing at runtime and nothing to maintain, and it reaches
@@ -110,8 +131,10 @@ pre-commit hook on it; `/review` treats the output as review material rather tha
 ### Benefits
 
 - The prohibition becomes checkable by the AI, by the script, and by a human reviewer.
-- `--stats` yields a trendable number (findings, heuristic warnings), which is the only
-  quantitative read on whether the boundary is holding.
+- The priority signal turns a long flat finding list into a short "read these first" list,
+  which is what makes the check usable on an existing codebase rather than only a new one.
+- `--stats` yields trendable numbers (findings, heuristic warnings, priority files), which is
+  the only quantitative read on whether the boundary is holding.
 - Adoption requires no new command: `/review` Step 0 already exists.
 
 ### Drawbacks / Risks — known limitations

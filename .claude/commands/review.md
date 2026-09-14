@@ -25,6 +25,7 @@ bash .claude/hooks/domain-boundary-check.sh
 > Related ADR: `meta/adr/ADR-0010-domain-boundary-contract.md`
 
 - Exit 1 means "findings to look at", not "the check failed" — carry the findings into the checklist below
+- **Start with the `READ THESE FIRST` section.** Those files mutate data, guard it only with hand-written role checks, and never call a Policy — the shape in which a missing object-level authorization check hides. Read each one and verify that every write is authorized *for the specific record being written*, including that a nested child actually belongs to its parent
 - Each line is a **pattern match, not a verdict**: confirm it against the Domain Boundary contract in `.claude/rules/10-laravel.md` before reporting it
 - `db-access` / `eloquent-write` / `role-check` are violations of that contract; the branch-density entries are a heuristic pointing at methods that may be making business decisions in the Controller
 - The check cannot see a cross-entity decision written in plain PHP (no distinctive tokens), so a clean run is not proof — still review for that by reading
