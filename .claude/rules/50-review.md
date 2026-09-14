@@ -34,7 +34,7 @@ Check these yourself before opening a PR:
 ### Features & Design
 - [ ] Does the implementation match the requirements (use-cases.md)?
 - [ ] Does it follow existing design patterns?
-- [ ] Is the Controller too fat (Fat Controller)?
+- [ ] Does every Controller satisfy the Domain Boundary contract in `.claude/rules/10-laravel.md` (no `DB::`, no Eloquent writes, no inline role checks, no decision spanning more than one entity)? `/review` Step 0 runs `.claude/hooks/domain-boundary-check.sh` to flag the mechanically detectable half — a clean run is not proof, since a cross-entity decision in plain PHP is invisible to it
 - [ ] Is authorization going through Policy / Gate?
 
 ### DB & Performance

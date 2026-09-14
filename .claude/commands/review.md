@@ -16,6 +16,19 @@ bash .claude/hooks/review-score.sh
 - If the output ends with `RECOMMENDATION=enhanced` → review at the enhanced level. In addition to the checklist below, add an adversarial re-check pass: revisit each finding (HIGH/MEDIUM) skeptically and ask "is this really a risk? am I missing an assumption?"
 - If `review-score.sh` fails, or in an environment where the `main` branch doesn't exist, treat it as the normal level
 
+Then run the Domain Boundary check as a **separate command** (it exits 1 when it finds something, so chaining it with `&&` would look like a failure):
+
+```bash
+bash .claude/hooks/domain-boundary-check.sh
+```
+
+> Related ADR: `meta/adr/ADR-0010-domain-boundary-contract.md`
+
+- Exit 1 means "findings to look at", not "the check failed" — carry the findings into the checklist below
+- Each line is a **pattern match, not a verdict**: confirm it against the Domain Boundary contract in `.claude/rules/10-laravel.md` before reporting it
+- `db-access` / `eloquent-write` / `role-check` are violations of that contract; the branch-density entries are a heuristic pointing at methods that may be making business decisions in the Controller
+- The check cannot see a cross-entity decision written in plain PHP (no distinctive tokens), so a clean run is not proof — still review for that by reading
+
 ## Files to Read Before Reviewing
 
 - `docs/product/use-cases.md` — to verify that the implementation matches the requirements
@@ -30,7 +43,8 @@ Recently changed files (or specified files)
 
 ### Features & Design
 - [ ] Does the implementation match the requirements in `docs/product/use-cases.md`?
-- [ ] Is the Controller too fat (Fat Controller)?
+- [ ] Does every Controller satisfy the Domain Boundary contract in `.claude/rules/10-laravel.md` (no `DB::`, no Eloquent writes, no inline role checks, no decision spanning more than one entity)?
+- [ ] Were the findings from `domain-boundary-check.sh` each confirmed or dismissed with a reason?
 - [ ] Is authorization going through Policy / Gate?
 - [ ] Are there any N+1 queries?
 
