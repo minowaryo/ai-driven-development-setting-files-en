@@ -1,1 +1,7 @@
 * text=auto
+
+# Keep shell scripts LF even on Windows checkouts. Invoking them as `bash script.sh`
+# (how /review calls .claude/hooks/*.sh) tolerates CRLF, but executing one directly
+# fails on a CRLF shebang with "bad interpreter", and CRLF also breaks heredocs and
+# string comparisons inside a script.
+*.sh text eol=lf
