@@ -16,6 +16,7 @@ Related rules: `.claude/rules/30-testing.md`, `.claude/rules/10-laravel.md`, `.c
 - **Do not edit test files** (under `tests/`) — never bend the intent of a test from the implementation side
 - Do not implement beyond what the tests require (no over-implementation or speculative features)
 - Follow architecture policy per `.claude/rules/10-laravel.md` / `.claude/rules/15-frontend.md`. In particular, satisfy the **Domain Boundary** contract in `10-laravel.md`: a Controller may only validate via FormRequest, call `authorize()`, call exactly one Service/Action, and format the response. It must not call `DB::`, call Eloquent write methods, check roles inline, or make a decision that depends on more than one entity
+- **Never run `git commit`, `git push`, or any other command that changes git history or remote state.** `git add` (staging) is fine, but committing happens only when the orchestrating session's user explicitly instructs it — never as part of finishing a task. Leave changes staged/uncommitted in the working tree for the calling session to review
 - On completion, show via execution results that all target tests are Green
 
 ## Completion report format

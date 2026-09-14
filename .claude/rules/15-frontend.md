@@ -16,6 +16,17 @@
 
 ---
 
+## Build Step (Vite)
+
+**After editing any frontend file (`.vue`, `.ts`/`.js` under `resources/js/`, `resources/css/`), always run the project's frontend build command (e.g. `npm run build`) before testing or reporting the task complete.** Vite compiles source files into hashed bundles under `public/build/` — the browser always loads the compiled bundle, never the raw source, so editing without rebuilding leaves the old bundle running and changes appear invisible.
+
+- Run **once per task**, after all frontend file edits are complete — not after each individual file save
+- Backend-only changes (`app/**/*.php`, migrations, `.env`) do not require a build
+- If the user reports a frontend change "isn't working," suspect a missing build first
+- If a different frontend stack without a build step is selected (e.g. plain Blade/Livewire), remove this section when rewriting this file for that stack
+
+---
+
 ## Architecture Guidelines
 
 - Separate the responsibilities of Pages and Components (Inertia's `Pages/` directory = root components)

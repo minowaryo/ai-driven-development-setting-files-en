@@ -59,8 +59,29 @@ Explore → Plan → Implement → Test
 
 ---
 
+## User-Facing Behavior Changes Always Require Approval
+
+Independent of Gates 0-4: **any change that materially alters how the app behaves for its users must be approved by a human before it is applied** — even when the change is a bug fix, and even when the current behavior contradicts `docs/product/use-cases.md` or another specification document.
+
+A specification saying the behavior *should* be X is justification for *proposing* the change, never authorization to *apply* it. Discovering that the implementation and the spec disagree is a finding to report, not a mandate to act.
+
+Changes that require approval under this rule include:
+- Adding, removing, or reordering fields, buttons, or screens a user interacts with
+- Changing when an action succeeds vs. fails (validation rules, permission boundaries, error conditions)
+- Changing wording a user reads (error messages, labels, confirmations)
+- Changing defaults, or what data is shown or hidden to a given role
+
+What to do instead: report the finding with the concrete user-visible symptom, the cause, and the proposed fix — then wait. Do not bundle such a change into an unrelated task, and do not treat "the spec already says so" or "it's obviously a bug" as consent.
+
+Exempt (no approval needed): changes with no user-observable effect — refactors, comments, test-only changes, and documentation updates.
+
+> Applies to autonomous/background work as well. Small in-scope fixes to code written in the same session may proceed without re-asking **only** when they do not change user-facing behavior under the list above.
+
+---
+
 ## Absolute Prohibitions
 
+- Applying a user-facing behavior change without human approval (see the section above) — including when justified by a spec document
 - Code generation before Gate 2 is passed
 - Starting implementation (Green phase) before Gate 4 is passed (generating implementation code before test case approval)
 - Code-first approach (implementing without reviewing documentation)

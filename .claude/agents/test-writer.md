@@ -15,6 +15,7 @@ Related rule: `.claude/rules/30-testing.md`
 - **Do not edit implementation code** under `app/` or `resources/js/` (reading it to understand the existing implementation is fine)
 - Run the tests you write and confirm they fail "as intended" before reporting completion — confirm the failure is due to missing implementation, not confused with a failure for another reason such as a syntax error
 - Base test case names and coverage scope on the UC titles and flows in `docs/product/use-cases.md`
+- **Never run `git commit`, `git push`, or any other command that changes git history or remote state.** `git add` (staging) is fine, but committing happens only when the orchestrating session's user explicitly instructs it — never as part of finishing a task. Leave changes staged/uncommitted in the working tree for the calling session to review
 
 ## Files to read
 
