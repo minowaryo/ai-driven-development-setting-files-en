@@ -19,6 +19,7 @@ from `ADR-0001`.
 | ADR-0007 | TDD enforcement tooling (Probity) |
 | ADR-0008 | TDD/E2E harness tooling |
 | ADR-0009 | Review escalation mechanism (review-score) |
+| ADR-0010 | Domain Boundary contract + deterministic Controller check |
 
 ## Harness-design ADR patterns to copy from
 
