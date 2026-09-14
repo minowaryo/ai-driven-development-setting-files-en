@@ -16,6 +16,7 @@
 |---|---|
 | Action | Single-responsibility business operation class (`app/Actions/`) |
 | Service | Higher-level service class that orchestrates multiple Actions (`app/Services/`) |
+| Domain Boundary | The Service/Action layer plus the Policy layer — everything that decides, authorizes, or persists. Controllers sit outside it and may not cross it (see `.claude/rules/10-laravel.md`) |
 | ADR | Architecture Decision Record |
 | Gate | Laravel authorization mechanism (called via Policy) |
 | RCID | Requirement Change ID (used for traceability) |

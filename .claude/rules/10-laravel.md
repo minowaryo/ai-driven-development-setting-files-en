@@ -2,11 +2,48 @@
 
 ## Architecture Guidelines
 
+### The Domain Boundary
+
+> Related ADR: `meta/adr/ADR-0010-domain-boundary-contract.md`
+
+"Fat Controller is prohibited" is too vague to act on, so the boundary is stated as an
+explicit contract. The **Domain Boundary** is the Service/Action layer plus the Policy
+layer. Everything that decides, authorizes, or persists lives behind it.
+
+```
+Controller → FormRequest → Service / Action  (business rules, transactions)
+                         → Policy            (authorization)
+                         → Eloquent Model    (schema + relations only)
+```
+
+The design goal is not "write the Controller correctly" but **"the system stays correct
+even when the Controller is wrong"** — an HTTP layer that sends unexpected values, skips
+an optional step, or is replaced by another client must not be able to corrupt data or
+bypass authorization.
+
 ### Controller
-- Keep it thin (Fat Controller is prohibited)
-- Delegate validation to `FormRequest`
-- Delegate business logic to `Service` / `Action`
-- Do not call `DB::` directly
+
+A Controller **MAY only**:
+
+- validate the request through a `FormRequest`
+- call `authorize()`
+- call **exactly one** `Service` / `Action`
+- format the response (view / redirect / JSON)
+
+A Controller **MUST NOT**:
+
+- call `DB::` or resolve the database container (`app('db')`) — transactions belong in the Service layer
+- call Eloquent write methods directly — `save` / `fill` / `update` / `updateOrCreate` / `firstOrCreate` / `create` / `insert` / `upsert` / `delete` / `forceDelete` / `restore` / `increment` / `decrement` / `attach` / `detach` / `sync` / `associate`
+- check roles inline (`$user->role === 'admin'`, `$user->isAdmin()`, …) — authorization goes through a Policy, per `meta/adr/ADR-0003-auth-strategy.md`
+- make a decision that depends on **more than one entity** (e.g. comparing an order's quantity against a product's stock) — that is a cross-entity invariant and belongs in a Service / Action
+
+**This does not contradict "do not put business logic in Models" below.** Enforcement
+lives in the Service / Action layer; Models stay schema-and-relations only. "Model layer"
+is deliberately avoided as a term here because it means different things per framework.
+
+`.claude/hooks/domain-boundary-check.sh` flags the mechanically detectable half of this
+contract during `/review`. It cannot see the fourth rule — a cross-entity decision written
+in plain PHP contains no distinctive tokens — so that one relies on review.
 
 ### Service / Action
 - Follow the single responsibility principle (one class, one responsibility)
