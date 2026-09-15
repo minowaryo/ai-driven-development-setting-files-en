@@ -26,6 +26,11 @@ Adopt the following AI-driven development policy.
 
 > Updated 2026-07-15: as part of formalizing TDD practice ([[ADR-0007-tdd-enforcement-probity]] / [[ADR-0008-tdd-e2e-harness-tooling]]),
 > the order was changed so that test generation happens before code generation (added Gate 4: test case approval).
+>
+> Updated 2026-09-15: for adopting this harness onto an existing codebase, the AI/Human
+> split during Gate 0-3 differs from the diagram above — see
+> `meta/adr/ADR-0011-existing-codebase-adoption.md` and `docs/development/ai-workflow.md`'s
+> Role Breakdown.
 
 ```
 requirements.md (defined by humans)
@@ -84,3 +89,4 @@ Human review and merge
 - `docs/development/ai-workflow.md`
 - ADR-0007-tdd-enforcement-probity
 - ADR-0008-tdd-e2e-harness-tooling
+- ADR-0011-existing-codebase-adoption

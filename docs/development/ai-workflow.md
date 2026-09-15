@@ -5,11 +5,33 @@
 
 ## Role Breakdown
 
+The split below assumes a new project (`SETUP.md` Step 1-4). For adopting this harness
+onto a project with existing code, see "Existing-Codebase Adoption" below — the overall
+shape (AI drafts/generates, human decides/approves) is the same; what differs is *what*
+the human is deciding on.
+
+### New Project (Greenfield)
+
 | Role | Tasks |
 |---|---|
 | **Humans only** | Business understanding, requirements definition, use-case approval, ADR creation, final review and merge |
 | **AI primary** | Code generation, test generation, code review assistance, refactoring suggestions |
 | **AI support** | Design consultation, document drafting, bug root cause investigation |
+
+### Existing-Codebase Adoption
+
+See `SETUP.md`'s Existing-Codebase Path and `meta/adr/ADR-0011-existing-codebase-adoption.md`.
+
+| Role | Tasks |
+|---|---|
+| **AI** | Detect the real stack (frontend/backend/DB/auth); run `.claude/hooks/domain-boundary-check.sh --audit-all`; draft `docs/ai-context/*`, `use-cases.md` (as-is), `data-model.md`; compile the "Needs confirmation" and "Backlog" lists |
+| **Human** | Resolve the "Needs confirmation" list (term meanings, do-not-touch boundaries, code-vs-old-doc discrepancies); give the one consolidated Gate 0-3 sign-off; final review and merge (unchanged from the greenfield case) |
+
+**Same in both**: AI never generates implementation code before human approval (Gate 2 /
+the Gate 0-3 consolidated checkpoint); final review and merge stays human-only.
+**Differs**: greenfield's human role is *authoring* from a blank page; existing-codebase's
+human role is *verifying/judging* AI-drafted content against the real system — narrower
+and faster by design, not a lighter-weight version of the same authorship task.
 
 ## Using Claude Code
 
