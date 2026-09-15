@@ -7,7 +7,7 @@ A repository template for AI-driven development (Claude Code / Codex combined) b
 This repository is a template that includes:
 - **Claude Code rule files** (`CLAUDE.md`, `.claude/rules/`, `.claude/commands/`)
 - **Codex instruction file** (`AGENTS.md`)
-- **One-time project kickoff guide** (`SETUP.md`) — the Gate 0-4 setup steps, read once when starting a new project
+- **One-time project kickoff guide** (`SETUP.md`) — the Gate 0-4 setup steps, read once when starting a new project (also covers adopting this harness onto a project that already has running code — see `SETUP.md`'s Existing-Codebase Path)
 - **AI-summarized documents** (`docs/ai-context/`)
 - **Design document templates** (`docs/product/`, `docs/architecture/`, `docs/adr/`)
 - **Development process documents** (`docs/development/`, `docs/security/`)
@@ -100,6 +100,11 @@ Template's Own Layer        → meta/adr/ (outside the project's own decision-ma
 ```
 
 ## Getting Started
+
+> **Adopting this onto a project that already has running code?** The steps below (and
+> `SETUP.md`'s Step 1-4) assume a new project with no existing code. See `SETUP.md`'s
+> Existing-Codebase Path instead — it reverse-engineers the same Gate 0-3 inputs from the
+> actual codebase rather than having a human author them from scratch.
 
 See `SETUP.md` for the detailed step-by-step Gate 0-4 procedure; the summary below is:
 

@@ -20,6 +20,7 @@ from `ADR-0001`.
 | ADR-0008 | TDD/E2E harness tooling |
 | ADR-0009 | Review escalation mechanism (review-score) |
 | ADR-0010 | Domain Boundary contract + deterministic Controller check |
+| ADR-0011 | Existing-codebase adoption path (Gate 0-3 input authorship for projects with existing code) |
 
 ## Harness-design ADR patterns to copy from
 

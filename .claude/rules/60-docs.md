@@ -28,6 +28,7 @@
 | New dev/test credential or API key location noted | `docs/credentials/README.md` (never commit the actual secret) |
 | Error-handling or response-format convention change | `docs/development/coding-standards.md` |
 | Gate condition / quality-gate process changes | `.claude/rules/00-global.md` (details table, absolute prohibitions) + `SETUP.md` (Step procedures) + `AGENTS.md` (for Codex — Gate definitions are duplicated there, so all 3 files need to stay in sync) |
+| Human/AI role-division change (new adoption path, new AI capability, etc.) | `docs/development/ai-workflow.md` (Role Breakdown) + a pointer amendment on `meta/adr/ADR-0004` if it's policy-level (see its 2026-07-15 / 2026-09-15 amendment notes for the style) |
 
 ## Documentation Update Principles
 
