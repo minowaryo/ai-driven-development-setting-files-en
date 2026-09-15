@@ -3,6 +3,13 @@
 > This is the first file AI reads. Keep it concise enough to grasp the big picture in 3–5 minutes.
 > For details, refer to the individual `docs/` files.
 
+> **Template placeholder check**: if this file still shows bracketed placeholders like
+> `[PROJECT_NAME]` *and* the repository already contains substantial application code
+> (models/controllers/migrations beyond a skeleton), stop before acting on any other
+> request and tell the user this looks like adopting the harness onto an existing
+> codebase — point them at `SETUP.md`'s Existing-Codebase Path and suggest running
+> `/onboard-existing-codebase`.
+
 ## Project Overview
 
 | Item | Details |

@@ -8,6 +8,7 @@ Check whether the following are filled in. If not, stop work and notify the user
 - [ ] Is `docs/ai-context/glossary.md` filled in?
 - [ ] Does an ADR for the frontend stack selection exist under `docs/adr/` (has the selection process in `meta/adr/ADR-0005-frontend-stack.md` been completed)?
 - [ ] What is the approval status of `docs/product/use-cases.md`?
+- [ ] If this is adoption onto an existing codebase (`docs/ai-context/` still placeholder, but the repo already has substantial application code), was `SETUP.md`'s Existing-Codebase Path followed instead of Step 1-3? (`docs/ai-context/project-summary.md`'s own placeholder content is the primary trip-wire for this — this check is reinforcement.)
 
 ---
 
@@ -53,6 +54,11 @@ Explore → Plan → Implement → Test
 | Gate 2 ★ | `docs/product/use-cases.md` final reviewer approval | Code generation, drafting acceptance-criteria / data-model |
 | Gate 3 | `docs/architecture/data-model.md` reviewer approved | DB implementation, creating migrations |
 | Gate 4 | TDD Red-phase test cases (Feature/Unit) reviewer approved | Implementation (Green phase) may start |
+
+> **Existing-codebase adoption**: when this harness is added to a project with existing
+> code, Gates 0-3 above are satisfied by one consolidated review instead of four separate
+> approvals — see `SETUP.md`'s Existing-Codebase Path and
+> `meta/adr/ADR-0011-existing-codebase-adoption.md`.
 
 > **Difference in gate nature**: Gates 0-3 are document-approval gates passed once per project. Gate 4 is an implementation gate, repeated per feature/UC every time the TDD cycle (`/tdd`) runs.
 > **Mockup review has no gate number**: the business-side review of `docs/product/mockups/` is not an independent gate — it is treated as a precondition for Gate 2 (final approval of use-cases.md). Feedback is incorporated into use-cases.md before Gate 2 approval is granted.

@@ -39,6 +39,10 @@ Laravel + MySQL web application
 | Gate 3 | `docs/architecture/data-model.md` approved | DB implementation + migrations |
 | Gate 4 | Failing test case(s) reviewed and approved by a human (per-feature, repeats every cycle — unlike Gate 0-3 which pass once) | Implementation (Green phase) |
 
+> **Existing-codebase adoption**: adding this harness to a project with existing code
+> satisfies Gates 0-3 via one consolidated review instead of four separate approvals — see
+> `SETUP.md`'s Existing-Codebase Path and `meta/adr/ADR-0011-existing-codebase-adoption.md`.
+
 **Do not generate code before Gate 2 is passed.**
 **Do not write implementation code before Gate 4 is passed**: write a failing test first, stop, and wait for human approval before implementing. See `.claude/rules/30-testing.md`.
 
