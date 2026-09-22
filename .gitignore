@@ -4,3 +4,9 @@ docs/credentials/*
 
 # Local Claude Code settings (personal, machine-specific — never share team-wide permissions here)
 .claude/settings.local.json
+
+# Local-only: self-eval harness for this repo's own .claude/ commands (testing the template
+# against itself, not something a project that copies .claude/ in needs — kept locally for
+# personal experimentation, deliberately not part of the distributed template)
+.claude/.claude-plugin/
+.claude/evals/

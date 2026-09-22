@@ -9,7 +9,7 @@ Perform a code review from the following perspectives.
 Before starting the review, always run the following and check the score:
 
 ```bash
-bash .claude/hooks/review-score.sh
+bash "${CLAUDE_PLUGIN_ROOT:-.claude}/hooks/review-score.sh"
 ```
 
 - If the output ends with `RECOMMENDATION=normal` → review at the normal level (go through the checklist below in a single pass)
@@ -19,7 +19,7 @@ bash .claude/hooks/review-score.sh
 Then run the Domain Boundary check as a **separate command** (it exits 1 when it finds something, so chaining it with `&&` would look like a failure):
 
 ```bash
-bash .claude/hooks/domain-boundary-check.sh
+bash "${CLAUDE_PLUGIN_ROOT:-.claude}/hooks/domain-boundary-check.sh"
 ```
 
 > Related ADR: `meta/adr/ADR-0010-domain-boundary-contract.md`

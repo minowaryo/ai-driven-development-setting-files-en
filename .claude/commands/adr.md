@@ -4,8 +4,10 @@ Creates a new Architecture Decision Record (ADR).
 
 ## Steps
 
-1. Check existing ADRs in `docs/adr/` to identify the next number
-2. Create a new file as `docs/adr/ADR-XXXX-[title].md`
+1. Check existing ADRs in `docs/adr/` to identify the next number. If there are none yet, start at `0001`.
+2. Create a new file as `docs/adr/ADR-XXXX-[title].md`, where `XXXX` is that number, zero-padded to 4
+   digits, and the file always starts with the literal `ADR-` prefix — e.g. `docs/adr/ADR-0001-adopt-redis-for-sessions.md`.
+   Never drop the `ADR-` prefix or use an unpadded/differently-shaped number (e.g. `0001-adopt-redis-for-sessions.md` is wrong).
 3. Fill it in using the template below
 
 ## Template
