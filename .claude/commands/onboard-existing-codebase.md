@@ -86,8 +86,8 @@ the human to resolve the Needs-confirmation list.
 - Do not persist the Backlog list to a new file; it is chat output only (see
   `meta/adr/ADR-0011-existing-codebase-adoption.md` for why).
 - Do not run the built-in `security-review` skill as part of this command — its diff-only
-  scope wouldn't cover the inherited application code (see `SETUP.md`'s Existing-Codebase
-  Path).
+  scope wouldn't cover the inherited application code (see
+  `meta/adr/ADR-0011-existing-codebase-adoption.md`).
 
 ## Usage Example
 
