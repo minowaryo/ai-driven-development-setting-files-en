@@ -5,8 +5,9 @@ A repository template for AI-driven development (Claude Code / Codex combined) b
 ## Overview
 
 This repository is a template that includes:
-- **Claude Code rule files** (`CLAUDE.md`, `.claude/rules/`, `.claude/commands/`)
+- **Claude Code rule files** (`CLAUDE.md`, `.claude/rules/`, `.claude/commands/`, `.claude/hooks/`)
 - **Codex instruction file** (`AGENTS.md`)
+- **User-global settings template** (`GLOBAL_CLAUDE.md`) — copy into `~/.claude/CLAUDE.md`; holds environment-wide rules such as commit/push authority
 - **One-time project kickoff guide** (`SETUP.md`) — the Gate 0-4 setup steps, read once when starting a new project (also covers adopting this harness onto a project that already has running code — see `SETUP.md`'s Existing-Codebase Path)
 - **AI-summarized documents** (`docs/ai-context/`)
 - **Design document templates** (`docs/product/`, `docs/architecture/`, `docs/adr/`)
@@ -30,6 +31,7 @@ Template's Own Layer        → meta/adr/ (outside the project's own decision-ma
 ├── CLAUDE.md                          # Claude Code entry point
 ├── AGENTS.md                          # Codex entry point
 ├── SETUP.md                           # One-time project kickoff guide (Gate 0-4 setup steps)
+├── GLOBAL_CLAUDE.md                   # Template for ~/.claude/CLAUDE.md (user-global settings — copy into your own environment)
 │
 ├── PLAN.md                            # Development plan (in-progress task management)
 ├── .mcp.json                          # Project-scoped MCP servers (e.g. Playwright)
@@ -39,19 +41,24 @@ Template's Own Layer        → meta/adr/ (outside the project's own decision-ma
 │   │   ├── 10-laravel.md              # Laravel-specific rules
 │   │   ├── 15-frontend.md             # Frontend-specific rules (content depends on the ADR-0005 selection; default is Vue.js + Inertia.js)
 │   │   ├── 20-mysql.md                # MySQL-specific rules
-│   │   ├── 30-testing.md              # Test strategy (TDD, Playwright E2E)
+│   │   ├── 30-testing.md              # Test strategy (Feature/Unit, TDD)
+│   │   ├── 31-e2e-testing.md          # E2E test strategy (Playwright — read only when running /generate-e2e-test)
 │   │   ├── 40-security.md             # Security rules
 │   │   ├── 50-review.md               # Review guidelines
 │   │   └── 60-docs.md                 # Documentation update rules
 │   ├── agents/
 │   │   ├── test-writer.md             # TDD Red-phase-only sub-agent
 │   │   └── tdd-implementer.md         # TDD Green-phase-only sub-agent
-│   └── commands/
-│       ├── review.md                  # /review command
-│       ├── adr.md                     # /adr command
-│       ├── generate-mock.md           # /generate-mock command
-│       ├── tdd.md                     # /tdd command (Red → Green → Refactor)
-│       └── generate-e2e-test.md       # /generate-e2e-test command
+│   ├── commands/
+│   │   ├── review.md                  # /review command
+│   │   ├── adr.md                     # /adr command
+│   │   ├── generate-mock.md           # /generate-mock command
+│   │   ├── tdd.md                     # /tdd command (Red → Green → Refactor)
+│   │   ├── generate-e2e-test.md       # /generate-e2e-test command
+│   │   └── onboard-existing-codebase.md  # /onboard-existing-codebase command (Existing-Codebase Path, Steps 1B-3B)
+│   └── hooks/
+│       ├── domain-boundary-check.sh   # Domain Boundary contract check (run in /review Step 0; --audit-all for whole-repo audit)
+│       └── review-score.sh            # Scores the branch diff to pick the review level (/review Step 0)
 │
 ├── meta/
 │   └── adr/                           # The template/harness's own ADRs (managed separately from the project's ADRs — no editing or renumbering needed)
@@ -64,7 +71,9 @@ Template's Own Layer        → meta/adr/ (outside the project's own decision-ma
 │       ├── ADR-0006-e2e-testing-playwright.md
 │       ├── ADR-0007-tdd-enforcement-probity.md
 │       ├── ADR-0008-tdd-e2e-harness-tooling.md
-│       └── ADR-0009-review-escalation-mechanism.md
+│       ├── ADR-0009-review-escalation-mechanism.md
+│       ├── ADR-0010-domain-boundary-contract.md
+│       └── ADR-0011-existing-codebase-adoption.md
 │
 └── docs/
     ├── ai-context/                    # AI summary layer (most important)
@@ -72,7 +81,8 @@ Template's Own Layer        → meta/adr/ (outside the project's own decision-ma
     │   ├── module-map.md              # Directory responsibility map
     │   ├── common-commands.md         # Frequently used commands
     │   ├── glossary.md                # Terminology glossary
-    │   └── do-not-touch.md            # Areas AI must not modify
+    │   ├── do-not-touch.md            # Areas AI must not modify
+    │   └── known-pitfalls.md          # Library/framework-specific snags (checked on error, appended once resolved)
     ├── original-docs/                 # Primary source materials (human-provided, AI editing prohibited — reference only)
     │   └── README.md                  # File list and notes
     ├── product/                       # Business requirements and UI design
@@ -80,6 +90,11 @@ Template's Own Layer        → meta/adr/ (outside the project's own decision-ma
     │   ├── use-cases.md               # ★ Most critical: final human review checkpoint
     │   ├── acceptance-criteria.md
     │   ├── ui-guidelines.md           # UI design spec and component guidelines
+    │   ├── org-permission-philosophy.md  # Business-side philosophy behind roles/permissions
+    │   ├── user-guide.md              # End-user facing feature / usage documentation
+    │   ├── uat-scenarios.md           # UAT scenarios (optional, non-blocking — outside Gates 0-4)
+    │   ├── uat-results/               # UAT results recorded by a human reviewer
+    │   │   └── README.md
     │   └── mockups/                   # HTML mockups (created between Gate 1 and Gate 2)
     │       └── README.md              # Screen list and UC mapping
     ├── architecture/                  # System design
@@ -95,6 +110,8 @@ Template's Own Layer        → meta/adr/ (outside the project's own decision-ma
     │   └── ai-workflow.md
     ├── security/
     │   └── secrets-handling.md
+    ├── credentials/                   # Dev-only credential locations (git-ignored except its README — never commit real secrets)
+    │   └── README.md
     └── rcid/
         └── traceability-matrix.md
 ```
@@ -104,7 +121,8 @@ Template's Own Layer        → meta/adr/ (outside the project's own decision-ma
 > **Adopting this onto a project that already has running code?** The steps below (and
 > `SETUP.md`'s Step 1-4) assume a new project with no existing code. See `SETUP.md`'s
 > Existing-Codebase Path instead — it reverse-engineers the same Gate 0-3 inputs from the
-> actual codebase rather than having a human author them from scratch.
+> actual codebase rather than having a human author them from scratch. Fastest path: run
+> `/onboard-existing-codebase`.
 
 See `SETUP.md` for the detailed step-by-step Gate 0-4 procedure; the summary below is:
 

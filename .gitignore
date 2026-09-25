@@ -10,3 +10,8 @@ docs/credentials/*
 # personal experimentation, deliberately not part of the distributed template)
 .claude/.claude-plugin/
 .claude/evals/
+
+# Local-only: internal training material and the hand-out decks derived from it —
+# personal reference material, not part of the distributed template
+docs/handbook/
+docs/original-docs/*.pptx

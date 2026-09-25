@@ -40,7 +40,6 @@ at project kickoff — it is not part of the steady-state per-session reading li
 | Adding / modifying tests | `docs/development/testing-strategy.md` + `docs/product/use-cases.md` + `docs/architecture/data-model.md` |
 | Security-related changes | `docs/security/secrets-handling.md` |
 | Creating credentials / API keys, etc. | `docs/credentials/` (follow the handling rules in `.claude/rules/40-security.md`) |
-| Release / deployment | `docs/operations/deployment.md` |
 | Change request (CR) | `docs/rcid/traceability-matrix.md` |
 | User-facing feature / usage change | `docs/product/user-guide.md` |
 | Performing UAT (acceptance testing, optional) | `docs/product/uat-scenarios.md` + `docs/product/uat-results/` (see the UAT section in `.claude/rules/00-global.md`; non-blocking) |

@@ -1,5 +1,18 @@
 # common-commands.md — Frequently Used Commands
 
+## Claude Code Commands (`.claude/commands/`)
+
+| Command | When to run it | Who triggers it |
+|---|---|---|
+| `/onboard-existing-codebase` | Once, when adopting this harness onto a project that already has running code (Steps 1B-3B, then the consolidated Gate 0-3 sign-off) | Human |
+| `/generate-mock UC-XXX` | Between Gate 1 and Gate 2 — HTML mockups for the business-side review | Human |
+| `/adr` | Whenever a technical decision is made — generates the ADR skeleton for a human to finalize | Human (AI proposes it) |
+| `/tdd UC-XXX [summary]` | Every feature / UC implementation: Red → Gate 4 approval → Green → Refactor | Human |
+| `/generate-e2e-test UC-XXX` | A UC critical flow that includes UI changes | Automatic — `/tdd` Step 6 runs it when applicable |
+| `/review` | After Refactor, before merging. Step 0 scores the branch diff to pick the review level | Human — `/tdd` only reminds you (deliberate; see `meta/adr/ADR-0009-review-escalation-mechanism.md`) |
+
+> Verifying actual behavior after Green (the `run` skill) is recommended rather than run automatically — a human has to invoke it. See `.claude/rules/30-testing.md`.
+
 ## Tests
 
 ```bash
@@ -18,7 +31,7 @@ php artisan test --parallel
 
 ## E2E Tests (Playwright)
 
-> See the "E2E Test (Playwright)" section in `.claude/rules/30-testing.md` for details.
+> See `.claude/rules/31-e2e-testing.md` for details.
 
 ```bash
 # Initial setup

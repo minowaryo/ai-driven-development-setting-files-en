@@ -26,7 +26,6 @@ Laravel + MySQL web application
 | Test changes | `docs/development/testing-strategy.md` + `docs/product/use-cases.md` + `docs/architecture/data-model.md` |
 | Architecture changes | `docs/adr/` (all relevant ADRs) |
 | Security changes | `docs/security/secrets-handling.md` |
-| Release changes | `docs/operations/deployment.md` |
 | Change request | `docs/rcid/traceability-matrix.md` |
 
 ## Quality gates
