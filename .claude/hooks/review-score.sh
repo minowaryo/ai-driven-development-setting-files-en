@@ -1,8 +1,13 @@
 #!/usr/bin/env bash
 # review-score.sh — Step 0 of /review.
-# Scores the diff between the current branch's merge-base with `main` and HEAD,
-# so /review can pick "normal" vs "enhanced" depth without manual judgment.
+# Scores everything changed since the current branch diverged from `main` — commits on
+# the branch plus staged, unstaged, and untracked work in the working tree — so /review
+# can pick "normal" vs "enhanced" depth without manual judgment.
 # No state file, no AI calls: pure local git commands.
+#
+# Environment:
+#   REVIEW_SCORE_BASE_BRANCH  base branch (default: main; falls back to origin/<base>)
+#   REVIEW_SCORE_THRESHOLD    score at or above which the enhanced level is recommended (default: 30)
 set -euo pipefail
 
 BASE_BRANCH="${REVIEW_SCORE_BASE_BRANCH:-main}"
@@ -22,19 +27,42 @@ SENSITIVE_PATTERNS=(
   'docs/ai-context/do-not-touch\.md'
 )
 
-if ! git rev-parse --verify "$BASE_BRANCH" >/dev/null 2>&1; then
-  echo "[review-score] base branch '$BASE_BRANCH' not found; skipping score calculation."
+skip() {
+  echo "[review-score] $1; skipping score calculation."
   echo "RECOMMENDATION=normal"
   exit 0
+}
+
+TOPLEVEL=$(git rev-parse --show-toplevel 2>/dev/null) || skip "not a git repository"
+# Paths below are repo-relative; running from a subdirectory would otherwise miss them.
+cd "$TOPLEVEL"
+
+# CI and fresh clones often have only the remote-tracking branch.
+if ! git rev-parse --verify --quiet "$BASE_BRANCH" >/dev/null; then
+  if git rev-parse --verify --quiet "origin/$BASE_BRANCH" >/dev/null; then
+    BASE_BRANCH="origin/$BASE_BRANCH"
+  else
+    skip "base branch '$BASE_BRANCH' not found"
+  fi
 fi
 
-MERGE_BASE=$(git merge-base "$BASE_BRANCH" HEAD)
-RANGE="${MERGE_BASE}...HEAD"
+# Unrelated histories and some shallow clones have no merge base.
+MERGE_BASE=$(git merge-base "$BASE_BRANCH" HEAD 2>/dev/null || true)
+[ -n "$MERGE_BASE" ] || skip "no merge base with '$BASE_BRANCH'"
 
-CHANGED_FILES=$(git diff --name-only "$RANGE")
-FILE_COUNT=$(git diff --name-only "$RANGE" | wc -l | tr -d ' ')
+# Diff the merge base against the working tree (not HEAD): /tdd leaves its changes
+# uncommitted, so a commits-only range would score the usual flow as zero.
+TRACKED_FILES=$(git -c core.quotePath=false diff --name-only "$MERGE_BASE")
+UNTRACKED_FILES=$(git -c core.quotePath=false ls-files --others --exclude-standard)
+CHANGED_FILES=$(printf '%s\n%s\n' "$TRACKED_FILES" "$UNTRACKED_FILES" | sed '/^$/d')
+FILE_COUNT=$(printf '%s' "$CHANGED_FILES" | awk 'END {print NR}')
 
-read -r ADDED DELETED <<<"$(git diff --numstat "$RANGE" | awk '{a+=$1; d+=$2} END {print a+0, d+0}')"
+read -r ADDED DELETED <<<"$(git diff --numstat "$MERGE_BASE" | awk '{a+=$1; d+=$2} END {print a+0, d+0}')"
+# Untracked files count as fully added.
+if [ -n "$UNTRACKED_FILES" ]; then
+  UNTRACKED_LINES=$(git ls-files --others --exclude-standard -z | xargs -0 cat -- 2>/dev/null | wc -l | tr -d ' ')
+  ADDED=$((ADDED + UNTRACKED_LINES))
+fi
 LINE_COUNT=$((ADDED + DELETED))
 
 SENSITIVE_MATCHES=()

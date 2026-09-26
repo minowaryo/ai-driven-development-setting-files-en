@@ -14,7 +14,8 @@ bash "${CLAUDE_PLUGIN_ROOT:-.claude}/hooks/review-score.sh"
 
 - If the output ends with `RECOMMENDATION=normal` → review at the normal level (go through the checklist below in a single pass)
 - If the output ends with `RECOMMENDATION=enhanced` → review at the enhanced level. In addition to the checklist below, add an adversarial re-check pass: revisit each finding (HIGH/MEDIUM) skeptically and ask "is this really a risk? am I missing an assumption?"
-- If `review-score.sh` fails, or in an environment where the `main` branch doesn't exist, treat it as the normal level
+- If `review-score.sh` fails, treat it as the normal level (base-branch configuration: `.claude/rules/50-review.md`)
+- Uncommitted changes are in scope — do not commit before running
 
 Then run the Domain Boundary check as a **separate command** (it exits 1 when it finds something, so chaining it with `&&` would look like a failure):
 

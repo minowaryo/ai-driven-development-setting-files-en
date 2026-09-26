@@ -119,6 +119,14 @@ Template's Own Layer        → meta/adr/ (outside the project's own decision-ma
         └── traceability-matrix.md
 ```
 
+## Prerequisites
+
+- **Claude Code** — this harness targets Claude Code only
+- **Git**
+- **Bash + standard POSIX tools** (`awk`, `sed`, `grep`, `wc`) — required by the scripts in `.claude/hooks/`, which `/review` runs in Step 0. On Windows, use Git Bash (bundled with Git for Windows) or WSL
+- **Node.js / npm** — for the Playwright MCP server in `.mcp.json` and E2E tests (`/generate-e2e-test`)
+- **PHP / Composer** — for the target Laravel application itself
+
 ## Getting Started
 
 > **Adopting this onto a project that already has running code?** The steps below (and

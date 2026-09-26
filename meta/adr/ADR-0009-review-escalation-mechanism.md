@@ -19,12 +19,12 @@ Adopt the following automatic review-intensity determination mechanism.
 ### Overview
 
 1. When the `/review` command runs, its first step (Step 0) executes the `review-score` script (a deterministic local script that does not call AI)
-2. The script measures **the diff from the point where the current branch diverged from `main` (`git merge-base main HEAD`) to the current HEAD** (it keeps no state file)
+2. The script measures **everything changed since the current branch diverged from `main` (`git merge-base main HEAD`) — the branch's commits plus staged, unstaged, and untracked work in the working tree** (it keeps no state file). The working tree is included because the `/tdd` flow leaves its changes uncommitted; a commits-only range would score that flow as zero
 3. It computes a score using the following weights:
    - Number of changed files
    - Number of changed lines (added + deleted)
    - Matches against sensitive paths (DB migrations, Policies, auth-related directories, etc.)
-4. If the score exceeds the threshold, it displays a recommendation to review at the enhanced level, and `/review` proceeds at the enhanced level (a Workflow with multiple perspectives and adversarial verification). At or below the threshold, it proceeds at the normal level
+4. If the score is at or above the threshold, it displays a recommendation to review at the enhanced level, and `/review` proceeds at the enhanced level (a Workflow with multiple perspectives and adversarial verification). Below the threshold, it proceeds at the normal level
 5. The score calculation itself runs locally without calling AI, but the choice and execution of the review level based on that result happens only within a human's explicit `/review` invocation. No review Workflow is ever launched automatically in the background or at times like `git push` (this policy — "execution itself is always triggered by a human calling `/review`" — is referred to below as **Option A (semi-automatic)**)
 
 ### Why no state file (the merge-base approach)

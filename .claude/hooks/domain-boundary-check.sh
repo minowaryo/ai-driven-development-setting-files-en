@@ -14,8 +14,8 @@
 #   - heuristic   : methods carrying many branches, i.e. possibly deciding in the Controller
 #
 # Usage:
-#   bash .claude/hooks/domain-boundary-check.sh             # Controllers changed on this branch
-#   bash .claude/hooks/domain-boundary-check.sh --audit-all # every tracked Controller
+#   bash .claude/hooks/domain-boundary-check.sh             # Controllers changed on this branch (incl. uncommitted)
+#   bash .claude/hooks/domain-boundary-check.sh --audit-all # every Controller (tracked + untracked)
 #   bash .claude/hooks/domain-boundary-check.sh --stats     # counts only, for trend tracking
 #
 # Exit code: 1 when violations are found (so CI or a pre-commit hook can gate on it),
@@ -58,10 +58,12 @@ for arg in "$@"; do
   esac
 done
 
-if ! git rev-parse --git-dir >/dev/null 2>&1; then
+if ! TOPLEVEL=$(git rev-parse --show-toplevel 2>/dev/null); then
   echo "[domain-boundary] not a git repository; skipping."
   exit 0
 fi
+# Paths below are repo-relative; running from a subdirectory would otherwise scan nothing.
+cd "$TOPLEVEL"
 
 PATH_RE=$(IFS='|'; echo "${CONTROLLER_PATHS[*]}")
 
@@ -69,12 +71,17 @@ PATH_RE=$(IFS='|'; echo "${CONTROLLER_PATHS[*]}")
 # instead of C-quoted escapes, which would otherwise fail the -f test and vanish
 # from the scan while the file count still looked plausible.
 if [ "$AUDIT_ALL" -eq 1 ]; then
-  SCOPE="all tracked Controllers"
-  CANDIDATES=$(git -c core.quotePath=false ls-files -- '*.php' || true)
+  SCOPE="all Controllers (tracked + untracked)"
+  CANDIDATES=$(git -c core.quotePath=false ls-files --cached --others --exclude-standard -- '*.php' || true)
 else
-  if ! git rev-parse --verify "$BASE_BRANCH" >/dev/null 2>&1; then
-    echo "[domain-boundary] base branch '$BASE_BRANCH' not found; skipping."
-    exit 0
+  # CI and fresh clones often have only the remote-tracking branch.
+  if ! git rev-parse --verify --quiet "$BASE_BRANCH" >/dev/null; then
+    if git rev-parse --verify --quiet "origin/$BASE_BRANCH" >/dev/null; then
+      BASE_BRANCH="origin/$BASE_BRANCH"
+    else
+      echo "[domain-boundary] base branch '$BASE_BRANCH' not found; skipping."
+      exit 0
+    fi
   fi
   # Unrelated histories and some shallow clones have no merge base; that must be a
   # graceful skip, not an exit-1 that reads like "violations found".
@@ -83,8 +90,13 @@ else
     echo "[domain-boundary] no merge base with '$BASE_BRANCH'; skipping."
     exit 0
   fi
-  SCOPE="changed since ${BASE_BRANCH} (merge-base: ${MERGE_BASE:0:7})"
-  CANDIDATES=$(git -c core.quotePath=false diff --name-only "${MERGE_BASE}...HEAD" -- '*.php' || true)
+  SCOPE="changed since ${BASE_BRANCH} (merge-base: ${MERGE_BASE:0:7}, incl. uncommitted + untracked)"
+  # Diff the merge base against the working tree (not HEAD): /tdd leaves its changes
+  # uncommitted, so a commits-only range would miss exactly the code under review.
+  CANDIDATES=$( {
+    git -c core.quotePath=false diff --name-only "$MERGE_BASE" -- '*.php'
+    git -c core.quotePath=false ls-files --others --exclude-standard -- '*.php'
+  } || true)
 fi
 
 # Filter the whole candidate list with ONE grep. Doing this per file spawns a process

@@ -4,10 +4,11 @@
 
 > Related ADR: `meta/adr/ADR-0009-review-escalation-mechanism.md`
 
-When `/review` runs, its first step (Step 0) automatically executes the `review-score` script, which scores **the diff from the point where the current branch diverged from `main` (`git merge-base main HEAD`) to the current HEAD**. It keeps no state file. Since it's local processing that never calls AI, computing it on every `/review` invocation costs essentially nothing and takes negligible time.
+When `/review` runs, its first step (Step 0) automatically executes the `review-score` script, which scores **everything changed since the current branch diverged from `main` (`git merge-base main HEAD`) — the branch's commits plus staged, unstaged, and untracked work in the working tree**. It keeps no state file. Since it's local processing that never calls AI, computing it on every `/review` invocation costs essentially nothing and takes negligible time.
 
 - The score is a weighted sum of "number of changed files," "number of changed lines," and "matches against sensitive paths" (DB migrations, Policies, auth-related directories, etc.)
-- If the score exceeds the threshold, the review runs at the enhanced level (a Workflow with multiple perspectives and adversarial verification); at or below the threshold, it runs at the normal level
+- If the score is at or above the threshold, the review runs at the enhanced level (defined in `.claude/commands/review.md` Step 0); below the threshold, it runs at the normal level
+- Configuration (environment variables): `REVIEW_SCORE_BASE_BRANCH` / `DOMAIN_BOUNDARY_BASE_BRANCH` set the base branch (default `main`; if no local branch exists, `origin/<base>` is used), and `REVIEW_SCORE_THRESHOLD` sets the threshold (default 30). Projects using `master` / `develop` as the base must set the base-branch variables
 - The score's scope is automatically separated per branch, so moving between multiple branches doesn't get affected by another branch's diff (only the diff on your own branch since it diverged from `main` is considered)
 - It does not distinguish between a cohesive Phase-unit development effort and an ad-hoc small fix outside a Phase — either is picked up automatically as long as it's part of the diff since diverging from `main`, so developers don't need to classify anything
 - Running `/review` multiple times on the same branch re-evaluates the entire branch diff each time, including already-reviewed parts (the diff is not reset after each review). This can cause redundant re-checking, which is accepted as a trade-off

@@ -11,8 +11,8 @@ reverse-engineers `docs/ai-context/*`, drafts `use-cases.md` as-is, extracts
 
 Confirm this is the right path: an existing, already-running codebase, not a fresh project.
 If unsure, see `SETUP.md`'s Step 0. Do **not** run Claude Code's built-in `/init` instead —
-it would overwrite this template's `CLAUDE.md` with a generic shape (see `SETUP.md`'s
-Existing-Codebase Path, "Relationship to Claude Code's built-in `/init`").
+it would overwrite this template's `CLAUDE.md` with a generic shape (see the "Do not run
+Claude Code's built-in `/init` here" note in `SETUP.md`'s Existing-Codebase Path).
 
 ## Core Principle
 
