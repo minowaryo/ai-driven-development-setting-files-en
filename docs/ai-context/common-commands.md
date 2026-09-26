@@ -1,8 +1,12 @@
 # common-commands.md — Frequently Used Commands
 
-## Claude Code Commands (`.claude/commands/`)
+## Claude Code Entry Points (`.claude/commands/` and `.claude/skills/`)
 
-| Command | When to run it | Who triggers it |
+> Which of the two a given entry point lives in follows the criterion in
+> `meta/adr/ADR-0012-skills-vs-commands.md`: a skill may be invoked by AI on its own, a
+> command only when a human types it.
+
+| Entry point | When to run it | Who triggers it |
 |---|---|---|
 | `/onboard-existing-codebase` | Once, when adopting this harness onto a project that already has running code (Steps 1B-3B, then the consolidated Gate 0-3 sign-off) | Human |
 | `/generate-mock UC-XXX` | Between Gate 1 and Gate 2 — HTML mockups for the business-side review | Human |
@@ -10,6 +14,7 @@
 | `/tdd UC-XXX [summary]` | Every feature / UC implementation: Red → Gate 4 approval → Green → Refactor | Human |
 | `/generate-e2e-test UC-XXX` | A UC critical flow that includes UI changes | Automatic — `/tdd` Step 6 runs it when applicable |
 | `/review` | After Refactor, before merging. Step 0 scores the branch diff to pick the review level | Human — `/tdd` only reminds you (deliberate; see `meta/adr/ADR-0009-review-escalation-mechanism.md`) |
+| `/regenerate-traceability` | Periodically rather than per-commit — during `/review`, or before a release. Rebuilds the Matrix table in `docs/rcid/traceability-matrix.md` (never the hand-maintained Change Tracking table) | Human or AI — it is a skill, so AI may propose it when the matrix has gone stale |
 
 > Verifying actual behavior after Green (the `run` skill) is recommended rather than run automatically — a human has to invoke it. See `.claude/rules/30-testing.md`.
 

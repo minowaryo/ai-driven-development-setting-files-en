@@ -29,6 +29,7 @@
 | Error-handling or response-format convention change | `docs/development/coding-standards.md` |
 | Gate condition / quality-gate process changes | `.claude/rules/00-global.md` (details table, absolute prohibitions) + `SETUP.md` (Step procedures) + `AGENTS.md` (for Codex — Gate definitions are duplicated there, so all 3 files need to stay in sync) |
 | Human/AI role-division change (new adoption path, new AI capability, etc.) | `docs/development/ai-workflow.md` (Role Breakdown) + a pointer amendment on `meta/adr/ADR-0004` if it's policy-level (see its 2026-07-15 / 2026-09-15 amendment notes for the style) |
+| New AI entry point added (skill or command) | `docs/ai-context/common-commands.md` (entry-point table) + `README.md` (directory tree). Choose `.claude/skills/` vs `.claude/commands/` by the criterion in `meta/adr/ADR-0012-skills-vs-commands.md` |
 
 ## Documentation Update Principles
 

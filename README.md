@@ -56,6 +56,9 @@ Template's Own Layer        → meta/adr/ (outside the project's own decision-ma
 │   │   ├── tdd.md                     # /tdd command (Red → Green → Refactor)
 │   │   ├── generate-e2e-test.md       # /generate-e2e-test command
 │   │   └── onboard-existing-codebase.md  # /onboard-existing-codebase command (Existing-Codebase Path, Steps 1B-3B)
+│   ├── skills/                        # Entry points the model may invoke on its own (see meta/adr/ADR-0012)
+│   │   └── regenerate-traceability/
+│   │       └── SKILL.md               # /regenerate-traceability — rebuilds the Matrix table in docs/rcid/
 │   └── hooks/
 │       ├── domain-boundary-check.sh   # Domain Boundary contract check (run in /review Step 0; --audit-all for whole-repo audit)
 │       └── review-score.sh            # Scores the branch diff to pick the review level (/review Step 0)

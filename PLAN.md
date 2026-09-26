@@ -1,5 +1,49 @@
 # PLAN.md
 
+## Skills vs. commands criterion, /regenerate-traceability, standalone /adr export (2026-09-26)
+
+### Decision
+
+- Recorded the criterion for where a new AI entry point belongs, in
+  `meta/adr/ADR-0012-skills-vs-commands.md`: **forgetting to run it is the failure mode →
+  `.claude/skills/`** (carries a `description`, so AI may invoke it unprompted);
+  **running it at the wrong moment is the failure mode → `.claude/commands/`** (no
+  `description`, so invocation stays a deliberate human act). The six existing entry points
+  all fall on the command side and were deliberately left where they are — migrating them
+  would churn cross-references in `SETUP.md`, `README.md`, `.claude/rules/`, and
+  `common-commands.md` for no functional gain, and a `description` on `/review` or `/tdd`
+  would quietly undo `ADR-0009`'s Option A and Gate 4's approval pause respectively.
+- First application of the criterion: `/regenerate-traceability` ships as a skill
+  (`.claude/skills/regenerate-traceability/SKILL.md`), making the previously prose-only
+  Maintenance procedure in `docs/rcid/traceability-matrix.md` executable. A traceability
+  matrix fails by going quietly stale, never by being rebuilt at an awkward moment.
+  Its load-bearing constraint: it rewrites **only** the `Matrix` table, never the
+  hand-maintained `Change Tracking` table, which is an audit record that cannot be
+  re-derived from code. Its reported output leads with Status regressions
+  (`Complete` → `Not Found`), since those signal a renamed/deleted file or a match that
+  silently stopped working.
+- `/adr` was extracted as a standalone, shareable skill to `dist/skills/adr/SKILL.md` with
+  the harness-specific reference (`meta/adr/ADR-0007`) stripped and an ADR-directory
+  fallback added. `.claude/commands/adr.md` stays as-is and remains the source of truth —
+  `dist/` is `.gitignore`d build output, regenerated when someone asks for the file, never
+  edited in place. A tracked second copy would drift invisibly, since nothing fails when
+  the two disagree.
+- PLAN.md archiving was evaluated as a skill candidate in the same pass and **not adopted**
+  — line-count checking plus a verbatim move is faster done by hand than maintaining a
+  trigger for it.
+
+### Files touched
+
+`meta/adr/ADR-0012-skills-vs-commands.md` (new),
+`.claude/skills/regenerate-traceability/SKILL.md` (new), `dist/skills/adr/SKILL.md` (new,
+untracked), `.gitignore`, `README.md`, `meta/adr/README.md`,
+`docs/ai-context/common-commands.md`, `docs/rcid/traceability-matrix.md`,
+`.claude/rules/00-global.md`, `.claude/rules/60-docs.md`.
+
+### Status
+
+Implemented. Not committed — awaiting explicit instruction.
+
 ## Existing-codebase adoption path for Gate 0-3 (2026-09-15)
 
 ### Decision

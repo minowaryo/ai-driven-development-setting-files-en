@@ -104,7 +104,7 @@ Exempt (no approval needed): changes with no user-observable effect — refactor
 - [ ] Have you checked the related ADR?
 - [ ] Does the change impact use-cases.md?
 - [ ] Was Gate 4 (test case approval) obtained before starting implementation (Green)?
-- [ ] For a change request (CR), has `docs/rcid/traceability-matrix.md` been updated (by hand, or flagged for its next regeneration — see that file's Maintenance section)?
+- [ ] For a change request (CR), has `docs/rcid/traceability-matrix.md` been updated (by hand, or regenerated with `/regenerate-traceability` — see that file's Maintenance section)?
 - [ ] Is there a migration plan (for DB changes)?
 - [ ] Have tests been added?
 - [ ] Has documentation been updated?

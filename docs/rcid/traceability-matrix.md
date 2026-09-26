@@ -43,8 +43,16 @@ e.g. CHG-0001, CHG-0042
 
 For a project that would rather not hand-update this table on every commit — per-commit upkeep is what lets a table like this go stale — regenerate it periodically instead (e.g. during `/review`, or before a release):
 
+```
+/regenerate-traceability
+```
+
+→ Runs the steps below and reports Status regressions, ambiguous matches, and Requirement IDs with no matching UC (see `.claude/skills/regenerate-traceability/SKILL.md`).
+
 1. Extract UC ID → title → Requirement ID(s) from `docs/product/use-cases.md` (its UC headings, followed by their `**Related requirement**` line).
 2. For each UC, match its implementation file(s) under the app code and its test file(s) under the test suite by resource-name search; only read file contents when the name match is ambiguous.
 3. Mark Status per the definitions above, and note any Requirement ID with no matching UC.
+
+> Only the **Matrix** table above is regenerated. The **Change Tracking** table is a hand-maintained record of approved changes and is never rewritten by this process.
 
 Last regenerated: [date, if this project uses the regeneration workflow]
