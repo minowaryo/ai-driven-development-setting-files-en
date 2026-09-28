@@ -15,6 +15,9 @@
 | `/generate-e2e-test UC-XXX` | A UC critical flow that includes UI changes | Automatic — `/tdd` Step 6 runs it when applicable |
 | `/review` | After Refactor, before merging. Step 0 scores the branch diff to pick the review level | Human — `/tdd` only reminds you (deliberate; see `meta/adr/ADR-0009-review-escalation-mechanism.md`) |
 | `/regenerate-traceability` | Periodically rather than per-commit — during `/review`, or before a release. Rebuilds the Matrix table in `docs/rcid/traceability-matrix.md` (never the hand-maintained Change Tracking table) | Human or AI — it is a skill, so AI may propose it when the matrix has gone stale |
+| `systematic-debugging` (Trial) | Investigating an unclear or non-trivial bug, or after a fix attempt didn't work | AI — see `meta/adr/ADR-0013` |
+| `verification-before-completion` (Trial) | Before reporting any task/fix/feature as complete | AI — see `meta/adr/ADR-0013` |
+| `grill-me` (Trial) | Drafting/revising `docs/product/requirements.md`, for genuinely ambiguous points | AI — see `meta/adr/ADR-0013` |
 
 > Verifying actual behavior after Green (the `run` skill) is recommended rather than run automatically — a human has to invoke it. See `.claude/rules/30-testing.md`.
 

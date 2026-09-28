@@ -22,6 +22,8 @@ from `ADR-0001`.
 | ADR-0010 | Domain Boundary contract + deterministic Controller check |
 | ADR-0011 | Existing-codebase adoption path (Gate 0-3 input authorship for projects with existing code) |
 | ADR-0012 | Skills vs. commands criterion, and the standalone-export convention |
+| ADR-0013 | Adopting selected skill concepts from third-party sources, in-house (Trial) |
+| ADR-0014 | Third-party integrations considered and deferred (Laravel Boost, cc-sdd, hookify, Superpowers) |
 
 ## Harness-design ADR patterns to copy from
 
@@ -33,7 +35,7 @@ template:
 | Pattern | Example | Use when... |
 |---|---|---|
 | Top-level policy | ADR-0004 | Defining overall AI-usage rules, role split, and workflow gates — the "constitution" a project adopts once. |
-| Multi-extension harness bundle | ADR-0008 | Deciding on several related tooling additions together (subagents + slash commands + MCP server, etc.) as one coherent change, with a shared Rationale and a single "known limitations" callout. |
+| Multi-extension harness bundle | ADR-0008, ADR-0013 | Deciding on several related tooling additions together (subagents + slash commands + MCP server, etc.) as one coherent change, with a shared Rationale and a single "known limitations" callout. ADR-0013 additionally marks the whole batch **Trial** with a per-item rollout-tracking table, for a bundle whose real-world friction can't be judged until it's used. |
 | Single-technology selection | ADR-0006 | Choosing one tool/library for one job (E2E framework, ORM, etc.) with a comparison table of alternatives. |
 | Optional / deferred adoption | ADR-0007 | Offering a tool without mandating it (adopt-if-you-want). For a "not now, revisit later" decision instead, see the "Variant for Recording a Deferral (Not Adopted)" section in [`.claude/commands/adr.md`](../../.claude/commands/adr.md) so the evaluation is recorded and not silently repeated later. |
 | Recurring-decision criterion | ADR-0012 | A question that will be re-argued every time something is added (which directory does this belong in, when does this rule apply). Record the discriminating rule and one worked application of it, rather than the individual answers. |

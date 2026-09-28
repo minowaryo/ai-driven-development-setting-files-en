@@ -71,7 +71,7 @@ Create as `docs/adr/ADR-XXXX-[title].md`:
 # ADR-XXXX: [Title]
 
 ## Status
-[Proposed / Accepted / Deprecated / Superseded by ADR-XXXX]
+[Proposed / Accepted / Deprecated / Superseded by ADR-XXXX / Trial — see `meta/adr/ADR-0013` for the "batch trial, roll back per item" pattern]
 
 ## Date
 YYYY-MM-DD

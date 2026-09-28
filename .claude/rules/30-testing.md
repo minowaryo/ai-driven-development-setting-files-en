@@ -65,6 +65,20 @@ Claude Code / Codex tend to write the implementation first and bolt tests on aft
 3. After Refactor completes, run **`/review`** before merging (see `.claude/rules/50-review.md`)
    - The review-score auto-computed as Step 0 of `/review` (see `meta/adr/ADR-0009-review-escalation-mechanism.md`) automatically selects the normal or enhanced review level
 
+## Test Quality Heuristics (Trial — see `meta/adr/ADR-0013`)
+
+Beyond the Red → Green → Refactor cycle itself, watch for tests that pass without
+actually testing anything:
+
+- Don't mock away the exact behavior a test exists to verify — distinct from "do not
+  mock the DB" above, this is broader: e.g. don't mock a Service's method in a
+  Feature Test whose entire point is verifying that Service's behavior
+- Derive an assertion's expected value from the spec/use-case, not by reading the
+  implementation and copying its output — a value copied from the implementation
+  can't catch a wrong implementation
+- Before treating the Red phase as complete, sanity-check that the test would still
+  fail if the intended fix were reverted (a test that passes either way is vacuous)
+
 ## Naming Convention
 
 ```php

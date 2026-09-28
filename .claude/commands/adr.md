@@ -17,6 +17,7 @@ Creates a new Architecture Decision Record (ADR).
 
 ## Status
 Proposed
+<!-- Other valid values: Accepted / Deprecated / Superseded by ADR-XXXX / Trial (see meta/adr/ADR-0013 for the "batch trial, rollback per item" pattern) -->
 
 ## Date
 [YYYY-MM-DD]

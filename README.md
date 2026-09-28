@@ -57,8 +57,11 @@ Template's Own Layer        → meta/adr/ (outside the project's own decision-ma
 │   │   ├── generate-e2e-test.md       # /generate-e2e-test command
 │   │   └── onboard-existing-codebase.md  # /onboard-existing-codebase command (Existing-Codebase Path, Steps 1B-3B)
 │   ├── skills/                        # Entry points the model may invoke on its own (see meta/adr/ADR-0012)
-│   │   └── regenerate-traceability/
-│   │       └── SKILL.md               # /regenerate-traceability — rebuilds the Matrix table in docs/rcid/
+│   │   ├── regenerate-traceability/
+│   │   │   └── SKILL.md               # /regenerate-traceability — rebuilds the Matrix table in docs/rcid/
+│   │   ├── systematic-debugging/      # Trial (meta/adr/ADR-0013) — debugging discipline for unclear bugs
+│   │   ├── verification-before-completion/  # Trial (meta/adr/ADR-0013) — verify before claiming "done"
+│   │   └── grill-me/                  # Trial (meta/adr/ADR-0013) — one-question-at-a-time requirements interview
 │   └── hooks/
 │       ├── domain-boundary-check.sh   # Domain Boundary contract check (run in /review Step 0; --audit-all for whole-repo audit)
 │       └── review-score.sh            # Scores the branch diff to pick the review level (/review Step 0)
@@ -76,7 +79,10 @@ Template's Own Layer        → meta/adr/ (outside the project's own decision-ma
 │       ├── ADR-0008-tdd-e2e-harness-tooling.md
 │       ├── ADR-0009-review-escalation-mechanism.md
 │       ├── ADR-0010-domain-boundary-contract.md
-│       └── ADR-0011-existing-codebase-adoption.md
+│       ├── ADR-0011-existing-codebase-adoption.md
+│       ├── ADR-0012-skills-vs-commands.md
+│       ├── ADR-0013-third-party-skill-adoption-trial.md
+│       └── ADR-0014-third-party-integrations-deferred.md
 │
 └── docs/
     ├── ai-context/                    # AI summary layer (most important)
@@ -141,7 +147,7 @@ See `SETUP.md` for the detailed step-by-step Gate 0-4 procedure; the summary bel
 2. Replace placeholders like `[PROJECT_NAME]` with project-specific information
 3. Place primary source materials (requirement notes, screen sketches, etc.) in `docs/original-docs/`
 4. Fill in the required files in `docs/ai-context/` by referencing `docs/original-docs/` (Gate 0)
-5. Define requirements in order: `docs/product/requirements.md` → `docs/product/use-cases.md`, referencing `docs/original-docs/` (between Gates 1 and 2)
+5. Define requirements in order: `docs/product/requirements.md` (for ambiguous points, the `grill-me` skill — Trial, `meta/adr/ADR-0013` — can interview one question at a time) → `docs/product/use-cases.md`, referencing `docs/original-docs/` (between Gates 1 and 2)
 6. Generate HTML mockups with `/generate-mock` and have the business side review them
 7. Incorporate feedback into `use-cases.md` and get final human approval (Gate 2)
 8. Design and approve `docs/architecture/data-model.md` before starting AI code generation (Gate 3)

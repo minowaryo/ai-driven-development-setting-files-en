@@ -108,3 +108,4 @@ Exempt (no approval needed): changes with no user-observable effect — refactor
 - [ ] Is there a migration plan (for DB changes)?
 - [ ] Have tests been added?
 - [ ] Has documentation been updated?
+- [ ] Before declaring this complete, did you actually run the relevant command/test in this turn rather than assert from reading code alone? (`.claude/skills/verification-before-completion/SKILL.md`, Trial — `meta/adr/ADR-0013`)

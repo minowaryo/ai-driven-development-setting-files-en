@@ -29,7 +29,7 @@ at project kickoff — it is not part of the steady-state per-session reading li
 
 | Task type | Read this |
 |---|---|
-| Creating / updating requirements.md or use-cases.md | `docs/original-docs/` (primary sources) + `docs/product/requirements.md` |
+| Creating / updating requirements.md or use-cases.md | `docs/original-docs/` (primary sources) + `docs/product/requirements.md`; for ambiguous points, `.claude/skills/grill-me/SKILL.md` (one-question-at-a-time interview, Trial) |
 | Requirements / UC reference | `docs/product/requirements.md` + `docs/product/use-cases.md` |
 | Code implementation (feature development) | `docs/product/use-cases.md` + `docs/architecture/data-model.md` + `docs/product/mockups/` |
 | UI implementation / mock-based development | `docs/product/ui-guidelines.md` + `docs/product/mockups/` |
@@ -43,7 +43,8 @@ at project kickoff — it is not part of the steady-state per-session reading li
 | Change request (CR) | `docs/rcid/traceability-matrix.md` |
 | User-facing feature / usage change | `docs/product/user-guide.md` |
 | Performing UAT (acceptance testing, optional) | `docs/product/uat-scenarios.md` + `docs/product/uat-results/` (see the UAT section in `.claude/rules/00-global.md`; non-blocking) |
-| Hit an error or library-specific snag | `docs/ai-context/known-pitfalls.md` (check first for a known issue, and append once resolved) |
+| Hit an error or library-specific snag | `docs/ai-context/known-pitfalls.md` (check first for a known issue, and append once resolved); for an unclear/non-trivial bug, `.claude/skills/systematic-debugging/SKILL.md` (Trial) |
+| Claiming a task, fix, or feature is complete | `.claude/skills/verification-before-completion/SKILL.md` (Trial) — verify with an actual run before reporting success |
 
 ## Global rules
 
