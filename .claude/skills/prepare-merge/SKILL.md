@@ -23,12 +23,14 @@ Rules: `.claude/rules/70-git.md` §5 Merge and §6 Pre-Merge Check. This file is
 3. **Tier gate** (§6):
    - `light` → continue
    - `recommended` → suggest `/review`; continue if the user skips it (`Review: skipped`)
-   - `required` → `/review` must already have been run on this branch. If it has not,
-     stop and ask the human to run `/review` (it is human-invoked — ADR-0009)
+   - `required` → `/review` must already have been run on this branch. It counts only if
+     it ran in this session after the branch's last commit, or the user confirms it did —
+     never infer it. If not, stop and ask the human to run `/review` (it is
+     human-invoked — ADR-0009)
 4. **Draft the merge message** in the §5 shape — git's default subject
    (`Merge branch '<branch>'`), a one- or two-sentence why (UC-ID if any; optional for
    `light`), and the trailers `Merge-Check:` (tier, score, sensitive paths),
-   `Review:` (`normal` / `enhanced` / `skipped`), `Tests:` (filled in step 5).
+   `Review:` (`normal` / `enhanced` / `skipped`), `Tests:` (filled in step 6).
 5. **Show the plan and wait** — the message and the exact commands below (`<base>` is the
    project's base branch, `main` unless `REVIEW_SCORE_BASE_BRANCH` says otherwise).
    Only an approval given **after** this plan is shown counts as the instruction to merge

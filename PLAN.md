@@ -4,8 +4,8 @@
 
 ### Decision
 
-- Full design spec: `C:\Users\ryo-minowa\.claude\plans\ai_driven_development_setting_files_en_git_workflow_design.md`
-  (to be recorded as `meta/adr/ADR-0015-git-workflow.md` at implementation).
+- Full design spec: the author's local planning notes (`~/.claude/plans/`, not in this repo);
+  the durable record is `meta/adr/ADR-0015-git-workflow.md`.
 - Primary host is GitLab (GitHub must still work). MR/PR process, CI, and branch
   protection are deferred; branches + commits + `--no-ff` merge commits alone must
   produce the record.
@@ -26,12 +26,12 @@
   override Superpowers Git skills.
 - `.claude/rules/70-git.md` is the single source of truth for Git rules; every other
   file keeps at most a one-line pointer.
-- After EN is complete, port to the JP sibling repo (`C:\workspace\ai-driven-development-setting-files`).
+- After EN is complete, port to the JP sibling repo (`ai-driven-development-setting-files`).
 
 ### Files touched
 
-Implementation plan: `C:\Users\ryo-minowa\.claude\plans\ai_driven_development_setting_files_en_git_workflow_plan.md`
-(branch `feat/git-workflow-rules`).
+Implementation plan: the author's local planning notes (not in this repo); branch
+`feat/git-workflow-rules`.
 
 Phase A (docs): `.claude/rules/70-git.md` (new), `meta/adr/ADR-0015-git-workflow.md` (new),
 `meta/adr/README.md`, `meta/adr/ADR-0009-review-escalation-mechanism.md`, `CLAUDE.md`,
@@ -49,14 +49,15 @@ template-internal, `APPLY_TEMPLATE.md` class X), `.claude/commands/commit.md` (n
 
 ### Status
 
-Implemented (EN) on `feat/git-workflow-rules`. Verified: `bash meta/tests/review-score.test.sh`
-→ 15/15; force push denied / normal push not denied in a live session; fresh `claude -p`
-session loads `70-git.md` and `prepare-merge`. Not committed — awaiting explicit
-instruction. ADR-0015 anonymized (no internal project names). Also set the template's own
-PLAN.md archive destination to `meta/history/plan-archive.md` (class X, never copied;
-`.claude/rules/60-docs.md`, `APPLY_TEMPLATE.md`, `README.md`) — EN has not needed it yet.
-JP port done on JP `feat/git-workflow-rules` (not committed). `APPLY_TEMPLATE.md` class D
-now creates the target's `PLAN.md` blank (title line only), so no template header note leaks.
+Completed in EN and JP: committed on `feat/git-workflow-rules`, `/review` (enhanced) passed
+with its findings fixed, then merged into `main` with `--no-ff` via `prepare-merge`.
+Verified: `bash meta/tests/review-score.test.sh` → 27/27; force push denied / normal push
+not denied in a live session; a fresh `claude -p` session loads `70-git.md` and
+`prepare-merge`. ADR-0015 is anonymized (no internal project names). The template's own
+PLAN.md archive lives in `meta/history/` (class X). Target projects start with a blank
+`PLAN.md` on both paths: `APPLY_TEMPLATE.md` class D, and `SETUP.md` "Before Step 1" for
+projects copied from the template (which also removes `meta/tests/`, `meta/history/`,
+`APPLY_TEMPLATE.md`). Follow-up: revisit the Trial thresholds after real use (ADR-0015).
 
 ## Third-party skill/plugin adoption: 4 in-house skills (Trial) + a deferral record (2026-09-28)
 

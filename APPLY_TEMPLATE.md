@@ -147,7 +147,7 @@ chose in a class E resolution. Keep the list for the final report.
 
    ```bash
    { git -C "$TPL" ls-files \
-       | grep -vxE 'README\.md|PLAN\.md|APPLY_TEMPLATE\.md'; \
+       | grep -vxE 'README\.md|PLAN\.md|APPLY_TEMPLATE\.md|meta/(tests|history)/.*'; \
      echo README_harness.md; echo PLAN.md; } \
      | git check-ignore --no-index --stdin
    ```

@@ -88,8 +88,8 @@ Template's Own Layer        → meta/adr/ (outside the project's own decision-ma
 │   │   ├── ADR-0013-third-party-skill-adoption-trial.md
 │   │   ├── ADR-0014-third-party-integrations-deferred.md
 │   │   └── ADR-0015-git-workflow.md
-│   ├── history/                       # Archive of this template's own PLAN.md entries (created when first needed) — never copied into target projects
-│   └── tests/                         # Tests for the template's own scripts (e.g. review-score.test.sh) — never copied into target projects
+│   ├── history/                       # Archive of this template's own PLAN.md entries (created when first needed) — template-internal (not copied by APPLY_TEMPLATE; removed in SETUP.md)
+│   └── tests/                         # Tests for the template's own scripts (e.g. review-score.test.sh) — template-internal (not copied by APPLY_TEMPLATE; removed in SETUP.md)
 │
 └── docs/
     ├── ai-context/                    # AI summary layer (most important)
@@ -150,7 +150,7 @@ Template's Own Layer        → meta/adr/ (outside the project's own decision-ma
 
 See `SETUP.md` for the detailed step-by-step Gate 0-4 procedure; the summary below is:
 
-1. Copy this repository as a template for a new project
+1. Copy this repository as a template for a new project, then clear the template's own files (blank `PLAN.md`, remove `meta/tests/`, `meta/history/`, `APPLY_TEMPLATE.md` — `SETUP.md` "Before Step 1")
 2. Replace placeholders like `[PROJECT_NAME]` with project-specific information
 3. Place primary source materials (requirement notes, screen sketches, etc.) in `docs/original-docs/`
 4. Fill in the required files in `docs/ai-context/` by referencing `docs/original-docs/` (Gate 0)
