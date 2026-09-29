@@ -25,7 +25,7 @@ See `SETUP.md`'s Existing-Codebase Path and `meta/adr/ADR-0011-existing-codebase
 | Role | Tasks |
 |---|---|
 | **AI** | Detect the real stack (frontend/backend/DB/auth); run `.claude/hooks/domain-boundary-check.sh --audit-all`; draft `docs/ai-context/*`, `use-cases.md` (as-is), `data-model.md`; compile the "Needs confirmation" and "Backlog" lists |
-| **Human** | Resolve the "Needs confirmation" list (term meanings, do-not-touch boundaries, code-vs-old-doc discrepancies); give the one consolidated Gate 0-3 sign-off; final review and merge (unchanged from the greenfield case) |
+| **Human** | Resolve the "Needs confirmation" list (term meanings, code-vs-old-doc discrepancies, which rules apply to new code); check the "Defaults applied" list (e.g. do-not-touch boundaries); give the one consolidated Gate 0-3 sign-off; final review and merge (unchanged from the greenfield case) |
 
 **Same in both**: AI never generates implementation code before human approval (Gate 2 /
 the Gate 0-3 consolidated checkpoint); final review and merge stays human-only.

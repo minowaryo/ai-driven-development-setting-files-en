@@ -51,7 +51,8 @@ further down for when you want to run them by hand or re-run one.
 ```
 
 → Detects the stack, drafts `docs/ai-context/*`, `use-cases.md`, and `data-model.md`, and
-ends by printing the Needs-confirmation and Backlog lists for human review (see
+ends by printing a prioritized Review Guide (where to look, what can be skipped), the
+numbered Needs-confirmation questions, and the Backlog list (see
 `.claude/commands/onboard-existing-codebase.md`). Once the Needs-confirmation list is
 resolved, rejoin at Step 4.
 
@@ -59,21 +60,26 @@ resolved, rejoin at Step 4.
 Pre-existing org documentation (wikis, old specs, READMEs) is cross-checking material only —
 never a substitute for reading the actual code, never grounds for silently overriding it.
 **Never settle an ambiguity or a code-vs-docs disagreement by guessing which side is right
-and drafting on that guess — put it on the Needs-confirmation list and ask.**
+and drafting on that guess.** Verify it in the code if possible, apply a harmless
+conservative default if one exists, and otherwise put it on the Needs-confirmation list and
+ask.
 
 **Who does what**: AI drafts every document below and compiles the two lists; the human
 resolves the blocking list and gives one sign-off, instead of authoring the documents by
 hand. See `docs/development/ai-workflow.md`'s "Role Breakdown" for both paths side by side.
 
 **Two lists, not one — only one of them blocks anything**:
-- **"Needs confirmation"** (blocking) — anything affecting whether the drafted documents are
-  trustworthy: business-meaning guesses, do-not-touch boundary guesses, use-case
-  discrepancies, stack mismatches significant enough to change which rules apply. Resolving
-  this list *is* the Gate 0-3 sign-off.
+- **"Needs confirmation"** (blocking) — only what the code cannot answer: business-meaning
+  guesses, use-case discrepancies, stack mismatches significant enough to change which rules
+  apply. Anything AI can verify by reading more code is verified instead of asked, and
+  uncertain do-not-touch boundaries get a conservative default instead of a question.
+  Resolving this list *is* the Gate 0-3 sign-off.
 - **"Backlog"** (non-blocking, suggestion only) — problems in the existing code itself, not
-  in the documentation: `.claude/hooks/domain-boundary-check.sh --audit-all` findings. A
-  heads-up, never required before Step 4, and saved nowhere — the same findings resurface on
-  every future `/review` (`ADR-0010`).
+  in the documentation: `.claude/hooks/domain-boundary-check.sh --audit-all` findings plus
+  other code defects noticed while drafting (injection-shaped SQL, dead code, etc.). A
+  heads-up, never required before Step 4, and saved nowhere. The domain-boundary findings
+  resurface on every future `/review` (`ADR-0010`); other defects are shown only once, so
+  record any you want to keep (e.g. in your issue tracker).
 
 **Do not run Claude Code's built-in `/init` here**: it would overwrite this template's
 `CLAUDE.md` (Gate 0 pointer, "Read first" list, etc.) with a generic one.
@@ -96,20 +102,27 @@ hand. See `docs/development/ai-workflow.md`'s "Role Breakdown" for both paths si
     Existing-Codebase Path isn't a structural fit for this codebase
   - Record the detected frontend/backend stack via `/adr`, Decision section stating what
     was *found*, not *chosen*
+  - Ask only what is needed to start Step 4 (is the detection accurate, which rules apply
+    to new code) — whether to migrate the stack is out of scope
 - Run `.claude/hooks/domain-boundary-check.sh --audit-all`; its findings go on the
   **Backlog** list, never the Needs-confirmation list — this is exactly the "backlog, not
   a blocker" case `ADR-0010` already anticipated, and keeps inherited architecture debt
   from blocking the feature work someone actually came here to do
+- Replace template files that assume the default stack when the detected stack differs:
+  `docs/architecture/authz-authn.md` gets the as-is facts; `.claude/rules/15-frontend.md` /
+  `20-mysql.md` get a banner until the human says which rules apply to new code (the
+  global, Laravel, and security rules are never bannered)
 - Draft `project-summary.md`, `module-map.md`, `glossary.md`, `common-commands.md`,
-  `do-not-touch.md` from what is actually there; only business-meaning guesses and
-  uncertain do-not-touch boundaries go on the Needs-confirmation list — mechanically-read
-  content doesn't go on either list
+  `do-not-touch.md` from what is actually there; only business-meaning guesses go on the
+  Needs-confirmation list, uncertain do-not-touch boundaries get a conservative default —
+  mechanically-read content doesn't go on either list
 
 #### Step 2B — Document current behavior as `use-cases.md` (as-is, not aspirational)
 
 - Draft `use-cases.md` from the actual code paths (routes → controllers → policies),
   labeled explicitly as current behavior, not a specification of desired behavior
-- `requirements.md` is optional here — its purpose doesn't apply to code that already runs
+- `requirements.md` is optional here — its purpose doesn't apply to code that already runs;
+  replace its placeholder with a one-line pointer to `use-cases.md`
 - If the code disagrees with pre-existing org docs, add a **discrepancy note** to the
   Needs-confirmation list — never silently resolve it either direction; changing code or
   spec is a human decision under the existing rule in `.claude/rules/00-global.md`
@@ -119,11 +132,12 @@ hand. See `docs/development/ai-workflow.md`'s "Role Breakdown" for both paths si
 - Generate `data-model.md` from the real migrations/DB schema — almost entirely mechanical,
   so it rarely adds to the Needs-confirmation list, and only once the DB engine is
   confirmed in Step 1B
+- Replace `docs/architecture/overview.md` with the as-is system context (mechanical)
 
 **Gate 0-3 for this path (one consolidated checkpoint, not four)**: a human resolves the
 "Needs confirmation" list only, explicitly covering all of: ai-context accuracy, the
 detected stack, `use-cases.md` accuracy, and `data-model.md` accuracy. That one sign-off
-satisfies Gates 0 through 3 together. The Backlog list (architecture findings) is shown at
+satisfies Gates 0 through 3 together. The Backlog list (code defects) is shown at
 the same time but is never part of what's being signed off — read it or don't, act on it
 now or later.
 

@@ -62,7 +62,7 @@ silently papered over. A **fundamental** mismatch (the backend isn't PHP/Laravel
 all) is a stop-and-flag: this path isn't a structural fit for that codebase, and forcing
 Laravel-specific rules onto non-Laravel code would be actively misleading.
 
-### 3. Two separate output lists — only one of them blocks anything
+### 3. Two separate output lists — only one of them blocks anything (refined in section 9)
 
 - **"Needs confirmation" list (blocking)** — only things affecting whether the *drafted
   documents themselves* are trustworthy: business-meaning guesses, do-not-touch boundary
@@ -95,7 +95,7 @@ Laravel-specific rules onto non-Laravel code would be actively misleading.
   code, run at the human's discretion — not a step this path adds, automates, or gives any
   special treatment to.
 
-### 4. Confidence-flagged drafting
+### 4. Confidence-flagged drafting (refined in section 9)
 
 Every draft distinguishes *mechanically extracted* content (read verbatim from code/config
 — usable as AI reference immediately, no human check needed) from *inferred/judgment*
@@ -124,7 +124,7 @@ bracketed placeholders *and* the repo already contains substantial application c
 existing-codebase adoption before acting on whatever else was asked. `00-global.md` keeps a
 secondary copy of the check as reinforcement, not as the primary trip-wire.
 
-### 7. A new slash command, understood as an extended `/init`
+### 7. A new slash command, understood as an extended `/init` (output refined in section 9)
 
 `.claude/commands/onboard-existing-codebase.md`, same shape as `/generate-mock` / `/adr` /
 `/tdd` / `/review`, runs Step 1B-3B end to end and ends in the two outputs above. Running
@@ -137,7 +137,7 @@ generic `CLAUDE.md`, adds backend/DB/auth stack detection (not just a generic su
 integrates `domain-boundary-check.sh`, and goes further than `/init` ever does by also
 drafting `use-cases.md` (as-is behavior) and `data-model.md`.
 
-### 8. Deliberately not a rulebook
+### 8. Deliberately not a rulebook (refined in section 9)
 
 This decision does not try to enumerate every kind of code-vs-docs ambiguity in advance —
 that would keep needing relitigating case by case regardless, and would make initial setup
@@ -146,6 +146,33 @@ ambiguity by guessing and proceeding — put it on the Needs-confirmation list a
 single guardrail is what prevents an AI from silently deciding "the code is right" (or "the
 doc is right") and drafting or implementing on that guess, which is the actual failure mode
 to prevent, not incomplete case coverage.
+
+### 9. Amendment (2026-09-29): triage before asking, and a prioritized output
+
+A first real run surfaced the output asking a human far more than necessary: code defects on
+the blocking list, questions the AI could have answered itself, the same fact restated in
+five files, and every uncertain do-not-touch boundary raised as a question. The command now
+triages every item before printing (mechanical fact / AI-verifiable / code defect / needs
+human), which refines sections 3, 4, 7, and 8 above:
+
+- **Code defects go on the Backlog**, not only `domain-boundary-check.sh` findings — they are
+  problems in the code, and the docs describe them accurately either way. The Backlog is
+  still not persisted, but section 3's "resurfaces on every `/review`" holds only for the
+  hook's findings; the output says so, and the human records any other defect worth keeping.
+- **AI-verifiable items are verified, not asked.** "Never guess" still holds; checking the
+  code is not guessing.
+- **Uncertain do-not-touch boundaries get a conservative default** (treat as do-not-touch),
+  shown under "Defaults applied" instead of on the blocking list. An over-cautious boundary
+  causes no harm and a human can loosen it later.
+- **Template files that assume the default stack are reconciled** — `authz-authn.md`,
+  `overview.md`, and `requirements.md` are replaced with as-is facts or a pointer, while
+  `15-frontend.md` / `20-mysql.md` get a banner until the human decides which rules apply to
+  new code. The global, Laravel, and security rule files are never bannered: a mismatch
+  there is a P1 question, and those rules keep applying to new code meanwhile.
+- **Output starts with a Review Guide** ranking what to look at (P1-P3), listing defaults
+  applied and files needing no review, followed by numbered one-line questions.
+- **The sign-off stays explicitly human.** The AI records the Gate 0-3 approval only after
+  the human gives it, never on its own judgment that every item is resolved.
 
 ## Rationale
 
@@ -196,8 +223,10 @@ to prevent, not incomplete case coverage.
   instead of a misleading forced adoption — this is treated as correct behavior, not a gap
   to fix later.
 - The Backlog list's non-persistence means a human who ignores it at onboarding time has no
-  local record of it until the next `/review` — acceptable, since `/review` already runs
-  before every merge per existing process.
+  local record of it until the next `/review` — acceptable for `domain-boundary-check.sh`
+  findings, since `/review` already runs before every merge per existing process. Other
+  code defects (section 9) do not come back; the output tells the human to record any worth
+  keeping, and a missed one is the accepted cost of not persisting the list.
 
 ## Related
 - `meta/adr/ADR-0004-ai-development-policy.md` — the greenfield workflow this path branches from
