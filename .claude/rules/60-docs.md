@@ -23,17 +23,18 @@
 | Business policy change for permissions / roles | `docs/product/org-permission-philosophy.md` + `docs/architecture/authz-authn.md` |
 | User-facing feature / usage change | `docs/product/user-guide.md` |
 | UAT scenario / result additions (optional) | `docs/product/uat-scenarios.md` / `docs/product/uat-results/` (see the UAT section in `.claude/rules/00-global.md`; non-blocking) |
-| Resolved a library/framework-specific pitfall | `docs/ai-context/known-pitfalls.md` (not loaded every time, so it doesn't need to be in the same PR as the code change — append whenever one is resolved) |
+| Resolved a library/framework-specific pitfall | `docs/ai-context/known-pitfalls.md` (not loaded every time, so it doesn't need to be in the same commit as the code change — append whenever one is resolved) |
 | New data model added (CRUD coverage) | see `.claude/rules/30-testing.md` (CRUD coverage rule) |
 | New dev/test credential or API key location noted | `docs/credentials/README.md` (never commit the actual secret) |
 | Error-handling or response-format convention change | `docs/development/coding-standards.md` |
 | Gate condition / quality-gate process changes | `.claude/rules/00-global.md` (details table, absolute prohibitions) + `SETUP.md` (Step procedures) + `AGENTS.md` (for Codex — Gate definitions are duplicated there, so all 3 files need to stay in sync) |
 | Human/AI role-division change (new adoption path, new AI capability, etc.) | `docs/development/ai-workflow.md` (Role Breakdown) + a pointer amendment on `meta/adr/ADR-0004` if it's policy-level (see its 2026-07-15 / 2026-09-15 amendment notes for the style) |
 | New AI entry point added (skill or command) | `docs/ai-context/common-commands.md` (entry-point table) + `README.md` (directory tree). Choose `.claude/skills/` vs `.claude/commands/` by the criterion in `meta/adr/ADR-0012-skills-vs-commands.md` |
+| Git workflow change (branches, commits, push, merge, pre-merge check) | `.claude/rules/70-git.md` only — other files keep at most a one-line pointer to it (+ an ADR if policy-level; see `meta/adr/ADR-0015`) |
 
 ## Documentation Update Principles
 
-1. **Update documentation in the same PR as the code change**
+1. **Update documentation in the same commit as the code change**
 2. Specification changes should be documented before coding (document-first)
 3. ADRs must always include "why this decision was made" (not just What, but Why)
 4. Keep `docs/ai-context/` short and accurate (it is the AI-facing summary layer)
@@ -54,7 +55,7 @@ Always create an ADR when making the following decisions:
 `PLAN.md` is the ongoing task ledger referenced across sessions. Appending to it without limit eventually bloats the file to the point where it becomes hard to scan. Keep it within a bounded size using the following rule.
 
 - **Limit**: keep `PLAN.md` **under 300 lines** (treat crossing 250 lines as the trigger to consider archiving)
-- **Archive destination**: `docs/history/plan-archive.md` (create it if it does not yet exist in the project)
+- **Archive destination**: `docs/history/plan-archive.md` (create it if it does not yet exist in the project). In the harness template repository itself, use `meta/history/plan-archive.md` instead — it is template-internal and never copied into projects (`APPLY_TEMPLATE.md` class X)
 - **What to archive first**: `PLAN.md` is maintained with new entries prepended to the top, so archive **starting from the bottom (oldest) entries**, and only entries whose Status is "done"-equivalent (e.g., Completed, Green confirmed, Merged, Implemented — i.e., no follow-up work is still pending). Leave in place any entry that is awaiting user approval, in progress, or has a next action noted
 - **Procedure**:
   1. Move the target entry (the full `##`-heading unit — Decision / Files touched / Status sections together) verbatim into `docs/history/plan-archive.md`. Order the archive newest-first as well (i.e., the entry that most recently left `PLAN.md` goes at the top)

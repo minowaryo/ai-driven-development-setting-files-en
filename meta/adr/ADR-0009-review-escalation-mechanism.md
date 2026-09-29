@@ -3,6 +3,8 @@
 ## Status
 Accepted
 
+> Updated 2026-09-29: the score also drives the pre-merge check tiers (`MERGE_CHECK=` line) — see ADR-0015.
+
 ## Date
 2026-08-14
 

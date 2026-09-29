@@ -1,4 +1,4 @@
-# 50-review.md — PR Review Guidelines
+# 50-review.md — Review Guidelines
 
 ## Automatic Review-Intensity Determination (review-score)
 
@@ -16,7 +16,7 @@ When `/review` runs, its first step (Step 0) automatically executes the `review-
 
 ## Pre-Review Self-Check (Author)
 
-Check these yourself before opening a PR:
+Check these yourself before merging:
 
 - [ ] Is it linked to requirements in `docs/product/use-cases.md`?
 - [ ] Is there a Feature Test?

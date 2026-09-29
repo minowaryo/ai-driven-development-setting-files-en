@@ -76,5 +76,5 @@ For every non-trivial change:
 - Committing secrets or credentials
 - Bypassing Gate / Policy for authorization
 - Schema-breaking migrations without migration plan
-- Force-pushing to main/master
+- Force-pushing, or committing / pushing / merging without explicit instruction — the full Git rules are in `.claude/rules/70-git.md`; read it before branching, committing, pushing, or merging
 - Editing, deleting, or creating files under `docs/original-docs/` (except its own `README.md`)

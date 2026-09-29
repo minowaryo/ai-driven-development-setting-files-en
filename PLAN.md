@@ -1,5 +1,63 @@
 # PLAN.md
 
+## Git workflow rules: branches, commit unit, authority, --no-ff merge record, merge-check tiers (2026-09-29)
+
+### Decision
+
+- Full design spec: `C:\Users\ryo-minowa\.claude\plans\ai_driven_development_setting_files_en_git_workflow_design.md`
+  (to be recorded as `meta/adr/ADR-0015-git-workflow.md` at implementation).
+- Primary host is GitLab (GitHub must still work). MR/PR process, CI, and branch
+  protection are deferred; branches + commits + `--no-ff` merge commits alone must
+  produce the record.
+- GitHub-Flow-style short-lived branches (`<type>/<issue-no>-<slug>`); direct commits to
+  `main` only for docs/typo-only changes.
+- Commit unit: one-sentence test, green at every commit, behavior / refactor / formatting
+  kept apart; `/tdd` Red+Green = one commit, Refactor = separate commit, migration = own commit.
+- Authority: AI commits only via `/commit` (split proposal → one human approval); push
+  only on explicit instruction (`ask`); force-push denied; merge prepared by the new
+  `prepare-merge` skill and executed only on explicit instruction.
+- Merge commit = lightweight MR substitute: git default subject + short "why" body +
+  `Merge-Check:` / `Review:` / `Tests:` trailers.
+- Pre-merge check reuses `review-score.sh`: `light` (< 10, tests only) / `recommended`
+  (10-29, `/review` suggested) / `required` (≥ 30 or any sensitive path, `/review`
+  mandatory). Thresholds calibrated on 4 local Laravel repos' history plus Google
+  "Small CLs" / SmartBear guidance; Trial status.
+- Worktrees only for parallel sessions; no per-task sub-agent review loop; project rules
+  override Superpowers Git skills.
+- `.claude/rules/70-git.md` is the single source of truth for Git rules; every other
+  file keeps at most a one-line pointer.
+- After EN is complete, port to the JP sibling repo (`C:\workspace\ai-driven-development-setting-files`).
+
+### Files touched
+
+Implementation plan: `C:\Users\ryo-minowa\.claude\plans\ai_driven_development_setting_files_en_git_workflow_plan.md`
+(branch `feat/git-workflow-rules`).
+
+Phase A (docs): `.claude/rules/70-git.md` (new), `meta/adr/ADR-0015-git-workflow.md` (new),
+`meta/adr/README.md`, `meta/adr/ADR-0009-review-escalation-mechanism.md`, `CLAUDE.md`,
+`AGENTS.md`, `.claude/rules/00-global.md`, `.claude/rules/30-testing.md`,
+`.claude/rules/50-review.md`, `.claude/rules/60-docs.md`,
+`docs/development/coding-standards.md`, `docs/development/review-checklist.md`,
+`docs/development/ai-workflow.md`, `docs/security/secrets-handling.md`,
+`docs/product/org-permission-philosophy.md`, `docs/product/user-guide.md`,
+`docs/ai-context/common-commands.md`, `README.md`.
+
+Phase B: `.claude/hooks/review-score.sh`, `meta/tests/review-score.test.sh` (new —
+template-internal, `APPLY_TEMPLATE.md` class X), `.claude/commands/commit.md` (new),
+`.claude/skills/prepare-merge/SKILL.md` (new), `.claude/commands/tdd.md`,
+`.claude/settings.json` (new), `.gitignore`, `APPLY_TEMPLATE.md`.
+
+### Status
+
+Implemented (EN) on `feat/git-workflow-rules`. Verified: `bash meta/tests/review-score.test.sh`
+→ 15/15; force push denied / normal push not denied in a live session; fresh `claude -p`
+session loads `70-git.md` and `prepare-merge`. Not committed — awaiting explicit
+instruction. ADR-0015 anonymized (no internal project names). Also set the template's own
+PLAN.md archive destination to `meta/history/plan-archive.md` (class X, never copied;
+`.claude/rules/60-docs.md`, `APPLY_TEMPLATE.md`, `README.md`) — EN has not needed it yet.
+JP port done on JP `feat/git-workflow-rules` (not committed). `APPLY_TEMPLATE.md` class D
+now creates the target's `PLAN.md` blank (title line only), so no template header note leaks.
+
 ## Third-party skill/plugin adoption: 4 in-house skills (Trial) + a deferral record (2026-09-28)
 
 ### Decision

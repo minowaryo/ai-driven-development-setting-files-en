@@ -46,11 +46,11 @@ There are two separate branch points, and they answer different questions:
 
 | Class | Paths | Action in the target |
 |---|---|---|
-| **A** — copy as-is | Every path in `git ls-files` that is not listed under R / C / D / X. Today that is: `.claude/agents/`, `.claude/commands/`, `.claude/hooks/`, `.claude/rules/`, `.claude/skills/`, `meta/adr/`, `docs/` (all of it), `SETUP.md`, `GLOBAL_CLAUDE.md`, `.mcp.json` | Copy byte-for-byte when the path does not exist in the target. If it does exist → class E (except `.mcp.json` → class C). A file added to this template later falls into class A automatically; if it should not be copied, list it under X. |
+| **A** — copy as-is | Every path in `git ls-files` that is not listed under R / C / D / X. Today that is: `.claude/agents/`, `.claude/commands/`, `.claude/hooks/`, `.claude/rules/`, `.claude/skills/`, `meta/adr/`, `docs/` (all of it), `SETUP.md`, `GLOBAL_CLAUDE.md`, `.mcp.json`, `.claude/settings.json` | Copy byte-for-byte when the path does not exist in the target. If it does exist → class E (except `.mcp.json` / `.claude/settings.json` → class C). A file added to this template later falls into class A automatically; if it should not be copied, list it under X. |
 | **R** — copy under another name | `README.md` → `README_harness.md` | The target keeps its own `README.md` untouched. `README_harness.md` is a read-only reference copy of the harness overview; no rule in the target reads or maintains it (the target's `.claude/rules/60-docs.md` "`README.md` directory tree" row refers to the template repository's own README, not to either file in the target). If `README_harness.md` already exists → class E. |
-| **C** — append-merge | `.gitignore`, `.gitattributes`; `.mcp.json` only when the target already has one | Keep every existing line. Append the template's rule lines that are not already present (exact-line match) inside one marked block (format below) — comment lines and blank lines are not copied; the block header already points back here. Skip the template's own `.gitignore` entries that only make sense in this repository — today `.claude/.claude-plugin/`, `.claude/evals/`, `dist/`, `docs/handbook/`, and `docs/original-docs/*.pptx` — since in the target they could hide files it actually commits (the last one would hide its own primary sources). For `.mcp.json`, add the template's `mcpServers` entries as keys; a key that already exists → class E. A template line that *contradicts* an existing rule (e.g. the target already sets a different `eol` for `*.sh`) → class E. |
-| **D** — create fresh | `CLAUDE.md`, `AGENTS.md`, `PLAN.md` | `CLAUDE.md`: copy the template's file, set the **Repository** line to the target's `git remote get-url origin` (or `[REPOSITORY_URL]` if there is no remote), and leave every other `[...]` placeholder for Phase 4 to fill. If the target already has a `CLAUDE.md`, keep it and append the prepared content (minus its `# CLAUDE.md` title) at the end, inside the same marked block as class C. Check in Phase 0 for instructions that contradict the template (e.g. the existing file allows autonomous commits); any contradiction → class E. `PLAN.md`: create it with only the header block (everything above the first `##` entry) — the entries below it are this template's own history, not the target's. `AGENTS.md` (the Codex entry point): copy the template's file; if the target already has one, append it the same way as `CLAUDE.md`, with the same contradiction check. If `PLAN.md` already exists → class E. |
-| **X** — never copy | `.git/`, `.claude/settings.local.json`, `.claude/scheduled_tasks.lock`, `.claude/evals/` and `.claude/.claude-plugin/` (the template's local-only self-eval harness), `dist/`, `docs/handbook/` and `docs/original-docs/*.pptx` (template-internal, ignored via its `.gitignore`), `APPLY_TEMPLATE.md` (this file), and anything else not in `git ls-files` | Machine-specific settings, a live session lock, template-internal tooling, and template-side procedure. A plain recursive copy (`cp -r`) would pick these up; `git ls-files` does not. Their absence does not affect the harness: Claude Code loads `CLAUDE.md`, `.claude/` and `.mcp.json`, and recreates `settings.local.json` on its own when permissions are approved. |
+| **C** — append-merge | `.gitignore`, `.gitattributes`; `.mcp.json` and `.claude/settings.json` only when the target already has one | Keep every existing line. Append the template's rule lines that are not already present (exact-line match) inside one marked block (format below) — comment lines and blank lines are not copied; the block header already points back here. Skip the template's own `.gitignore` entries that only make sense in this repository — today `.claude/.claude-plugin/`, `.claude/evals/`, `dist/`, `docs/handbook/`, and `docs/original-docs/*.pptx` — since in the target they could hide files it actually commits (the last one would hide its own primary sources). For `.mcp.json`, add the template's `mcpServers` entries as keys; a key that already exists → class E. For `.claude/settings.json`, add the template's `permissions` entries that are missing; an entry that contradicts the target's (e.g. the target allows what the template denies) → class E. A template line that *contradicts* an existing rule (e.g. the target already sets a different `eol` for `*.sh`) → class E. |
+| **D** — create fresh | `CLAUDE.md`, `AGENTS.md`, `PLAN.md` | `CLAUDE.md`: copy the template's file, set the **Repository** line to the target's `git remote get-url origin` (or `[REPOSITORY_URL]` if there is no remote), and leave every other `[...]` placeholder for Phase 4 to fill. If the target already has a `CLAUDE.md`, keep it and append the prepared content (minus its `# CLAUDE.md` title) at the end, inside the same marked block as class C. Check in Phase 0 for instructions that contradict the template (e.g. the existing file allows autonomous commits); any contradiction → class E. `PLAN.md`: create it blank — only the `# PLAN.md` title line. Copy nothing from the template's own `PLAN.md`: its header notes (e.g. the archive range) and its entries are this template's history, not the target's. `AGENTS.md` (the Codex entry point): copy the template's file; if the target already has one, append it the same way as `CLAUDE.md`, with the same contradiction check. If `PLAN.md` already exists → class E. |
+| **X** — never copy | `.git/`, `.claude/settings.local.json`, `.claude/scheduled_tasks.lock`, `.claude/evals/` and `.claude/.claude-plugin/` (the template's local-only self-eval harness), `dist/`, `docs/handbook/` and `docs/original-docs/*.pptx` (template-internal, ignored via its `.gitignore`), `APPLY_TEMPLATE.md` (this file), `meta/tests/` and `meta/history/` (tests for the template's own scripts, and the archive of its own `PLAN.md` — tracked here, never copied), and anything else not in `git ls-files` | Machine-specific settings, a live session lock, template-internal tooling, and template-side procedure. A plain recursive copy (`cp -r`) would pick these up; `git ls-files` does not. Their absence does not affect the harness: Claude Code loads `CLAUDE.md`, `.claude/` and `.mcp.json`, and recreates `settings.local.json` on its own when permissions are approved. |
 | **E** — collision: stop and ask | Any class A / R / D path that already exists in the target, and any contradicting class C line or key | Stop. Show the human both versions (or a diff) and the options — keep the target's / take the template's / merge by hand — and apply only what they choose. Never resolve it by picking a side yourself. |
 
 Class C block format (`.gitignore` / `.gitattributes`):
@@ -81,17 +81,18 @@ path. The Bash snippets need Git Bash or WSL on Windows (same prerequisite as
 4. Build the collision inventory:
 
    ```bash
-   git -C "$TPL" ls-files | while read -r f; do [ -e "$f" ] && echo "EXISTS: $f"; done
+   git -C "$TPL" ls-files | grep -Ev '^meta/(tests|history)/' | while read -r f; do [ -e "$f" ] && echo "EXISTS: $f"; done
    [ -e README_harness.md ] && echo "EXISTS: README_harness.md"
    ```
 
    Hits on `README.md` (class R), `.gitignore` / `.gitattributes` (class C),
-   `.mcp.json` (class C), and `CLAUDE.md` / `AGENTS.md` (class D append) are expected.
+   `.mcp.json` / `.claude/settings.json` (class C), and `CLAUDE.md` / `AGENTS.md` (class D append) are expected.
    **Every other hit is class E** — list them, along with any contradiction found in an
    existing `CLAUDE.md` or `AGENTS.md`.
    If the target already has a `.claude/`, check its existing rules and commands the same
    way — both sets get loaded, so a contradiction with the template is class E even when
-   the file names differ.
+   the file names differ. Existing Git conventions (e.g. squash-only merges, a `develop`
+   branch, a non-`main` base) that contradict `.claude/rules/70-git.md` are class E too.
 5. If the class E list is empty, continue straight to Phase 1. Otherwise **stop**: present
    each class E item and resolve all of them with the human, then continue.
 
@@ -99,7 +100,7 @@ path. The Bash snippets need Git Bash or WSL on Windows (same prerequisite as
 
 ```bash
 git -C "$TPL" ls-files \
-  | grep -vxE 'README\.md|PLAN\.md|CLAUDE\.md|AGENTS\.md|\.gitignore|\.gitattributes|APPLY_TEMPLATE\.md' \
+  | grep -vxE 'README\.md|PLAN\.md|CLAUDE\.md|AGENTS\.md|\.gitignore|\.gitattributes|APPLY_TEMPLATE\.md|meta/(tests|history)/.*' \
   | while read -r f; do
       [ -e "$f" ] && continue   # already exists: handled in Phase 0 (class E) or Phase 2 (class C)
       mkdir -p "$(dirname "$f")" && cp "$TPL/$f" "$f"
@@ -115,7 +116,8 @@ chose in a class E resolution. Keep the list for the final report.
 
 ### Phase 2 — Class C merges and class D creation
 
-1. Append the class C block to `.gitignore` and `.gitattributes` (and merge `.mcp.json`
+1. Append the class C block to `.gitignore` and `.gitattributes` (and merge `.mcp.json` /
+   `.claude/settings.json`
    keys if the target had its own).
 2. Create `CLAUDE.md` and `AGENTS.md` (or append to existing ones) and `PLAN.md` as
    described under class D.
@@ -134,7 +136,7 @@ chose in a class E resolution. Keep the list for the final report.
 
    ```bash
    git -C "$TPL" ls-files \
-     | grep -vxE 'README\.md|PLAN\.md|CLAUDE\.md|AGENTS\.md|\.gitignore|\.gitattributes|\.mcp\.json|APPLY_TEMPLATE\.md' \
+     | grep -vxE 'README\.md|PLAN\.md|CLAUDE\.md|AGENTS\.md|\.gitignore|\.gitattributes|\.mcp\.json|\.claude/settings\.json|APPLY_TEMPLATE\.md|meta/(tests|history)/.*' \
      | while read -r f; do cmp -s "$TPL/$f" "$f" || echo "DIFFERS: $f"; done
    cmp -s "$TPL/README.md" README_harness.md || echo "DIFFERS: README_harness.md"
    ```

@@ -45,7 +45,8 @@ Template's Own Layer        → meta/adr/ (outside the project's own decision-ma
 │   │   ├── 31-e2e-testing.md          # E2E test strategy (Playwright — read only when running /generate-e2e-test)
 │   │   ├── 40-security.md             # Security rules
 │   │   ├── 50-review.md               # Review guidelines
-│   │   └── 60-docs.md                 # Documentation update rules
+│   │   ├── 60-docs.md                 # Documentation update rules
+│   │   └── 70-git.md                  # Git workflow (branches, commit unit, merge, pre-merge check — the only place Git rules live)
 │   ├── agents/
 │   │   ├── test-writer.md             # TDD Red-phase-only sub-agent
 │   │   └── tdd-implementer.md         # TDD Green-phase-only sub-agent
@@ -55,34 +56,40 @@ Template's Own Layer        → meta/adr/ (outside the project's own decision-ma
 │   │   ├── generate-mock.md           # /generate-mock command
 │   │   ├── tdd.md                     # /tdd command (Red → Green → Refactor)
 │   │   ├── generate-e2e-test.md       # /generate-e2e-test command
+│   │   ├── commit.md                  # /commit command (proposes a commit split; commits after one approval)
 │   │   └── onboard-existing-codebase.md  # /onboard-existing-codebase command (Existing-Codebase Path, Steps 1B-3B)
 │   ├── skills/                        # Entry points the model may invoke on its own (see meta/adr/ADR-0012)
 │   │   ├── regenerate-traceability/
 │   │   │   └── SKILL.md               # /regenerate-traceability — rebuilds the Matrix table in docs/rcid/
 │   │   ├── systematic-debugging/      # Trial (meta/adr/ADR-0013) — debugging discipline for unclear bugs
 │   │   ├── verification-before-completion/  # Trial (meta/adr/ADR-0013) — verify before claiming "done"
-│   │   └── grill-me/                  # Trial (meta/adr/ADR-0013) — one-question-at-a-time requirements interview
-│   └── hooks/
-│       ├── domain-boundary-check.sh   # Domain Boundary contract check (run in /review Step 0; --audit-all for whole-repo audit)
-│       └── review-score.sh            # Scores the branch diff to pick the review level (/review Step 0)
+│   │   ├── grill-me/                  # Trial (meta/adr/ADR-0013) — one-question-at-a-time requirements interview
+│   │   └── prepare-merge/             # Trial (meta/adr/ADR-0015) — pre-merge check + --no-ff merge on instruction
+│   ├── hooks/
+│   │   ├── domain-boundary-check.sh   # Domain Boundary contract check (run in /review Step 0; --audit-all for whole-repo audit)
+│   │   └── review-score.sh            # Scores the branch diff: review level (/review Step 0) + pre-merge tier (prepare-merge)
+│   └── settings.json                  # Project permissions: git push asks, force push denied (see .claude/rules/70-git.md §4)
 │
 ├── meta/
-│   └── adr/                           # The template/harness's own ADRs (managed separately from the project's ADRs — no editing or renumbering needed)
-│       ├── README.md
-│       ├── ADR-0001-use-laravel.md
-│       ├── ADR-0002-use-mysql.md
-│       ├── ADR-0003-auth-strategy.md
-│       ├── ADR-0004-ai-development-policy.md
-│       ├── ADR-0005-frontend-stack.md
-│       ├── ADR-0006-e2e-testing-playwright.md
-│       ├── ADR-0007-tdd-enforcement-probity.md
-│       ├── ADR-0008-tdd-e2e-harness-tooling.md
-│       ├── ADR-0009-review-escalation-mechanism.md
-│       ├── ADR-0010-domain-boundary-contract.md
-│       ├── ADR-0011-existing-codebase-adoption.md
-│       ├── ADR-0012-skills-vs-commands.md
-│       ├── ADR-0013-third-party-skill-adoption-trial.md
-│       └── ADR-0014-third-party-integrations-deferred.md
+│   ├── adr/                           # The template/harness's own ADRs (managed separately from the project's ADRs — no editing or renumbering needed)
+│   │   ├── README.md
+│   │   ├── ADR-0001-use-laravel.md
+│   │   ├── ADR-0002-use-mysql.md
+│   │   ├── ADR-0003-auth-strategy.md
+│   │   ├── ADR-0004-ai-development-policy.md
+│   │   ├── ADR-0005-frontend-stack.md
+│   │   ├── ADR-0006-e2e-testing-playwright.md
+│   │   ├── ADR-0007-tdd-enforcement-probity.md
+│   │   ├── ADR-0008-tdd-e2e-harness-tooling.md
+│   │   ├── ADR-0009-review-escalation-mechanism.md
+│   │   ├── ADR-0010-domain-boundary-contract.md
+│   │   ├── ADR-0011-existing-codebase-adoption.md
+│   │   ├── ADR-0012-skills-vs-commands.md
+│   │   ├── ADR-0013-third-party-skill-adoption-trial.md
+│   │   ├── ADR-0014-third-party-integrations-deferred.md
+│   │   └── ADR-0015-git-workflow.md
+│   ├── history/                       # Archive of this template's own PLAN.md entries (created when first needed) — never copied into target projects
+│   └── tests/                         # Tests for the template's own scripts (e.g. review-score.test.sh) — never copied into target projects
 │
 └── docs/
     ├── ai-context/                    # AI summary layer (most important)
