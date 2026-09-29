@@ -168,7 +168,16 @@ human), which refines sections 3, 4, 7, and 8 above:
   `overview.md`, and `requirements.md` are replaced with as-is facts or a pointer, while
   `15-frontend.md` / `20-mysql.md` get a banner until the human decides which rules apply to
   new code. The global, Laravel, and security rule files are never bannered: a mismatch
-  there is a P1 question, and those rules keep applying to new code meanwhile.
+  there is a P1 question, and those rules keep applying to new code meanwhile. A replaced
+  `authz-authn.md` is its own P1 review item, since the stack ADR only summarizes the
+  mechanism, not who can do what.
+- **Template files read as if they described the project are filled**: `CLAUDE.md`'s
+  Project section, `org-permission-philosophy.md`, and `ui-guidelines.md`. Their
+  business-meaning parts (Main domains, role purposes) are asked together with the
+  glossary terms as one fill-in table, so the question count barely grows.
+- **`use-cases.md` also traces entry points that bypass routes** (console commands,
+  scheduled tasks, queued jobs, event listeners). Mechanically derived use cases are not
+  reviewed, so an entry point missed here would go unnoticed.
 - **Output starts with a Review Guide** ranking what to look at (P1-P3), listing defaults
   applied and files needing no review, followed by numbered one-line questions.
 - **The sign-off stays explicitly human.** The AI records the Gate 0-3 approval only after

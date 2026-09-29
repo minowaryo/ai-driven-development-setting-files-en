@@ -48,7 +48,8 @@ procedural guardrail instead.
    are read by AI via `CLAUDE.md`'s task table and actively mislead it:
    - `docs/architecture/authz-authn.md` — if the detected auth differs from Sanctum +
      Policy/Gate, replace the template content with the as-is facts, pointing to the stack
-     ADR for detail. It is reviewed through the stack ADR's P1 question, not separately.
+     ADR for the mechanism. List it as its own **P1** review item, pointing the human at
+     the "who can do what" part — a misread here is the costliest error in the output.
    - `.claude/rules/15-frontend.md` (frontend differs from Vue 3 + Inertia.js + Pinia) and
      `.claude/rules/20-mysql.md` (DB engine differs from MySQL) — which rules new code
      should follow is a human decision: add it as a **P1** Needs-confirmation question, and
@@ -74,12 +75,24 @@ procedural guardrail instead.
      do-not-touch) and list it under "Defaults applied" in the Review Guide instead of
      asking — a human can loosen it later, and an over-cautious boundary causes no harm in
      the meantime.
+5. Fill the other template files that are read as if they described this project:
+   - `CLAUDE.md`'s **Project** section (loaded every session): project name, stack (one
+     line, pointing to the stack ADR), and type are mechanical; **Main domains** is a
+     business-meaning guess → **[inferred]**, P2.
+   - `docs/product/org-permission-philosophy.md` (read for any auth change): list the
+     roles that exist in the code; each role's purpose and target users are
+     **[inferred]**, P2.
+   - `docs/product/ui-guidelines.md` (read for any UI work): write only what existing
+     styles/theme config actually define; if nothing is defined, replace the placeholders
+     with one line saying so and that new screens follow the existing ones.
 
 ### Step 2B — Document current behavior as `use-cases.md` (as-is, not aspirational)
 
 1. Draft `docs/product/use-cases.md` from the actual code paths (routes → controllers →
    policies), labeled explicitly as current behavior, not a specification of desired
-   behavior. Mark business-meaning guesses with **[inferred]**, as in Step 1B.
+   behavior. Also trace the entry points that bypass routes — console commands, scheduled
+   tasks, queued jobs, event listeners — since whatever is missed here is missed silently.
+   Mark business-meaning guesses with **[inferred]**, as in Step 1B.
 2. `docs/product/requirements.md` is optional — its purpose doesn't apply to code that
    already runs. Do not leave the template placeholder in place: replace it with a
    one-line note that this project was onboarded via the Existing-Codebase Path and that
@@ -126,12 +139,14 @@ The entry point that tells the human where to start. Keep it scannable.
 
 1. **What was generated** — a table of every file created or changed, with *New* / *Replaced
    template* / *Partially edited* and a one-line summary of its content.
-2. **Review order** — only the files that contain a Needs-confirmation item, ranked:
+2. **Review order** — the files that contain a Needs-confirmation item, plus a replaced
+   `authz-authn.md`, ranked:
    - **P1** — facts or decisions that change which rules apply or would invalidate other
-     documents (e.g. the stack ADR, whether missing auth is intentional, which frontend
-     rules apply). Answer these first, because the other answers depend on them.
+     documents (e.g. the stack ADR, a replaced `authz-authn.md`, whether missing auth is
+     intentional, which frontend rules apply). Answer these first, because the other
+     answers depend on them.
    - **P2** — documents containing business-meaning inferences (e.g. `use-cases.md`,
-     `glossary.md`).
+     `glossary.md`, `CLAUDE.md`'s Main domains, `org-permission-philosophy.md`).
    - **P3** — mechanically extracted documents with isolated anomalies (e.g. `data-model.md`
      with one missing-migration discrepancy).
 
@@ -141,7 +156,9 @@ The entry point that tells the human where to start. Keep it scannable.
    uncertain do-not-touch boundaries). The human only acts if one is wrong.
 4. **No review needed** — list the files that are purely mechanical extraction or replaced
    with as-is facts (e.g. `module-map.md`, `common-commands.md`, `overview.md`,
-   `requirements.md`), so the human can explicitly skip or skim them.
+   `requirements.md`, `ui-guidelines.md`), so the human can explicitly skip or skim them.
+   A file with any **[inferred]** marker or Needs-confirmation item never goes here, even
+   if it is one of these examples.
 
 ### 2. Needs confirmation (blocking)
 
@@ -151,8 +168,10 @@ Resolving this list with the human *is* the Gate 0-3 sign-off.
   (yes/no, a choice, or a short definition). Tag it with its priority (P1-P3) and the
   file(s) its answer will update.
 - Order by priority, then by dependency (an answer that changes other questions comes first).
-- If the list exceeds ~10 items, group related ones (e.g. all glossary terms as one
-  question with a table to fill in) rather than listing them individually.
+- Ask the glossary terms, `CLAUDE.md`'s Main domains, and the role purposes from
+  `org-permission-philosophy.md` as one question with a table to fill in. If the list
+  still exceeds ~10 items, group other related ones the same way rather than listing them
+  individually.
 - Tell the human they can answer in chat by question number — the AI updates the documents,
   not the human.
 

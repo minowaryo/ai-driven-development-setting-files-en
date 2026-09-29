@@ -116,11 +116,15 @@ hand. See `docs/development/ai-workflow.md`'s "Role Breakdown" for both paths si
   `do-not-touch.md` from what is actually there; only business-meaning guesses go on the
   Needs-confirmation list, uncertain do-not-touch boundaries get a conservative default —
   mechanically-read content doesn't go on either list
+- Fill the other template files read as if they described this project: `CLAUDE.md`'s
+  Project section, `org-permission-philosophy.md` (existing roles), and `ui-guidelines.md`
+  (only what existing styles define)
 
 #### Step 2B — Document current behavior as `use-cases.md` (as-is, not aspirational)
 
-- Draft `use-cases.md` from the actual code paths (routes → controllers → policies),
-  labeled explicitly as current behavior, not a specification of desired behavior
+- Draft `use-cases.md` from the actual code paths (routes → controllers → policies, plus
+  console commands, scheduled tasks, queued jobs, and event listeners), labeled explicitly
+  as current behavior, not a specification of desired behavior
 - `requirements.md` is optional here — its purpose doesn't apply to code that already runs;
   replace its placeholder with a one-line pointer to `use-cases.md`
 - If the code disagrees with pre-existing org docs, add a **discrepancy note** to the
