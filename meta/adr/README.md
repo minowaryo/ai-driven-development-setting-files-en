@@ -24,6 +24,7 @@ from `ADR-0001`.
 | ADR-0012 | Skills vs. commands criterion, and the standalone-export convention |
 | ADR-0013 | Adopting selected skill concepts from third-party sources, in-house (Trial) |
 | ADR-0014 | Third-party integrations considered and deferred (Laravel Boost, cc-sdd, hookify, Superpowers) |
+| ADR-0015 | Git workflow — short-lived branches, `--no-ff` merge record, merge-check tiers |
 
 ## Harness-design ADR patterns to copy from
 

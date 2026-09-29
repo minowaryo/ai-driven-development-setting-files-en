@@ -34,5 +34,5 @@
 
 ## Rules for Changes
 
-- When changing the role/permission model, update this file and `docs/architecture/authz-authn.md` in the same PR
+- When changing the role/permission model, update this file and `docs/architecture/authz-authn.md` in the same commit
 - Always consider creating an ADR (`docs/adr/`) for permission-related changes (see `.claude/rules/60-docs.md`)

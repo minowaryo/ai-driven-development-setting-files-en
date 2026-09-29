@@ -1,4 +1,4 @@
-# 50-review.md — PR Review Guidelines
+# 50-review.md — Review Guidelines
 
 ## Automatic Review-Intensity Determination (review-score)
 
@@ -8,15 +8,16 @@ When `/review` runs, its first step (Step 0) automatically executes the `review-
 
 - The score is a weighted sum of "number of changed files," "number of changed lines," and "matches against sensitive paths" (DB migrations, Policies, auth-related directories, etc.)
 - If the score is at or above the threshold, the review runs at the enhanced level (defined in `.claude/commands/review.md` Step 0); below the threshold, it runs at the normal level
-- Configuration (environment variables): `REVIEW_SCORE_BASE_BRANCH` / `DOMAIN_BOUNDARY_BASE_BRANCH` set the base branch (default `main`; if no local branch exists, `origin/<base>` is used), and `REVIEW_SCORE_THRESHOLD` sets the threshold (default 30). Projects using `master` / `develop` as the base must set the base-branch variables
+- Configuration (environment variables): `REVIEW_SCORE_BASE_BRANCH` / `DOMAIN_BOUNDARY_BASE_BRANCH` set the base branch (default `main`; if no local branch exists, `origin/<base>` is used), and `REVIEW_SCORE_THRESHOLD` sets the threshold (default 30; `REVIEW_SCORE_LIGHT_THRESHOLD`, default 10, sets the light pre-merge tier). Projects using `master` / `develop` as the base must set the base-branch variables
 - The score's scope is automatically separated per branch, so moving between multiple branches doesn't get affected by another branch's diff (only the diff on your own branch since it diverged from `main` is considered)
 - It does not distinguish between a cohesive Phase-unit development effort and an ad-hoc small fix outside a Phase — either is picked up automatically as long as it's part of the diff since diverging from `main`, so developers don't need to classify anything
 - Running `/review` multiple times on the same branch re-evaluates the entire branch diff each time, including already-reviewed parts (the diff is not reset after each review). This can cause redundant re-checking, which is accepted as a trade-off
 - This mechanism automatically determines "what intensity to review at when a review runs" — it does not "prompt you to run `/review` in the first place" (not automating the invocation itself is a deliberate design choice, Option A; see `meta/adr/ADR-0009-review-escalation-mechanism.md` for details). The timing of when to run it still follows the operating rule in `.claude/rules/30-testing.md` (after Refactor completes, before merging)
+- At merge time, `prepare-merge` reads the same score as the pre-merge tier (`.claude/rules/70-git.md` §6 Pre-Merge Check), which can make `/review` mandatory before a merge — it still never launches `/review` itself
 
 ## Pre-Review Self-Check (Author)
 
-Check these yourself before opening a PR:
+Check these yourself before merging:
 
 - [ ] Is it linked to requirements in `docs/product/use-cases.md`?
 - [ ] Is there a Feature Test?

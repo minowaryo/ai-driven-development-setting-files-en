@@ -62,7 +62,7 @@ Claude Code / Codex tend to write the implementation first and bolt tests on aft
 
 1. Recommend the **`run` skill** to the user, to actually launch the app and confirm the feature behaves as expected — as of Claude Code v2.1.215, bundled skills only run when a human explicitly invokes them, so state the recommendation rather than invoking it automatically
 2. If the target is a UC critical flow (`docs/product/use-cases.md`) and includes UI changes, add Playwright E2E tests with **`/generate-e2e-test`**
-3. After Refactor completes, run **`/review`** before merging (see `.claude/rules/50-review.md`)
+3. After Refactor completes, run **`/review`** before merging when the pre-merge check calls for it (`.claude/rules/70-git.md` §6 Pre-Merge Check)
    - The review-score auto-computed as Step 0 of `/review` (see `meta/adr/ADR-0009-review-escalation-mechanism.md`) automatically selects the normal or enhanced review level
 
 ## Test Quality Heuristics (Trial — see `meta/adr/ADR-0013`)

@@ -1,6 +1,6 @@
 # User Guide
 
-> End-user-facing operating instructions. Update in the same PR whenever a feature is added or a spec changes
+> End-user-facing operating instructions. Update in the same commit whenever a feature is added or a spec changes
 > (see the mapping table in `.claude/rules/60-docs.md`).
 
 ---

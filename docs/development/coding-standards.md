@@ -99,24 +99,4 @@ Handle errors differently depending on their type. Do not swallow all errors wit
 
 ## Git
 
-- Commit messages should express intent in English
-- One commit, one change (do not mix changes)
-- Keep PRs small (a reviewable size)
-
-### Commit Message Format
-
-```
-[type]: [summary of change]
-
-[detailed explanation if needed]
-```
-
-type: `feat` / `fix` / `refactor` / `test` / `docs` / `chore`
-
-Example:
-```
-feat: add pagination to user list API
-
-Implemented cursor-based pagination for infinite scroll support.
-See ADR-0005 for the reason for switching from offset-based.
-```
+See `.claude/rules/70-git.md` §2 Commit Unit and §3 Commit Messages.

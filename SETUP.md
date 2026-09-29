@@ -151,6 +151,17 @@ now or later.
 > to Step 4. Steps 1-3 below are the from-scratch equivalent of Steps 1B-3B: a human authors
 > the same Gate 0-3 inputs instead of AI reverse-engineering them from running code.
 
+#### Before Step 1 — Clear the template's own files (once, right after copying the template)
+
+A project copied from this template starts with the template's own history and tooling.
+Remove it so the project starts clean (the Existing-Codebase Path gets the same result
+from `APPLY_TEMPLATE.md`, which never copies these):
+
+```bash
+rm -rf meta/tests meta/history APPLY_TEMPLATE.md
+printf '# PLAN.md\n' > PLAN.md   # blank ledger — the template's entries are not this project's
+```
+
 #### Step 1 — Select the frontend stack → fill in ai-context (do this first)
 
 **1a. Frontend stack selection**

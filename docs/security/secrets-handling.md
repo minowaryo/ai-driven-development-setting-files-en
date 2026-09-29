@@ -63,7 +63,7 @@ If secrets are leaked:
 3. Identify the scope of impact and report to stakeholders
 4. Record the cause and prevention measures in an ADR
 
-## Checklist (When Creating a PR)
+## Checklist (Before Committing)
 
 - [ ] Are `.env` actual values included in the code?
 - [ ] Does `git diff` show any secrets mixed in?

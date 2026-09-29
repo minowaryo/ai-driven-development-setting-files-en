@@ -13,7 +13,9 @@
 | `/adr` | Whenever a technical decision is made — generates the ADR skeleton for a human to finalize | Human (AI proposes it) |
 | `/tdd UC-XXX [summary]` | Every feature / UC implementation: Red → Gate 4 approval → Green → Refactor | Human |
 | `/generate-e2e-test UC-XXX` | A UC critical flow that includes UI changes | Automatic — `/tdd` Step 6 runs it when applicable |
-| `/review` | After Refactor, before merging. Step 0 scores the branch diff to pick the review level | Human — `/tdd` only reminds you (deliberate; see `meta/adr/ADR-0009-review-escalation-mechanism.md`) |
+| `/review` | Before merging, when the pre-merge check calls for it (`.claude/rules/70-git.md` §6). Step 0 scores the branch diff to pick the review level | Human — `/tdd` and `prepare-merge` only remind you (deliberate; see `meta/adr/ADR-0009-review-escalation-mechanism.md`) |
+| `/commit` | When work is ready to commit — proposes the commit split and messages, commits after one approval, never pushes | Human |
+| `prepare-merge` (Trial) | When a branch is done ("merge this" / "マージして") — pre-merge check, drafted merge message, `--no-ff` merge only on instruction | AI or human — it is a skill; see `meta/adr/ADR-0015` |
 | `/regenerate-traceability` | Periodically rather than per-commit — during `/review`, or before a release. Rebuilds the Matrix table in `docs/rcid/traceability-matrix.md` (never the hand-maintained Change Tracking table) | Human or AI — it is a skill, so AI may propose it when the matrix has gone stale |
 | `systematic-debugging` (Trial) | Investigating an unclear or non-trivial bug, or after a fix attempt didn't work | AI — see `meta/adr/ADR-0013` |
 | `verification-before-completion` (Trial) | Before reporting any task/fix/feature as complete | AI — see `meta/adr/ADR-0013` |

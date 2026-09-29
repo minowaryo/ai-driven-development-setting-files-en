@@ -1,9 +1,9 @@
-# review-checklist.md — PR Review Checklist
+# review-checklist.md — Review Checklist
 
 > Use this together with the `/review` command.
 > For details, see `.claude/rules/50-review.md`.
 
-## Author Self-Check (Before Opening a PR)
+## Author Self-Check (Before Merging)
 
 ### Requirements & Design
 - [ ] Is it linked to the corresponding use case in `docs/product/use-cases.md`?
