@@ -114,5 +114,25 @@ check "13 views/vendor counted" 'has MERGE_CHECK=recommended'
 d=$(new_repo); lines 5000 "$d/vendor/pkg/x.php"; lines 10 "$d/a.php"; commit_all "$d"; run "$d"
 check "14 root vendor excluded" 'has MERGE_CHECK=light'
 
+# 15: committed binary is left out of the counts
+d=$(new_repo); mkdir -p "$d/public/img"; head -c 200000 /dev/urandom >"$d/public/img/logo.png"
+lines 10 "$d/a.php"; commit_all "$d"; run "$d"
+check "15 committed binary excluded" 'has MERGE_CHECK=light'
+
+# 16/17: threshold boundaries (empty tracked files: score = file count)
+d=$(new_repo); for i in $(seq 1 10); do : >"$d/e$i.php"; done; commit_all "$d"; run "$d"
+check "16 score 10 is recommended" 'has MERGE_CHECK=recommended && has RECOMMENDATION=normal'
+d=$(new_repo); for i in $(seq 1 30); do : >"$d/e$i.php"; done; commit_all "$d"; run "$d"
+check "17 score 30 is required+enhanced" 'has MERGE_CHECK=required && has RECOMMENDATION=enhanced'
+
+# 18: missing base branch fails safe
+d=$(new_repo); lines 10 "$d/a.php"; commit_all "$d"; run "$d" REVIEW_SCORE_BASE_BRANCH=develop
+check "18 missing base: required" 'has MERGE_CHECK=required'
+check "18 missing base: last line normal" '[ "$(printf "%s\n" "$OUT" | tail -n 1)" = "RECOMMENDATION=normal" ]'
+
+# 19: sensitive path in an untracked file forces required
+d=$(new_repo); lines 1 "$d/app/Policies/OrderPolicy.php"; run "$d"
+check "19 untracked sensitive: required" 'has MERGE_CHECK=required'
+
 echo "== $PASS passed, $FAIL failed"
 [ "$FAIL" -eq 0 ]
