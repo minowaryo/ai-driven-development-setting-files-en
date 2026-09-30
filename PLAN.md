@@ -1,5 +1,49 @@
 # PLAN.md
 
+> Keep under 300 lines (`.claude/rules/60-docs.md`). Archived: 2026-08-03 – 2026-08-17 → `meta/history/plan-archive.md` (2026-09-30).
+
+## Git workflow: `lite` profile (default) alongside `standard`, one-line switch (2026-09-30)
+
+### Decision
+
+- A profile switch — `Profile: lite` (default) or `standard` in `.claude/rules/70-git.md` —
+  switched by editing that one line (the user asks in plain words; AI edits and commits it,
+  never switches on its own). Only the rows in the §0 table of `docs/development/git-workflow.md` differ; everything else,
+  including every safety rule, is shared.
+- `lite`: AI names and creates the branch without waiting; one commit per `/tdd` cycle;
+  `/review` is asked about only when a sensitive path is touched (size is information);
+  commit → merge → push may run on one approval of a plan that shows commits, files,
+  score, tier, and tests — any failure stops the rest.
+- `standard`: the 2026-09-29 rule set, unchanged.
+- Selection: `standard` for production systems with real data or 2+ parallel developers;
+  otherwise `lite`.
+- `docs/ai-context/common-commands.md` gains "When Git Gets Stuck" (situation → what to ask
+  the AI), for developers with little Git experience.
+- Load cost: the full rules moved to `docs/development/git-workflow.md` (read before Git
+  operations); `.claude/rules/70-git.md` is now an 18-line always-loaded core (profile line +
+  safety rules that hold even if the full file is not read). Auto-loaded context: ~14,100
+  tokens on `main` → ~13,300. Pointers repointed; no other auto-loaded file grew by more than
+  ~150 characters (no new CLAUDE.md "Read when relevant" row — the core already says when).
+- Recorded as update notes on `meta/adr/ADR-0015-git-workflow.md`.
+- Scope: EN template only. JP port and the generalized docs (`~/Downloads/git-workflow-rules*.md`)
+  follow after personal trial use.
+
+### Files touched
+
+`.claude/rules/70-git.md`, `.claude/commands/tdd.md`, `.claude/commands/commit.md`,
+`.claude/skills/prepare-merge/SKILL.md`, `docs/ai-context/common-commands.md`,
+`meta/adr/ADR-0015-git-workflow.md`, `docs/development/git-workflow.md` (new), `CLAUDE.md`,
+`AGENTS.md`, `APPLY_TEMPLATE.md`, `README.md`, `.gitignore`, `.claude/hooks/review-score.sh`
+(comments), `.claude/rules/30-testing.md`, `.claude/rules/50-review.md`, `.claude/rules/60-docs.md`,
+`docs/development/ai-workflow.md`, `docs/development/coding-standards.md`, `PLAN.md`,
+`meta/history/plan-archive.md` (new — first
+archive of this template's own PLAN.md, 2 oldest entries moved verbatim).
+
+### Status
+
+Implemented on `feat/git-lite-profile`; not committed. Next: personal trial, then JP port
+and generalized docs.
+
 ## Git workflow rules: branches, commit unit, authority, --no-ff merge record, merge-check tiers (2026-09-29)
 
 ### Decision
@@ -249,42 +293,6 @@ Completed. Gate tables in `.claude/rules/00-global.md`, `SETUP.md`, and `AGENTS.
 ### Files touched
 
 `SETUP.md` (new), `CLAUDE.md`, `.claude/rules/00-global.md`, `.claude/rules/60-docs.md`, `meta/adr/ADR-0005-frontend-stack.md`, `README.md`.
-
-### Status
-
-Completed. No open follow-ups.
-
-## Separate template/harness ADRs from project ADRs (2026-08-17)
-
-### Decision
-
-- `docs/adr/` is reserved exclusively for the ADRs of the project built from this template. It now starts empty; the first project ADR should be `ADR-0001`.
-- The 9 ADRs that document this template/harness's own design (ADR-0001 through ADR-0009) were moved to `meta/adr/`, a new top-level directory outside `docs/`. This keeps them out of any future "reset project docs" sweep of `docs/`, and out of the project's own ADR numbering sequence.
-- Added a new `ADR-0009-review-escalation-mechanism.md`, documenting the `review-score` mechanism (see below), along with the other harness features ported over in this same pass: the `docs/credentials/` handling policy (`.gitignore` + `.claude/rules/40-security.md`), the optional/non-blocking UAT step (`.claude/rules/00-global.md` + `docs/product/uat-scenarios.md` / `uat-results/`), the CRUD-coverage rule for new data models (`.claude/rules/30-testing.md` / `50-review.md` / `.claude/commands/review.md`), a dedicated `.claude/rules/31-e2e-testing.md` split out of `30-testing.md`, and the "API Conventions" / "Error Handling Policy" sections in `docs/development/coding-standards.md`.
-- All cross-references to these 9 files (in `CLAUDE.md`, `AGENTS.md`, `.claude/rules/`, `docs/ai-context/`, `docs/architecture/`, `docs/development/`) were repointed to `meta/adr/`. References to `docs/adr/` that describe creating a *new* project ADR (e.g. `/adr` command, `CLAUDE.md` Step 1a/3, Gate rules) were left unchanged.
-- Added `docs/adr/README.md` and `meta/adr/README.md` explaining the split so it isn't rediscovered by accident later.
-- Added a `/review` Step 0 that runs `.claude/hooks/review-score.sh` (a local, AI-free script scoring the diff since `git merge-base main HEAD`) to auto-select the normal vs. enhanced review level.
-
-### Files touched
-
-`meta/adr/ADR-0001` through `ADR-0009` (moved from `docs/adr/`), `docs/adr/README.md` (new), `meta/adr/README.md` (new), `.claude/hooks/review-score.sh` (new), `.gitignore` (new), `docs/credentials/README.md` (new), `docs/product/org-permission-philosophy.md` (new), `docs/product/uat-scenarios.md` (new), `docs/product/uat-results/README.md` (new), `docs/product/user-guide.md` (new), `docs/ai-context/known-pitfalls.md` (new), `.claude/rules/31-e2e-testing.md` (new, split from `30-testing.md`), `README.md`, `CLAUDE.md`, `AGENTS.md`, `.claude/rules/00-global.md`, `.claude/rules/15-frontend.md`, `.claude/rules/30-testing.md`, `.claude/rules/40-security.md`, `.claude/rules/50-review.md`, `.claude/rules/60-docs.md`, `.claude/commands/review.md`, `.claude/commands/generate-e2e-test.md`, `.claude/commands/tdd.md`, `.claude/agents/tdd-implementer.md`, `docs/ai-context/common-commands.md`, `docs/ai-context/module-map.md`, `docs/development/ai-workflow.md`, `docs/development/coding-standards.md`, `docs/development/testing-strategy.md`, `docs/architecture/authz-authn.md`.
-
-### Status
-
-Completed. No open follow-ups.
-
-## Frontend stack selection process built into Gate 0 (2026-08-03)
-
-### Decision
-
-- `docs/adr/ADR-0005-frontend-stack.md` was changed from a fixed decision (Vue 3 + Inertia.js + Pinia for all projects) to a per-project selection framework within the PHP/Laravel ecosystem (Blade / Livewire / Vue+Inertia+Pinia / React+Inertia / SPA+API), with Vue+Inertia+Pinia kept as the default recommendation.
-- The selection process is now an explicit part of Gate 0 (`CLAUDE.md` Step 1a/1b/1c): select stack → record a project ADR via `/adr` → rewrite `.claude/rules/15-frontend.md` for the chosen stack → reflect the result in `docs/ai-context/`.
-- `.claude/rules/15-vue.md` was renamed to `.claude/rules/15-frontend.md` so the rule file path stays stable regardless of which stack is selected — projects choosing a non-default stack rewrite this file's contents instead of creating a new file and updating every cross-reference.
-- Backend (Laravel + MySQL, ADR-0001/0002) and auth strategy (Sanctum + Policy/Gate, ADR-0003) remain fixed template decisions — out of scope for this flexibility.
-
-### Files touched
-
-`docs/adr/ADR-0005-frontend-stack.md`, `docs/adr/ADR-0006-e2e-testing-playwright.md`, `CLAUDE.md`, `AGENTS.md`, `README.md`, `.claude/rules/00-global.md`, `.claude/rules/15-frontend.md` (renamed from `15-vue.md`), `.claude/rules/30-testing.md`, `.claude/rules/50-review.md`, `.claude/rules/60-docs.md`, `.claude/agents/tdd-implementer.md`, `docs/ai-context/module-map.md`.
 
 ### Status
 
