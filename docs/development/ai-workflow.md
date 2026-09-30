@@ -15,7 +15,7 @@ the human is deciding on.
 | Role | Tasks |
 |---|---|
 | **Humans only** | Business understanding, requirements definition, use-case approval, ADR creation, final review and merge, approving commits and pushes |
-| **AI primary** | Code generation, test generation, code review assistance, refactoring suggestions, proposing commit splits and merge messages (`.claude/rules/70-git.md`) |
+| **AI primary** | Code generation, test generation, code review assistance, refactoring suggestions, proposing commit splits and merge messages (`docs/development/git-workflow.md`) |
 | **AI support** | Design consultation, document drafting, bug root cause investigation |
 
 ### Existing-Codebase Adoption
@@ -52,7 +52,7 @@ and faster by design, not a lighter-weight version of the same authorship task.
 
 4. Test (and verify)
    - In addition to running the tests, use the `run` skill to confirm actual behavior (tests being Green doesn't guarantee the feature works)
-   - Run `/review` before merging when the pre-merge check calls for it (`.claude/rules/70-git.md` §6)
+   - Run `/review` before merging when the pre-merge check calls for it (`docs/development/git-workflow.md` §6)
 ```
 
 See `.claude/rules/30-testing.md` for the sub-agent setup, when to run each skill, and how to decide on adopting `@nizos/probity`.

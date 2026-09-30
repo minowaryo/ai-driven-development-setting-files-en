@@ -13,7 +13,7 @@ When `/review` runs, its first step (Step 0) automatically executes the `review-
 - It does not distinguish between a cohesive Phase-unit development effort and an ad-hoc small fix outside a Phase — either is picked up automatically as long as it's part of the diff since diverging from `main`, so developers don't need to classify anything
 - Running `/review` multiple times on the same branch re-evaluates the entire branch diff each time, including already-reviewed parts (the diff is not reset after each review). This can cause redundant re-checking, which is accepted as a trade-off
 - This mechanism automatically determines "what intensity to review at when a review runs" — it does not "prompt you to run `/review` in the first place" (not automating the invocation itself is a deliberate design choice, Option A; see `meta/adr/ADR-0009-review-escalation-mechanism.md` for details). The timing of when to run it still follows the operating rule in `.claude/rules/30-testing.md` (after Refactor completes, before merging)
-- At merge time, `prepare-merge` reads the same score as the pre-merge tier (`.claude/rules/70-git.md` §6 Pre-Merge Check), which can make `/review` mandatory before a merge — it still never launches `/review` itself
+- At merge time, `prepare-merge` reads the same score as the pre-merge tier (`docs/development/git-workflow.md` §6 Pre-Merge Check), which in `standard` can make `/review` mandatory before a merge — it still never launches `/review` itself
 
 ## Pre-Review Self-Check (Author)
 

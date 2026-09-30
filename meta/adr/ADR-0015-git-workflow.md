@@ -1,7 +1,26 @@
 # ADR-0015: Git Workflow — Short-Lived Branches, `--no-ff` Merge Record, Merge-Check Tiers
 
 ## Status
-Accepted — the merge-check thresholds and the `prepare-merge` skill are **Trial** (see `meta/adr/ADR-0013`)
+Accepted — the merge-check thresholds, the `prepare-merge` skill, and the `lite` profile are **Trial** (see `meta/adr/ADR-0013`)
+
+> Updated 2026-09-30: two profiles, switched by one line (`Profile:` in `.claude/rules/70-git.md`).
+> `lite` (default) keeps every safety rule — approved commits, no force push, push only on
+> instruction, tests on the merged result — but removes waits: the AI names branches itself,
+> commits once per `/tdd` cycle, asks about `/review` only for sensitive paths, and may run
+> commit → merge → push on one approval of a shown plan (stopping on any failure).
+> `standard` is the rule set below, unchanged. Choose `standard` for production systems with
+> real data or 2+ parallel developers. Why: counting the approval stops per feature showed up
+> to 6-7 in `standard`, about 3 in `lite`; for solo and pre-production work the extra stops
+> bought little. The first full design is kept as `standard` so a project can switch later
+> without re-deciding anything.
+>
+> Updated 2026-09-30 (load cost): the full rules moved to `docs/development/git-workflow.md`,
+> read only before Git operations; `.claude/rules/70-git.md` keeps an always-loaded core of
+> ~20 lines (profile line + the safety rules that must hold even if the full file is not
+> read). This cut the per-session load from ~1,600 to ~400 tokens. Risk accepted: the full
+> file can be skipped; then commit splitting and merge messages may be less tidy, while the
+> safety rules — including "a merge/push request is not the approval; approve a shown plan" —
+> stay in the core and still hold.
 
 ## Date
 2026-09-29
@@ -23,7 +42,8 @@ Accepted — the merge-check thresholds and the `prepare-merge` skill are **Tria
 
 ## Decision
 
-The rules are stated once, in `.claude/rules/70-git.md`; every other file points there.
+The rules are stated once, in `docs/development/git-workflow.md` (read on demand), with an
+always-loaded core in `.claude/rules/70-git.md` (profile + safety rules); every other file points there.
 Procedures live in `/commit` (`.claude/commands/commit.md`) and the `prepare-merge`
 skill (`.claude/skills/prepare-merge/SKILL.md`). In summary:
 
@@ -107,10 +127,10 @@ commits, 92 merges, 370 author-days; scaffold commits excluded):
 - A human who runs `git merge` directly gets no automatic tier warning; the rules still apply.
 - `settings.json` permission rules are a guardrail, not a security boundary.
 - `GLOBAL_CLAUDE.md` and `.claude/agents/*` keep their own short commit/push prohibitions
-  (their readers do not load `70-git.md`).
+  (their readers do not load the Git rule files).
 
 ## Related
-- `.claude/rules/70-git.md`
+- `.claude/rules/70-git.md` (core) and `docs/development/git-workflow.md` (full rules)
 - `.claude/commands/commit.md`
 - `.claude/skills/prepare-merge/SKILL.md`
 - `.claude/hooks/review-score.sh` (tests: `meta/tests/review-score.test.sh` — template-internal, `APPLY_TEMPLATE.md` class X)

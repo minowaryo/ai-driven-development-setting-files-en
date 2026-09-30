@@ -5,12 +5,16 @@ description: Prepare and (only on explicit instruction) perform the merge of a f
 
 # Prepare Merge
 
-Rules: `.claude/rules/70-git.md` §5 Merge and §6 Pre-Merge Check. This file is only the procedure.
+Read `docs/development/git-workflow.md` first — §0 Profile, §5 Merge, §6 Pre-Merge Check hold
+the rules; this file is only the procedure. The active profile is the `Profile:` line in
+`.claude/rules/70-git.md`.
 
 ## Steps
 
 1. **Preconditions** — on a feature branch (not `main`), working tree clean. If there are
-   uncommitted changes, stop and suggest `/commit`.
+   uncommitted changes: in `lite`, when the user asked for commit → merge (→ push) in one
+   go, run `/commit` steps 1-5 and include its table in the step 5 plan; otherwise stop
+   and suggest `/commit`.
 2. **Pre-merge check** — run:
 
    ```bash
@@ -20,13 +24,16 @@ Rules: `.claude/rules/70-git.md` §5 Merge and §6 Pre-Merge Check. This file is
    Read the `MERGE_CHECK=` line and the score. If the script exits non-zero or prints no
    `MERGE_CHECK=` line, treat the tier as `required` and show the error. If it reports
    that the base branch was not found, tell the user to set `REVIEW_SCORE_BASE_BRANCH`.
-3. **Tier gate** (§6):
-   - `light` → continue
-   - `recommended` → suggest `/review`; continue if the user skips it (`Review: skipped`)
-   - `required` → `/review` must already have been run on this branch. It counts only if
-     it ran in this session after the branch's last commit, or the user confirms it did —
-     never infer it. If not, stop and ask the human to run `/review` (it is
-     human-invoked — ADR-0009)
+3. **Tier gate** (§6) — `/review` "has run" only if it ran in this session after the
+   branch's last commit, or the user confirms it did; never infer it.
+   - `standard`:
+     - `light` → continue
+     - `recommended` → suggest `/review`; continue if the user skips it (`Review: skipped`)
+     - `required` → if `/review` has not run, stop and ask the human to run it (it is
+       human-invoked — ADR-0009)
+   - `lite`: show the tier and score as information and continue — except when a
+     sensitive path matched **or the script failed** (step 2): then ask once "run `/review`
+     first?" and follow the answer (`Review: skipped` if declined)
 4. **Draft the merge message** in the §5 shape — git's default subject
    (`Merge branch '<branch>'`), a one- or two-sentence why (UC-ID if any; optional for
    `light`), and the trailers `Merge-Check:` (tier, score, sensitive paths),
@@ -35,6 +42,9 @@ Rules: `.claude/rules/70-git.md` §5 Merge and §6 Pre-Merge Check. This file is
    project's base branch, `main` unless `REVIEW_SCORE_BASE_BRANCH` says otherwise).
    Only an approval given **after** this plan is shown counts as the instruction to merge
    (a plain はい / OK / 進めて is enough); the request that triggered this skill does not.
+   In a `lite` combined run (§4), the one plan also lists the commits to create and —
+   only if the user asked for it — the final `git push origin <base>`, and must show the
+   changed files, score, tier, and test command; one approval then covers the whole sequence.
 
    ```bash
    git checkout <base>
@@ -44,6 +54,7 @@ Rules: `.claude/rules/70-git.md` §5 Merge and §6 Pre-Merge Check. This file is
    git commit -F - <<'EOF'                          # only if the tests passed
    <merge message>
    EOF
+   git branch -d <branch>
    ```
 
 6. **Merge on instruction** — run the sequence. Stop and report, without reconciling on
@@ -51,5 +62,8 @@ Rules: `.claude/rules/70-git.md` §5 Merge and §6 Pre-Merge Check. This file is
    remote — never `git pull` with rebase, which would flatten earlier merge commits);
    the tests fail (`git merge --abort`, fix on the branch, start over); or there is a
    conflict (show it; do not resolve it without the user).
-7. **After the merge** — `git branch -d <branch>`. Push `main` and delete the remote
-   branch only on explicit instruction (§4 Authority).
+   In a `lite` combined run, a failure at any point stops the rest — the approval does
+   not carry past a failed step.
+7. **After the merge** — the local branch is deleted as listed. Push `<base>` and delete the
+   remote branch only on explicit instruction (§4 Authority); a `lite` combined-run approval
+   counts as that instruction for the push it listed.

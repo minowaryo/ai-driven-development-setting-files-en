@@ -91,7 +91,7 @@ Exempt (no approval needed): changes with no user-observable effect — refactor
 - Code generation before Gate 2 is passed
 - Starting implementation (Green phase) before Gate 4 is passed (generating implementation code before test case approval)
 - Code-first approach (implementing without reviewing documentation)
-- Git operations that violate `.claude/rules/70-git.md` (autonomous commit/push, force push, bulk commits)
+- Git operations that violate `.claude/rules/70-git.md` / `docs/development/git-workflow.md` (autonomous commit/push, force push, bulk commits)
 - Implementation without tests (always add regression tests for bug fixes)
 - Editing out-of-scope files
 - Including secrets or production credentials in prompts

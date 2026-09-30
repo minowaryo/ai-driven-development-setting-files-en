@@ -99,4 +99,4 @@ Handle errors differently depending on their type. Do not swallow all errors wit
 
 ## Git
 
-See `.claude/rules/70-git.md` §2 Commit Unit and §3 Commit Messages.
+See `docs/development/git-workflow.md` §2 Commit Unit and §3 Commit Messages.
