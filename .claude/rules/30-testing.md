@@ -4,7 +4,7 @@
 
 1. **Feature Test (highest priority)**: Integration tests from HTTP request to response
 2. **Unit Test**: Complex business logic and calculation logic
-3. **E2E Test (Playwright)**: Critical user flows (see `.claude/rules/31-e2e-testing.md` for details; no need to read it during the normal TDD cycle)
+3. **E2E Test (Playwright)**: Critical user flows (see `docs/development/e2e-testing.md` for details; no need to read it during the normal TDD cycle)
 
 ## Files to Read Before Writing Tests
 
@@ -119,7 +119,7 @@ When a new data model (migration / Eloquent Model) is added, cover the create/ed
 - For each provided operation, prepare at least one test case per model (a single integration test covering a full flow is acceptable)
 - For operations involving authorization (Policy), verify both the "authorized" and "unauthorized" cases for each provided operation
 - Cross-check coverage against the model definitions in `docs/architecture/data-model.md` and the operation scope in `docs/product/use-cases.md` to confirm nothing is missed
-- Confirm this rule is satisfied when running `/review` (see `.claude/rules/50-review.md`)
+- Confirm this rule is satisfied when running `/review` (see `docs/development/review-guidelines.md`)
 
 ## Commands
 
@@ -134,4 +134,4 @@ php artisan test tests/Feature/UserTest.php
 php artisan test --coverage
 ```
 
-> The E2E Test (Playwright) policy, layout conventions, and run commands live in `.claude/rules/31-e2e-testing.md` (only needed when running `/generate-e2e-test` — not part of the normal TDD cycle).
+> The E2E Test (Playwright) policy, layout conventions, and run commands live in `docs/development/e2e-testing.md` (only needed when running `/generate-e2e-test` — not part of the normal TDD cycle).

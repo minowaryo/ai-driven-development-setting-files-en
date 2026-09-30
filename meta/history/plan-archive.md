@@ -2,7 +2,43 @@
 
 > Template-internal archive of this repository's own `PLAN.md` entries (newest first). Moved verbatim per `.claude/rules/60-docs.md`.
 > Not copied into target projects (`APPLY_TEMPLATE.md` class X; removed in `SETUP.md`).
-> Covers: 2026-08-03 – 2026-08-17 (archived 2026-09-30).
+> Covers: 2026-08-03 – 2026-09-14 (archived 2026-09-30).
+
+## Domain Boundary stated as a contract, plus a deterministic Controller check (2026-09-14)
+
+### Decision
+
+- `.claude/rules/10-laravel.md` now states the **Domain Boundary** (Service/Action layer + Policy layer) as explicit MAY / MUST NOT lists instead of the abstract label "Fat Controller is prohibited". A Controller may only validate via FormRequest, call `authorize()`, call exactly one Service/Action, and format the response; it must not call `DB::`, call Eloquent write methods, check roles inline, or make a decision spanning more than one entity.
+- Added `.claude/hooks/domain-boundary-check.sh` — deterministic git + awk, no AI calls — run from `/review` Step 0 next to `review-score.sh`. Reports `db-access` / `eloquent-write` / `role-check` findings plus a per-method branch-density heuristic; `--audit-all` scans the whole tree, `--stats` yields trendable counts, exit 1 on findings so CI can gate.
+- Why this, and not the originally proposed DSL: measurement on the real `ihs-tech-uplift` project — which **already uses this harness** — found 103 findings across 21 Controllers, including `DB::transaction()` in a Controller and hand-written `isAdmin()`/`abort(403)` authorization despite 12 Policy classes existing. Prose rules demonstrably did not hold the boundary, but a full DSL + compiler is disproportionate for a docs-and-rules template. Recorded in `meta/adr/ADR-0010-domain-boundary-contract.md`.
+- The invariant declaration loop (declare in `data-model.md` → Red-phase coverage → Gate 4) was **deferred, not rejected**, with its reasoning and revisit criteria recorded in ADR-0010 — its cost recurs per change while its benefit arrives months later, and a Feature Test forces a behavior to exist without forcing which layer it lives in.
+- `.gitattributes` now pins `*.sh` to LF, protecting both hook scripts from CRLF checkouts on Windows.
+- Performance was a design constraint, not an afterthought: an early draft filtered the file list with one `grep` process per file and took 15.8s for 300 Controllers on Windows/Git Bash. Filtering in a single pass brought that to 1.1s (0.59s on the 21-Controller real project, 0.26s for a typical diff-scoped run).
+
+### Files touched
+
+`meta/adr/ADR-0010-domain-boundary-contract.md` (new), `.claude/hooks/domain-boundary-check.sh` (new), `.claude/rules/10-laravel.md`, `.claude/rules/50-review.md`, `.claude/commands/review.md`, `.claude/agents/tdd-implementer.md`, `docs/ai-context/glossary.md`, `meta/adr/README.md`, `.gitattributes`.
+
+### Status
+
+Completed. Gate tables in `.claude/rules/00-global.md`, `SETUP.md`, and `AGENTS.md` were deliberately left untouched (no Gate condition changed). No open follow-ups; revisit the deferred invariant loop per the criteria in ADR-0010.
+
+## Split one-time Gate 0 setup steps out of CLAUDE.md into SETUP.md (2026-08-27)
+
+### Decision
+
+- `CLAUDE.md`'s "Required Steps Before Starting the Project (Gate 0)" section (Steps 1-4: frontend stack selection, ai-context fill-in, requirements docs, architecture design, TDD pipeline diagram) was moved verbatim into a new top-level `SETUP.md`, read once at project kickoff. `CLAUDE.md` now only keeps a short pointer to it plus the steady-state per-session rules (Read first / Read when relevant / Global rules / Detailed rules), which are read every session.
+- Rationale: ~50 of `CLAUDE.md`'s ~140 lines were one-time kickoff instructions that every session's context was paying for regardless of relevance. Splitting them out reduces per-session context load without losing any content.
+- Cross-references to `CLAUDE.md`'s Step 1-4 procedure were repointed to `SETUP.md` in `.claude/rules/00-global.md`, `.claude/rules/60-docs.md`, `meta/adr/ADR-0005-frontend-stack.md`, and `README.md`. `AGENTS.md` was left unchanged — it never duplicated the Step 1-4 procedure, only the Gate summary table, which still applies.
+- Old `PLAN.md` entries below that reference "`CLAUDE.md` Step 1a/3" etc. describe the file layout as of when they were written and were left as-is (historical record, not rewritten).
+
+### Files touched
+
+`SETUP.md` (new), `CLAUDE.md`, `.claude/rules/00-global.md`, `.claude/rules/60-docs.md`, `meta/adr/ADR-0005-frontend-stack.md`, `README.md`.
+
+### Status
+
+Completed. No open follow-ups.
 
 ## Separate template/harness ADRs from project ADRs (2026-08-17)
 
