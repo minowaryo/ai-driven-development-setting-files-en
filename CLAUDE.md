@@ -38,6 +38,7 @@ at project kickoff — it is not part of the steady-state per-session reading li
 | DB schema changes | `docs/architecture/data-model.md` + `docs/adr/` |
 | Architecture / core design changes | `docs/adr/` |
 | Adding / modifying tests | `docs/development/testing-strategy.md` + `docs/product/use-cases.md` + `docs/architecture/data-model.md` |
+| Writing E2E tests (`/generate-e2e-test`) | `docs/development/e2e-testing.md` (not loaded every session) |
 | Security-related changes | `docs/security/secrets-handling.md` |
 | Creating credentials / API keys, etc. | `docs/credentials/` (follow the handling rules in `.claude/rules/40-security.md`) |
 | Change request (CR) | `docs/rcid/traceability-matrix.md` |
@@ -69,8 +70,7 @@ See `.claude/rules/` for detailed rules:
 - `.claude/rules/15-frontend.md` - Frontend-specific rules (content is rewritten per project based on the selection in `meta/adr/ADR-0005-frontend-stack.md`; default content is Vue.js + Inertia.js)
 - `.claude/rules/20-mysql.md` - MySQL-specific rules
 - `.claude/rules/30-testing.md` - Test strategy (Feature/Unit, TDD)
-- `.claude/rules/31-e2e-testing.md` - E2E test strategy (Playwright; only read when running `/generate-e2e-test`)
 - `.claude/rules/40-security.md` - Security
-- `.claude/rules/50-review.md` - Review guidelines
+- `.claude/rules/50-review.md` - Review guidelines (core; full: `docs/development/review-guidelines.md`)
 - `.claude/rules/60-docs.md` - Documentation update rules
 - `.claude/rules/70-git.md` - Git core (profile + safety rules; full rules in `docs/development/git-workflow.md`)

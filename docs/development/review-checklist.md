@@ -1,7 +1,7 @@
 # review-checklist.md — Review Checklist
 
 > Use this together with the `/review` command.
-> For details, see `.claude/rules/50-review.md`.
+> For details, see `docs/development/review-guidelines.md`.
 
 ## Author Self-Check (Before Merging)
 

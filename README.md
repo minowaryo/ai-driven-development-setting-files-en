@@ -42,9 +42,8 @@ Template's Own Layer        → meta/adr/ (outside the project's own decision-ma
 │   │   ├── 15-frontend.md             # Frontend-specific rules (content depends on the ADR-0005 selection; default is Vue.js + Inertia.js)
 │   │   ├── 20-mysql.md                # MySQL-specific rules
 │   │   ├── 30-testing.md              # Test strategy (Feature/Unit, TDD)
-│   │   ├── 31-e2e-testing.md          # E2E test strategy (Playwright — read only when running /generate-e2e-test)
 │   │   ├── 40-security.md             # Security rules
-│   │   ├── 50-review.md               # Review guidelines
+│   │   ├── 50-review.md               # Review guidelines, core (full: docs/development/review-guidelines.md)
 │   │   ├── 60-docs.md                 # Documentation update rules
 │   │   └── 70-git.md                  # Git core, always loaded: profile line + safety rules (full rules: docs/development/git-workflow.md)
 │   ├── agents/
@@ -122,8 +121,12 @@ Template's Own Layer        → meta/adr/ (outside the project's own decision-ma
     ├── development/                   # Development process
     │   ├── coding-standards.md
     │   ├── testing-strategy.md
+    │   ├── e2e-testing.md             # E2E test strategy (Playwright — read only when running /generate-e2e-test)
     │   ├── review-checklist.md
+    │   ├── review-guidelines.md       # Review guidelines, full (read by /review)
     │   ├── git-workflow.md            # Git workflow, full rules (read before branching/committing/merging)
+    │   ├── git-troubleshooting.md     # When Git gets stuck — what to ask the AI (for people)
+    │   ├── plan-archiving.md          # PLAN.md archive procedure (read when PLAN.md nears 300 lines)
     │   └── ai-workflow.md
     ├── security/
     │   └── secrets-handling.md

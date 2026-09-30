@@ -69,6 +69,6 @@ As a trade-off, if `/review` is run multiple times on the same long-lived branch
 
 ## Related
 - `.claude/rules/30-testing.md`
-- `.claude/rules/50-review.md`
+- `.claude/rules/50-review.md` (core) and `docs/development/review-guidelines.md` (full)
 - `.claude/commands/review.md`
 - ADR-0004-ai-development-policy

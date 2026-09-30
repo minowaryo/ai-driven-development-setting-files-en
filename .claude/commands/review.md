@@ -36,6 +36,7 @@ bash "${CLAUDE_PLUGIN_ROOT:-.claude}/hooks/domain-boundary-check.sh"
 - `docs/product/use-cases.md` — to verify that the implementation matches the requirements
 - `docs/architecture/data-model.md` — to verify DB schema and migration consistency
 - `docs/product/mockups/` — to verify that the UI implementation matches the mockups (if they exist)
+- `docs/development/review-guidelines.md` — the full review guidelines (author self-check, reviewer perspectives)
 
 ## Review Target
 

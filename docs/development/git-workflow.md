@@ -6,6 +6,7 @@
 > This file and the core are the only places Git rules are stated; other files point here.
 > Procedures live in `/commit` (`.claude/commands/commit.md`) and the `prepare-merge` skill.
 > Related ADR: `meta/adr/ADR-0015-git-workflow.md` (evidence, rejected options).
+> When Git gets stuck (conflict, failed `--ff-only`, wrong commit): `docs/development/git-troubleshooting.md`.
 
 ## §0 Profile
 

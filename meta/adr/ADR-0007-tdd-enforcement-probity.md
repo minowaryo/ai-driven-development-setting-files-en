@@ -30,7 +30,7 @@ tdd-guard's own README explicitly states that "new projects should start with Pr
 ## Rationale
 
 ### Why Probity
-- It is a "policy engine" that inspects file writes and shell command execution, and blocks the agent with an explanation and remedy when a rule is violated — this fits well with other rules already in this repo (the quality gates in 00-global.md, the review perspectives in 50-review.md), beyond just TDD enforcement, e.g. checking that tests pass before `git commit`
+- It is a "policy engine" that inspects file writes and shell command execution, and blocks the agent with an explanation and remedy when a rule is violated — this fits well with other rules already in this repo (the quality gates in 00-global.md, the review perspectives in 50-review.md (now `docs/development/review-guidelines.md`)), beyond just TDD enforcement, e.g. checking that tests pass before `git commit`
 - Test-runner agnostic (tdd-guard needed a reporter configuration per test runner — Vitest/Jest/pytest — while Probity reads session history, making setup lighter)
 - Matches this repo's `AGENTS.md` operation, which assumes both Claude Code and Codex are used together (tdd-guard is Claude Code-only)
 

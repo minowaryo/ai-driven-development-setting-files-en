@@ -41,7 +41,7 @@
    - User registration flow
    - Payment flow
    - Critical business flows
-   - See `.claude/rules/31-e2e-testing.md` for layout and run commands
+   - See `docs/development/e2e-testing.md` for layout and run commands
 
 ## Test Data Management
 
