@@ -13,7 +13,7 @@
 | `/adr` | Whenever a technical decision is made — generates the ADR skeleton for a human to finalize | Human (AI proposes it) |
 | `/tdd UC-XXX [summary]` | Every feature / UC implementation: Red → Gate 4 approval → Green → Refactor | Human |
 | `/generate-e2e-test UC-XXX` | A UC critical flow that includes UI changes | Automatic — `/tdd` Step 6 runs it when applicable |
-| `/review` | Before merging, when the pre-merge check calls for it (`.claude/rules/70-git.md` §6). Step 0 scores the branch diff to pick the review level | Human — `/tdd` and `prepare-merge` only remind you (deliberate; see `meta/adr/ADR-0009-review-escalation-mechanism.md`) |
+| `/review` | Before merging, when the pre-merge check calls for it (`docs/development/git-workflow.md` §6). Step 0 scores the branch diff to pick the review level | Human — `/tdd` and `prepare-merge` only remind you (deliberate; see `meta/adr/ADR-0009-review-escalation-mechanism.md`) |
 | `/commit` | When work is ready to commit — proposes the commit split and messages, commits after one approval, never pushes | Human |
 | `prepare-merge` (Trial) | When a branch is done ("merge this" / "マージして") — pre-merge check, drafted merge message, `--no-ff` merge only on instruction | AI or human — it is a skill; see `meta/adr/ADR-0015` |
 | `/regenerate-traceability` | Periodically rather than per-commit — during `/review`, or before a release. Rebuilds the Matrix table in `docs/rcid/traceability-matrix.md` (never the hand-maintained Change Tracking table) | Human or AI — it is a skill, so AI may propose it when the matrix has gone stale |
@@ -22,6 +22,22 @@
 | `grill-me` (Trial) | Drafting/revising `docs/product/requirements.md`, for genuinely ambiguous points | AI — see `meta/adr/ADR-0013` |
 
 > Verifying actual behavior after Green (the `run` skill) is recommended rather than run automatically — a human has to invoke it. See `.claude/rules/30-testing.md`.
+
+## When Git Gets Stuck
+
+You do not need to fix Git by hand — ask the AI to explain and propose, then decide. It
+never force-pushes or rewrites pushed history (`docs/development/git-workflow.md` §4).
+
+| Situation | Ask the AI |
+|---|---|
+| Not sure which branch you are on or what is uncommitted | "Explain the current git state (branch, uncommitted changes, unpushed commits)" |
+| `git merge --ff-only` failed during a merge | "Local main has diverged from origin — explain why and propose how to reconcile" |
+| Merge conflict | "Explain this conflict and propose a resolution; do not resolve it until I approve" |
+| Tests failed on the merged result | "Abort the merge and show which tests failed" (then fix on the branch) |
+| Committed something by mistake (not pushed yet) | "Undo my last commit but keep the changes" (`git reset --soft HEAD~1`) |
+| Committed something by mistake (already pushed) | "Revert that commit" — a new commit that undoes it; pushed history is never rewritten |
+| A feature merged into main must be undone | "Revert the merge commit of `<branch>`" (`git revert -m 1 <merge>`) |
+| Old branches pile up | "List local branches already merged into main and delete them" |
 
 ## Tests
 

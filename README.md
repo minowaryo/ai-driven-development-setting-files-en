@@ -46,7 +46,7 @@ Template's Own Layer        → meta/adr/ (outside the project's own decision-ma
 │   │   ├── 40-security.md             # Security rules
 │   │   ├── 50-review.md               # Review guidelines
 │   │   ├── 60-docs.md                 # Documentation update rules
-│   │   └── 70-git.md                  # Git workflow (branches, commit unit, merge, pre-merge check — the only place Git rules live)
+│   │   └── 70-git.md                  # Git core, always loaded: profile line + safety rules (full rules: docs/development/git-workflow.md)
 │   ├── agents/
 │   │   ├── test-writer.md             # TDD Red-phase-only sub-agent
 │   │   └── tdd-implementer.md         # TDD Green-phase-only sub-agent
@@ -68,7 +68,7 @@ Template's Own Layer        → meta/adr/ (outside the project's own decision-ma
 │   ├── hooks/
 │   │   ├── domain-boundary-check.sh   # Domain Boundary contract check (run in /review Step 0; --audit-all for whole-repo audit)
 │   │   └── review-score.sh            # Scores the branch diff: review level (/review Step 0) + pre-merge tier (prepare-merge)
-│   └── settings.json                  # Project permissions: git push asks, force push denied (see .claude/rules/70-git.md §4)
+│   └── settings.json                  # Project permissions: git push asks, force push denied (see docs/development/git-workflow.md §4)
 │
 ├── meta/
 │   ├── adr/                           # The template/harness's own ADRs (managed separately from the project's ADRs — no editing or renumbering needed)
@@ -123,6 +123,7 @@ Template's Own Layer        → meta/adr/ (outside the project's own decision-ma
     │   ├── coding-standards.md
     │   ├── testing-strategy.md
     │   ├── review-checklist.md
+    │   ├── git-workflow.md            # Git workflow, full rules (read before branching/committing/merging)
     │   └── ai-workflow.md
     ├── security/
     │   └── secrets-handling.md

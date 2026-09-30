@@ -6,18 +6,19 @@ Run a TDD cycle for the specified feature / UC number.
 
 - `docs/product/use-cases.md`
 - `.claude/rules/30-testing.md`
+- `docs/development/git-workflow.md` (branch, commit, and merge steps; profile in `.claude/rules/70-git.md`)
 
 ## Steps
 
-0. **Branch check**: If the current branch is `main`, propose a branch name and wait for consent before Step 1 (`.claude/rules/70-git.md` §1 Branches)
+0. **Branch check**: If the current branch is `main`, get onto a branch before Step 1 — `lite` creates it and says so, `standard` proposes a name and waits (`docs/development/git-workflow.md` §0 Profile, §1 Branches)
 1. **Red**: Ask the `test-writer` sub-agent to write failing tests (do not let it touch implementation code)
 2. **Gate 4 (test case approval)**: Present the created tests and failure logs to the user and ask them to review whether the tests match the intended spec. **Do not proceed to the next step until approval is granted** (quality gate defined in `.claude/rules/00-global.md`)
 3. **Green**: After Gate 4 approval, ask the `tdd-implementer` sub-agent for the minimum implementation to make the tests pass
-4. Present the execution results (Green confirmation) to the user, and suggest **`/commit`** now — Red + Green is one commit, and Refactor must stay a separate one (`.claude/rules/70-git.md` §2)
+4. Present the execution results (Green confirmation) to the user. In `standard`, suggest **`/commit`** now (Red + Green is one commit; Refactor stays separate). In `lite`, the cycle is committed once after Step 7 (`docs/development/git-workflow.md` §0)
 5. **Verify actual behavior**: Recommend the `run` skill to the user so they can launch the app and confirm the feature actually works — bundled skills only run when a human explicitly invokes them, so state the recommendation rather than invoking it yourself (see `.claude/rules/30-testing.md`)
 6. **Add E2E tests (only if applicable)**: If the target is a critical flow from a UC (see `docs/product/use-cases.md`) and includes UI changes, run `/generate-e2e-test` to add Playwright E2E tests
 7. **Refactor**: Refactor as needed. After refactoring, always re-run the tests and confirm Green is maintained
-8. Summarize the final diff and test results, then suggest **`/commit`** for the Refactor changes; when the branch is done, **`prepare-merge`** (it decides whether `/review` is needed — `.claude/rules/70-git.md` §6)
+8. Summarize the final diff and test results, then suggest **`/commit`** (in `standard`, for the Refactor changes); when the branch is done, **`prepare-merge`** (it decides whether `/review` is needed — `docs/development/git-workflow.md` §6). In `lite`, the user may ask for commit → merge → push in one go (§4)
 
 ## Constraints
 

@@ -92,7 +92,12 @@ path. The Bash snippets need Git Bash or WSL on Windows (same prerequisite as
    If the target already has a `.claude/`, check its existing rules and commands the same
    way — both sets get loaded, so a contradiction with the template is class E even when
    the file names differ. Existing Git conventions (e.g. squash-only merges, a `develop`
-   branch, a non-`main` base) that contradict `.claude/rules/70-git.md` are class E too.
+   branch, a non-`main` base) that contradict `docs/development/git-workflow.md` are class E too.
+   Also decide which Git profile to propose (`docs/development/git-workflow.md` §0 Profile):
+   `standard` if the target runs in production with real data or `git log` shows several
+   recent authors, otherwise `lite`. Put it in the Phase 3 hand-off report; the `Profile:`
+   line in `.claude/rules/70-git.md` is changed only after the hand-off (Phase 3 compares
+   class A files byte-for-byte).
 5. If the class E list is empty, continue straight to Phase 1. Otherwise **stop**: present
    each class E item and resolve all of them with the human, then continue.
 

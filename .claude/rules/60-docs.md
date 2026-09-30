@@ -30,7 +30,7 @@
 | Gate condition / quality-gate process changes | `.claude/rules/00-global.md` (details table, absolute prohibitions) + `SETUP.md` (Step procedures) + `AGENTS.md` (for Codex — Gate definitions are duplicated there, so all 3 files need to stay in sync) |
 | Human/AI role-division change (new adoption path, new AI capability, etc.) | `docs/development/ai-workflow.md` (Role Breakdown) + a pointer amendment on `meta/adr/ADR-0004` if it's policy-level (see its 2026-07-15 / 2026-09-15 amendment notes for the style) |
 | New AI entry point added (skill or command) | `docs/ai-context/common-commands.md` (entry-point table) + `README.md` (directory tree). Choose `.claude/skills/` vs `.claude/commands/` by the criterion in `meta/adr/ADR-0012-skills-vs-commands.md` |
-| Git workflow change (branches, commits, push, merge, pre-merge check) | `.claude/rules/70-git.md` only — other files keep at most a one-line pointer to it (+ an ADR if policy-level; see `meta/adr/ADR-0015`) |
+| Git workflow change (branches, commits, push, merge, pre-merge check) | `docs/development/git-workflow.md` (+ `.claude/rules/70-git.md` only for the always-on core) — other files keep at most a one-line pointer (+ an ADR if policy-level; see `meta/adr/ADR-0015`) |
 
 ## Documentation Update Principles
 

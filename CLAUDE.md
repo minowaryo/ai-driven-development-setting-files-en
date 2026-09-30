@@ -57,7 +57,7 @@ at project kickoff — it is not part of the steady-state per-session reading li
 - Always check `docs/adr/` before making large-scale changes
 - Authorization must always go through Policy / Gate (bypassing is prohibited)
 - Do not make DB schema changes without a migration plan
-- Branches, commits, push, and merge follow `.claude/rules/70-git.md` (§2 Commit Unit: small, meaningful commits)
+- Git (branches, commits, push, merge): `.claude/rules/70-git.md`
 - When design intent changes, update documentation too
 
 ## Detailed rules
@@ -73,4 +73,4 @@ See `.claude/rules/` for detailed rules:
 - `.claude/rules/40-security.md` - Security
 - `.claude/rules/50-review.md` - Review guidelines
 - `.claude/rules/60-docs.md` - Documentation update rules
-- `.claude/rules/70-git.md` - Git workflow (branches, commits, merge, pre-merge check)
+- `.claude/rules/70-git.md` - Git core (profile + safety rules; full rules in `docs/development/git-workflow.md`)

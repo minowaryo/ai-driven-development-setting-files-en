@@ -162,6 +162,10 @@ rm -rf meta/tests meta/history APPLY_TEMPLATE.md
 printf '# PLAN.md\n' > PLAN.md   # blank ledger — the template's entries are not this project's
 ```
 
+Then pick the Git profile: keep `Profile: lite` in `.claude/rules/70-git.md`, or set
+`standard` if the project handles real data in production or 2+ people develop it in parallel
+(`docs/development/git-workflow.md` §0 Profile).
+
 #### Step 1 — Select the frontend stack → fill in ai-context (do this first)
 
 **1a. Frontend stack selection**
