@@ -17,7 +17,7 @@ applies to both profiles, except the rows in this table:
 |---|---|---|
 | Branch name (§1) | AI picks it, creates the branch, and says so — no wait | AI proposes it and waits for consent |
 | Commits per `/tdd` cycle (§2) | One (Refactor as its own commit only when easy) | Two: Red + Green, then Refactor |
-| Pre-merge check (§6) | `/review` asked for once only when a sensitive path is touched; size is shown as information | Tier gates the merge (`required` ⇒ `/review` mandatory) |
+| Pre-merge check (§6) | `/review` asked for once only when a sensitive path is touched; size needs no action | Tier gates the merge (`required` ⇒ `/review` mandatory) |
 | Commit → merge → push (§4) | May run on one approval of the shown plan | Each step approved separately |
 
 | Use `standard` when | Otherwise |
@@ -73,7 +73,7 @@ applies to both profiles, except the rows in this table:
 | Merge into `main` | Prepares it (`prepare-merge`); executes only on approval given after the merge plan is shown |
 | Rewriting pushed history | Never on its own initiative |
 
-- `lite` combined run (§0): one plan covering commit → merge → push is approved once. The plan must show the commits, changed files, score, tier, and the test command; if any step fails (commit, `--ff-only` update, conflict, tests, push), stop there even though it was approved
+- `lite` combined run (§0): one plan covering commit → merge → push is approved once. The plan must show the commits, changed files, and the test command (plus, in plain words, anything the user must decide — §6); if any step fails (commit, `--ff-only` update, conflict, tests, push), stop there even though it was approved
 - Permission rules are a guardrail, not a security boundary (e.g. `git -C . push` is not matched); the rules above apply regardless
 
 ## §5 Merge
@@ -101,10 +101,11 @@ Runs once per branch at merge time (never per commit), from `.claude/hooks/revie
 | Tier | Condition | `standard` | `lite` |
 |---|---|---|---|
 | `light` | score < 10 (`REVIEW_SCORE_LIGHT_THRESHOLD`) and no sensitive path | Tests only | Tests only |
-| `recommended` | 10 ≤ score < 30 | `/review` suggested; may be skipped | Shown as information |
-| `required` | score ≥ 30 (`REVIEW_SCORE_THRESHOLD`) or any sensitive path | `/review` mandatory (enhanced level at ≥ 30) | Sensitive path: ask once whether to run `/review`. Size only: shown as information |
+| `recommended` | 10 ≤ score < 30 | `/review` suggested; may be skipped | No action |
+| `required` | score ≥ 30 (`REVIEW_SCORE_THRESHOLD`) or any sensitive path | `/review` mandatory (enhanced level at ≥ 30) | Sensitive path: ask once whether to run `/review`. Size only: no action |
 
 Score 10 ≈ 100-150 changed lines, 30 ≈ 350-450 lines. Thresholds are Trial (ADR-0015).
+**Talking to the user**: never show the score or the tier names (`light` / `recommended` / `required`). Say in plain words only what the user must decide — e.g. "this touches a DB migration / authorization, run `/review` first?" — or, in `standard`, why the merge waits for `/review` (a large change, or a sensitive area). At most a one-line note that the change is large. The score and tier are recorded only in the merge commit's `Merge-Check:` trailer.
 
 ## §7 Parallel Sessions and Worktrees
 
