@@ -1,0 +1,882 @@
+Loop Engineering 設計メモ
+
+仕様駆動・TDD型Harnessから自律的Agent Loopへ
+
+作成日: 2026-10-01
+
+============================================================ 1.
+本資料の目的
+============================================================
+
+本資料は、これまで議論した以下のテーマを統合し、今後の設計・実装検討に利用できる形に整理したものである。
+
+-   Harness Engineering
+-   仕様駆動開発（SDD / Spec-Driven Development）
+-   TDD（Test-Driven Development）
+-   Loop Engineering
+-   Coder Agent / Reviewer Agent
+-   Orchestrator
+-   Deterministic Gate
+-   Agentの権限設計
+-   Test / SpecのOwnership
+-   Human-in-the-loop
+-   Requirements Traceability
+-   Agent Control Plane
+-   Security / Secrets / Safe Outputs
+-   Loopの停止条件とEscalation
+
+前提として、現在のHarnessでは以下がある程度整備されているものとする。
+
+1.  実装前に仕様を明確化する。
+2.  TDDの考え方を採用している。
+3.  AIにプロジェクト固有ルールや開発ルールを与える仕組みがある。
+4.  テスト、Lint、Type Check等によってAIの成果物を機械的に検証できる。
+5.  今後は、単発のAIコーディングではなく、CoderとReviewer等のAgentを連携させた自律的な開発Loopへ発展させたい。
+
+============================================================ 2. 全体概念
+============================================================
+
+各概念は競合するものではなく、階層として整理できる。
+
+SDD / Specification = 「何を作るべきか」を定義する。
+
+TDD = 「正しく作れたことをどう確認するか」をExecutableな形にする。
+
+Harness =
+「AIにどのような環境・制約・ツール・知識を与えて働かせるか」を設計する。
+
+Loop Engineering = 上記を利用し、AI Agentが「実装 → 検証 → レビュー →
+修正」を自律的に反復できる仕組みを設計する。
+
+概念的には以下となる。
+
+Requirement ↓ Specification ↓ Acceptance Criteria ↓ Tests ↓ Harness ↓
+Agent Loop ↓ Evidence ↓ Review ↓ Approval / Escalation
+
+Loop EngineeringはHarnessを置き換えるものではない。
+むしろ「十分に整備されたHarnessの上に自律的な反復処理を載せる」考え方である。
+
+============================================================ 3.
+推奨する基本アーキテクチャ
+============================================================
+
+単純な
+
+Coder ⇄ Reviewer
+
+だけで構築するよりも、以下の構成を推奨する。
+
+[Specification / Task] ↓ [Planner / Orchestrator] ↓ [Coder Agent] ↓
+[Deterministic Gate] ↓ [Reviewer Agent] ↓ ↓ REQUEST APPROVE CHANGES ↓ ↓
+[Permission / [Coder] Approval Gate] ↓ PR ↓ 必要に応じ Human
+
+主要コンポーネント:
+
+A. Specification - Requirement - Functional Specification -
+Non-functional Requirement - Acceptance Criteria - Architecture
+Constraint - Security Requirement
+
+B. Orchestrator - Task分解 - AgentへのTask割当 - State管理 -
+Loop回数管理 - Timeout管理 - Cost / Token Budget管理 - Escalation判断
+
+C. Coder Agent - Source Codeの参照 - Source Codeの変更 - Unit Test作成 -
+Local Test実行 - Build実行 - 修正
+
+D. Deterministic Gate - Build - Unit Test - Integration Test -
+Acceptance Test - Lint - Type Check - SAST - Architecture Test -
+Contract Test - Schema Validation - Performance Test（必要な場合）
+
+E. Reviewer Agent - Spec参照 - Diff確認 - Test結果確認 -
+Architecture確認 - Security観点確認 - Evidence確認 - APPROVE /
+REQUEST_CHANGES判定
+
+F. Permission / Approval Gate - PR作成 - External APIへのWrite -
+Deploy - Merge - Production Access
+など、外部副作用や高リスク操作を管理する。
+
+============================================================ 4.
+TDDとLoop Engineeringの統合
+============================================================
+
+TDDとLoop Engineeringは非常に相性が良い。
+
+従来:
+
+RED ↓ GREEN ↓ REFACTOR
+
+Agent Loop:
+
+Specification ↓ Test ↓ RED ↓ Coder Agent ↓ GREEN ↓ Refactor ↓
+Deterministic Gate ↓ Reviewer ↓ NG → CoderへFeedback OK → 次のGate
+
+重要なのは、単純にAgentへ
+
+「テストが全部通るまで直してください」
+
+と依頼しないことである。
+
+CoderがSource CodeとTest Codeの両方を自由に変更できる場合、
+実装を正しくする代わりにテストを弱くしてGreenにする可能性がある。
+
+例:
+
+本来: assert result == expected
+
+Agentによる不適切な変更: assert result is not None
+
+テストはGreenになっても、Requirementを満たしているとは限らない。
+
+============================================================ 5. Test
+Ownership ============================================================
+
+すべてのTestを同じ扱いにしない。
+
+推奨:
+
+Acceptance Test Owner: Spec/Test Agent Coder: READ ONLY
+
+Contract Test Owner: Spec/Test Agent Coder: READ ONLY
+
+Regression Test Owner: Reviewer/Test Agent Coder: 原則READ ONLY
+
+Unit Test Owner: Coder Coder: WRITE可能
+
+ディレクトリ例:
+
+tests/ acceptance/ LOCKED contract/ LOCKED regression/ LOCKED unit/
+CODER WRITE
+
+これによりTDDの柔軟性を残しながら、AgentがAcceptance
+Criteriaそのものを変更して成功条件を下げることを防止できる。
+
+============================================================ 6.
+Specification Ownership
+============================================================
+
+SpecificationもCoderから原則Immutableにする。
+
+Coderが
+
+「Specを満たせ」
+
+というGoalを持ちながらSpec自体を変更できる場合、
+
+実装困難 ↓ Spec変更 ↓ 変更後Specを満たす ↓ 「完了」
+
+というGoal hackingが発生し得る。
+
+推奨Ownership:
+
+Spec Agent: spec/** WRITE src/** READ
+
+Test Agent: tests/** WRITE spec/** READ src/** READ
+
+Coder: src/** WRITE unit tests WRITE spec/** READ acceptance/contract
+tests READ
+
+Reviewer: ALL READ 原則WRITEなし
+
+============================================================ 7.
+Specは「Immutable」ではなく「Controlled Mutable」
+============================================================
+
+仕様を先に固めることは重要だが、永久に変更不可にする必要はない。
+
+実装中には以下が発見される可能性がある。
+
+-   仕様の矛盾
+-   技術的実現困難
+-   既存仕様とのConflict
+-   Edge Case
+-   Security上の問題
+-   Performance上の問題
+-   Requirementの曖昧さ
+
+この場合、Coderが勝手にSpecを書き換えるのではなく、
+
+Coder ↓ SPEC_CONFLICT ↓ Code Loop停止 ↓ Spec Review ↓ Spec Agent / Human
+↓ Spec Revision ↓ Acceptance Test Revision ↓ 新しいCode Loop開始
+
+とする。
+
+============================================================ 8.
+一つのLoopではなく複数のLoopとして設計する
+============================================================
+
+Loop Engineeringを一つの巨大なwhile loopとして設計しない。
+
+推奨する4 Loop:
+
+  --------------
+  A. SPEC LOOP
+  --------------
+
+Requirement ↓ Specification ↓ Acceptance Criteria ↓ Validation
+
+  --------------
+  B. TEST LOOP
+  --------------
+
+Specification ↓ Test Generation ↓ Requirement Coverage確認 ↓ Test
+Validation
+
+  --------------
+  C. CODE LOOP
+  --------------
+
+RED ↓ Implementation ↓ GREEN ↓ Refactor ↓ Deterministic Check
+
+  ----------------
+  D. REVIEW LOOP
+  ----------------
+
+Spec + Tests + Code + Evidence ↓ Reviewer ↓
+
+REQUEST_CHANGES → CODE LOOP
+
+SPEC_CONFLICT → SPEC LOOP
+
+TEST_GAP → TEST LOOP
+
+APPROVE → PR / Approval Gate
+
+この分離によって、
+
+「コードを仕様に合わせているのか」 「仕様をコードに合わせているのか」
+
+が曖昧になることを防止する。
+
+============================================================ 9. Reviewer
+Agentの基本思想
+============================================================
+
+Reviewerの仕事は「修正すること」ではない。
+
+Reviewerの役割:
+
+Observe Verify Evaluate Explain Decide
+
+Reviewerは原則:
+
+Source Code WRITE × Spec WRITE × Acceptance Test WRITE × Commit × Push ×
+Merge × Deploy ×
+
+Repository READ ○ Spec READ ○ Tests READ ○ Diff READ ○ Test execution ○
+Lint ○ Type Check ○ Static Analysis ○ Local Logs ○ UI inspection ○
+必要なLocal DB参照 ○
+
+基本思想:
+
+「強い観測能力、弱い変更能力」
+
+Reviewer自身が問題を発見して自分で修正すると、
+
+Reviewer: 「問題がある」 ↓ Reviewer: 「自分で修正した」 ↓ Reviewer:
+「自分で修正したのでOK」
+
+となり、GeneratorとEvaluatorの独立性が低下する。
+
+============================================================ 10.
+ReviewerはEvidence-Based Judgeにする
+============================================================
+
+悪いパターン:
+
+Coder ↓ Reviewer LLM ↓ “Looks good” ↓ Merge
+
+推奨:
+
+Coder ↓ Code ↓ Deterministic Checks ↓ Evidence ↓ Reviewer ↓ Judgment
+
+Evidence例:
+
+-   Test Result
+-   Test Coverage
+-   Lint Result
+-   Type Check Result
+-   Build Result
+-   SAST Result
+-   Architecture Test
+-   Contract Test
+-   Performance Result
+-   Git Diff
+-   Runtime Logs
+-   UI Screenshot / DOM
+-   Trace
+-   Requirement Traceability
+
+Reviewerは「LLMの感覚」で合否を決めるのではなく、
+EvidenceとSpecificationを照合して判断する。
+
+============================================================ 11.
+Deterministic First
+============================================================
+
+LLMに判断させる必要のないことは、可能な限りコードで判定する。
+
+例:
+
+自然言語ルール: 「ControllerからRepositoryを直接呼ばない」
+
+↓
+
+Architecture Test: Controller → Repository dependencyを検出したらFAIL
+
+自然言語ルール: 「型エラーを残さない」
+
+↓
+
+typecheck
+
+自然言語ルール: 「API契約を壊さない」
+
+↓
+
+Contract Test
+
+自然言語ルール: 「Security Ruleを満たす」
+
+↓
+
+SAST / Dependency Scan
+
+理想:
+
+Natural Language Rule ↓ Executable Constraint
+
+Harness成熟後の次の重要なステップは、
+「文章でAIに守らせるルール」を「機械的に強制できるルール」へ変換することである。
+
+============================================================ 12.
+Reviewer Outputは構造化する
+============================================================
+
+自由文の
+
+LGTM
+
+だけではLoop Engineが判断できない。
+
+例:
+
+ReviewResult { decision: “REQUEST_CHANGES”, category: “SPEC_VIOLATION”,
+requirement_id: “REQ-042”, severity: “HIGH”, expected: “…”, actual: “…”,
+evidence: […], affected_files: […], suggested_direction: “…”,
+confidence: 0.94 }
+
+decision例:
+
+APPROVE REQUEST_CHANGES SPEC_CONFLICT TEST_GAP SECURITY_REVIEW_REQUIRED
+HUMAN_REVIEW_REQUIRED
+
+Loop Engineはこの構造化結果を利用して次のStateを決定する。
+
+============================================================ 13.
+Requirements Traceability
+============================================================
+
+AI Agent開発ではRTM（Requirements Traceability
+Matrix）が従来以上に重要になる。
+
+理想:
+
+REQ-001 ↓ SPEC-001 ↓ AC-001 ↓ TEST-001 ↓ CODE ↓ REVIEW-EVIDENCE
+
+機械可読例:
+
+requirement: REQ-001
+
+acceptance_criteria: - AC-001 - AC-002
+
+tests: - TEST-101 - TEST-102
+
+implementation: - UserService.ts - UserRepository.ts
+
+review: evidence: - unit-test - acceptance-test - architecture-test
+
+Reviewerは
+
+「TestがGreenか？」
+
+だけではなく、
+
+「すべてのRequirementがAcceptance Criteriaに落ちているか」 「Acceptance
+Criteriaを検証するTestが存在するか」
+「Testが実装を本当に検証しているか」
+
+を見る。
+
+============================================================ 14. Agent
+Permission Design
+============================================================
+
+AgentへToolを丸ごと渡すよりCapabilityを限定する。
+
+悪い例:
+
+bash git gh aws kubectl
+
+をReviewerへ丸ごと提供。
+
+より安全な例:
+
+readFile() getDiff() runTests() runLint() runTypecheck()
+inspectLocalLogs() inspectUI() postReviewComment()
+
+原則:
+
+「Credentialを渡す」のではなく 「必要最小限のCapabilityを渡す」。
+
+============================================================ 15.
+Permission Tier
+============================================================
+
+操作をリスク別に分類する。
+
+GREEN: - File Read - Search - Code Navigation - Diff - Local Test -
+Lint - Type Check - Local Build
+
+原則Auto。
+
+YELLOW: - Source Edit - Dependency Update - DB Migration生成 - External
+API利用 - Network Access - PR Comment
+
+Policyによって制御。
+
+RED: - Production Access - Secrets - Deploy - Merge - IAM変更 -
+Production DB Write - Data Delete - External System Write
+
+Human Approvalまたは強いPermission Gateを要求。
+
+============================================================ 16. Quality
+ReviewerとPermission Reviewerを分離する
+============================================================
+
+一つのReviewerへすべての判断を集約しない。
+
+Quality Reviewer: 「この実装はSpecificationを満たすか？」
+
+Permission / Security Reviewer: 「このActionを実行してよいか？」
+
+例:
+
+Coder ↓ “npm installを実行したい” ↓ Permission Gate ↓ ALLOW / DENY
+
+一方:
+
+Coder ↓ Implementation ↓ Quality Reviewer ↓ APPROVE / REQUEST_CHANGES
+
+品質評価と権限制御は異なる責務である。
+
+============================================================ 17. Secrets
+Design ============================================================
+
+Agent RuntimeへSecretsを直接渡す設計は避ける。
+
+避けたい:
+
+Agent AWS_SECRET_KEY GITHUB_TOKEN PROD_DB_PASSWORD
+
+推奨:
+
+Agent ↓ Intent / Safe Output
+
+例: “Create Pull Request”
+
+↓
+
+Trusted Downstream Tool / Job ↓ Secretを利用 ↓ GitHub API ↓ PR作成
+
+AgentはSecretそのものを知らない。
+
+Agentは
+
+createPR()
+
+というCapabilityだけ利用する。
+
+============================================================ 18.
+Loop停止条件
+============================================================
+
+Loopを
+
+while reviewer != APPROVE: coder.fix()
+
+だけで実装してはいけない。
+
+必ずBudgetと停止条件を持つ。
+
+例:
+
+MAX_ITERATION = 5 MAX_DURATION = 60 minutes MAX_COST = defined budget
+SAME_FAILURE_LIMIT = 2 PERMISSION_DENIAL_LIMIT = 3
+
+Escalation条件例:
+
+iteration >= MAX_ITERATION → HUMAN
+
+same_error >= 2 → HUMAN
+
+security_sensitive == true → SECURITY REVIEW
+
+spec_conflict == true → SPEC LOOP
+
+reviewer_confidence < threshold → HUMAN
+
+budget exceeded → STOP
+
+============================================================ 19. State
+Machineとして実装する
+============================================================
+
+Loop EngineeringはPromptの集合ではなく、 State
+Machineとして実装する方が管理しやすい。
+
+例:
+
+TODO ↓ PLANNING ↓ TEST_GENERATION ↓ CODING ↓ VERIFYING ↓ REVIEWING ↓
+
+APPROVED REQUEST_CHANGES SPEC_CONFLICT TEST_GAP SECURITY_REVIEW
+HUMAN_REVIEW
+
+などへ遷移。
+
+REQUEST_CHANGES ↓ CODING
+
+SPEC_CONFLICT ↓ SPEC_REVIEW
+
+TEST_GAP ↓ TEST_GENERATION
+
+APPROVED ↓ PR_READY
+
+============================================================ 20. Agent
+Control Plane
+============================================================
+
+将来的には個別Agentより、その上のControl Planeが重要になる。
+
+                 Agent Control Plane
+
+Task ↓ Orchestrator ↓ Coder ─────→ Evidence ↑ ↓ │ Deterministic Gate │ ↓
+└──────── Reviewer ↓ Policy Engine ↓ Safe Output / Human
+
+Control Planeが管理するもの:
+
+-   Agent Role
+-   Capability
+-   Task Contract
+-   State
+-   Evidence
+-   Permission
+-   Budget
+-   Retry
+-   Escalation
+-   Audit Log
+-   Review Result
+
+============================================================ 21.
+重要なデータモデル候補
+============================================================
+
+今後Loop Engineを実装する場合、以下を明示的なSchemaとして持つとよい。
+
+1.  TaskContract
+2.  Specification
+3.  AcceptanceCriteria
+4.  AgentRole
+5.  Capability
+6.  PermissionPolicy
+7.  TestOwnership
+8.  Evidence
+9.  ReviewResult
+10. LoopState
+11. EscalationPolicy
+12. Budget
+13. AuditEvent
+14. TraceabilityRecord
+
+特に重要:
+
+ReviewResult Permission Matrix Traceability Schema Loop State
+
+============================================================ 22.
+Human-in-the-loop
+============================================================
+
+Loop Engineeringの目的は「人間を完全に排除すること」ではない。
+
+人間は高価値・高リスク判断へ移動する。
+
+Agentに任せやすい: - Routine Coding - Test - Lint - Type Check -
+Refactoring - Evidence収集 - First Review - Routine Bug Fix
+
+Humanを残す: - Requirementの意味変更 - Business Decision - Security
+Critical Decision - Production Operation - Destructive Operation -
+High-risk Architecture Decision - Spec Conflict - Ambiguous
+Requirement - Merge / Deploy（成熟度に応じる）
+
+============================================================ 23.
+段階的導入 ============================================================
+
+Level 1: Coder ↓ Deterministic Test ↓ Reviewer ↓ Review Report ↓ Human
+
+Level 2: Coder ↑ ↓ Reviewer ↓ PR ↓ Human Merge
+
+Level 3: Planner ↓ Coder ↑ ↓ Reviewer ↓ Permission Gate ↓ PR ↓ Low-risk:
+automated High-risk: Human
+
+Level 4: Task Discovery ↓ Orchestrator ↓ Multi-Agent Loop ↓ Evidence ↓
+Policy ↓ Safe Output ↓ 必要な場合のみHuman
+
+完全自律を最初から狙わない。
+
+============================================================ 24.
+主な懸念事項
+============================================================
+
+1.  Goal Hacking
+    Agentが「本来の目的」ではなく「評価指標を通す」方向へ最適化する。
+
+対策: - Spec/Test Ownership分離 - Immutable Acceptance Tests -
+Independent Reviewer - Deterministic Gate
+
+2.  Test Gaming Coderがテストを弱めてGreenにする。
+
+対策: - Acceptance/Contract TestをCoderからREAD ONLY化
+
+3.  Reviewer Bias ReviewerがCoderと同じContext・推論に引きずられる。
+
+対策: - Reviewerを独立Agent化 - Evidence中心 - 必要なら異なるContext -
+Self-reviewだけに依存しない
+
+4.  Infinite Loop CoderとReviewerが延々修正を繰り返す。
+
+対策: - MAX_ITERATION - Budget - Same Failure Detection - Human
+Escalation
+
+5.  Context Explosion Loopが長くなるほどContextが肥大化する。
+
+対策: - Stateを外部保存 - Structured Summary - Evidence Store -
+必要情報のみContextへ投入
+
+6.  Permission Creep 便利さのためAgent権限が徐々に増える。
+
+対策: - Capability Based Access - Least Privilege - Permission Tier -
+Audit
+
+7.  Spec Drift 実装都合で仕様が変化する。
+
+対策: - Spec LoopをCode Loopから分離 - Spec変更に明示的Approval
+
+8.  False Confidence Test Green = 正しいシステム、ではない。
+
+対策: - Requirement Coverage - Traceability - Negative Test - Security
+Test - Non-functional Test
+
+9.  Agent Collusion / Shared Blind Spot
+    CoderとReviewerが同じ誤解を共有する。
+
+対策: - Deterministic Gate - Independent evidence - Acceptance Test -
+Human escalation - 必要に応じ別モデル/別Prompt/別Context
+
+============================================================ 25.
+現在のHarnessから優先的に追加したいもの
+============================================================
+
+現在すでに
+
+-   Specification First
+-   TDD
+-   Harness Rules
+-   Test
+-   開発制約
+
+が存在するなら、次の優先順位を推奨する。
+
+Priority 1: ReviewResult Schema
+
+Reviewerの出力を構造化する。
+
+Priority 2: Permission Matrix
+
+Coder / Reviewer / Test Agent / Spec Agent / Orchestratorの READ / WRITE
+/ EXECUTE権限を定義。
+
+Priority 3: Test Ownership
+
+Acceptance / Contract / Regression / Unit Testを分類。
+
+Priority 4: Loop State Machine
+
+Prompt chainingではなく状態遷移として実装。
+
+Priority 5: Deterministic Gates
+
+文章ルールをExecutable Constraintへ移行。
+
+Priority 6: Traceability Schema
+
+Requirement → Spec → AC → Test → Code → Evidence を紐付ける。
+
+Priority 7: Escalation Policy
+
+「AIが判断できないとき何をするか」を明示。
+
+Priority 8: Safe Output / Capability Layer
+
+AgentへCredentialを渡さず、限定Actionとして外部操作を提供。
+
+============================================================ 26.
+推奨する最小構成（Loop Engineering v1）
+============================================================
+
+最初の実装ではAgentを増やしすぎない。
+
+推奨:
+
+1.  Orchestrator
+2.  Coder
+3.  Reviewer
+
+-   非AgentのDeterministic Gate
+
+Flow:
+
+Task ↓ Orchestrator ↓ Coder ↓ Test / Lint / Type Check / Build ↓
+Reviewer ↓
+
+REQUEST_CHANGES → Coder
+
+SPEC_CONFLICT → Human / Spec Review
+
+APPROVE → PR
+
+この段階では:
+
+-   Auto Mergeしない
+-   Production Accessさせない
+-   ReviewerはRead Only
+-   Acceptance TestはCoderからRead Only
+-   SpecはCoderからRead Only
+-   PR MergeはHuman
+
+とする。
+
+============================================================ 27.
+次の発展形（Loop Engineering v2）
+============================================================
+
+v1が安定した後:
+
+-   Test Agent追加
+-   Spec Agent追加
+-   Permission Reviewer追加
+-   Automatic Task Discovery
+-   Safe PR Creation
+-   Low-risk Auto Merge
+-   Observability統合
+-   Cost Optimization
+-   Agent Memory
+-   Failure Pattern Learning
+
+などを追加する。
+
+============================================================ 28.
+最終的な設計思想
+============================================================
+
+Loop Engineeringにおいて重要なのは、
+
+「AIをどれだけ自由にするか」
+
+ではない。
+
+重要なのは、
+
+「AIが自律的に動いても、安全かつ検証可能な構造をどう作るか」
+
+である。
+
+目標となる関係:
+
+Spec = Source of Truth
+
+Tests = Executable Specification
+
+Coder = Implementation Owner
+
+Reviewer = Evidence-based Judge
+
+Deterministic Gate = Mechanical Truth
+
+Harness = Constraints / Environment
+
+Orchestrator = State / Workflow Controller
+
+Permission Layer = Boundary Controller
+
+Loop = State Machine
+
+Human = High-value / High-risk Decision Maker
+
+============================================================ 29.
+一言でまとめると
+============================================================
+
+現在の「仕様駆動 + TDD + Harness」は、 Loop
+Engineeringと競合するどころか非常に良い土台である。
+
+次に必要なのはAIへ単純に自由度を追加することではなく、
+
+-   Ownershipを分離する
+-   Reviewerを独立させる
+-   Evidenceで判定する
+-   ルールをExecutableにする
+-   権限をCapability単位にする
+-   LoopをState Machine化する
+-   停止条件を持つ
+-   Spec変更LoopをCode Loopから分離する
+-   RequirementからEvidenceまでTraceabilityを持つ
+
+ことである。
+
+最終的には
+
+「AIにコードを書かせるHarness」
+
+から
+
+「複数のAI Agentが、仕様・テスト・権限制約・Evidenceに基づいて
+安全に自律反復できるEngineering System」
+
+へ進化させることがLoop Engineeringの本質となる。
+
+============================================================
+参考にした主要な公開資料
+============================================================
+
+-   OpenAI, Harness engineering
+    https://openai.com/index/harness-engineering/
+
+-   OpenAI Alignment, Auto-review
+    https://alignment.openai.com/auto-review
+
+-   OpenAI, Running Codex safely
+    https://openai.com/index/running-codex-safely/
+
+-   Anthropic, Building effective agents
+    https://www.anthropic.com/engineering/building-effective-agents
+
+-   Anthropic, Harness design for long-running apps
+    https://www.anthropic.com/engineering/harness-design-long-running-apps
+
+-   Anthropic, Claude Code Auto Mode
+    https://www.anthropic.com/engineering/claude-code-auto-mode
+
+-   GitHub Docs, GitHub Agentic Workflows
+    https://docs.github.com/en/copilot/concepts/agents/about-github-agentic-workflows
+
+-   CodeZine,
+    生成AIの最新トレンド「ハーネス」「仕様駆動」「ループ」とキャリアの越境
+    https://codezine.jp/article/detail/29710

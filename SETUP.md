@@ -158,7 +158,7 @@ Remove it so the project starts clean (the Existing-Codebase Path gets the same 
 from `APPLY_TEMPLATE.md`, which never copies these):
 
 ```bash
-rm -rf meta/tests meta/history APPLY_TEMPLATE.md
+rm -rf meta/tests meta/history meta/design APPLY_TEMPLATE.md
 printf '# PLAN.md\n' > PLAN.md   # blank ledger — the template's entries are not this project's
 ```
 
