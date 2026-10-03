@@ -2,6 +2,42 @@
 
 > Keep under 300 lines (`.claude/rules/60-docs.md`). Archived: 2026-08-03 – 2026-09-26 → `meta/history/plan-archive.md` (2026-09-30, 2026-10-03).
 
+## Domain Boundary check: fewer misses and false positives, with its own tests (2026-10-03)
+
+### Decision
+
+- A fixture run of `.claude/hooks/domain-boundary-check.sh` found misses and false positives
+  (listed in the 2026-10-03 update note on `meta/adr/ADR-0010-domain-boundary-contract.md`).
+- Order: tests first (`meta/tests/domain-boundary-check.test.sh`, same style as
+  `review-score.test.sh`; fixtures are inline heredocs), then the script fixes. Running the
+  check outside `/review` (prepare-merge, a PostToolUse hook) comes later and separately —
+  precision first, so a wider rollout does not spread false positives.
+- Fixes, all inside the script: join lines starting with `->` / `?->` onto the previous
+  line (findings report the statement's first line); collapse nested parentheses level by
+  level so chains are matched through any argument depth; accept a `Class::method()` chain
+  root; treat variables type-hinted as `*Service` / `*Action` in the current method as
+  sanctioned; widen role patterns (reversed, `->value`, chained `in_array`); count `->can(`
+  / `->cannot(` / `->cant(` as authorization for the priority signal.
+- Unchanged on purpose: untyped variables (`$cart->update()`) stay flagged; output format,
+  exit codes, env vars, and `--audit-all` / `--stats` stay as they are; still one finding per
+  line. Known remaining gaps go into an update note on ADR-0010.
+
+### Checklist
+
+- [x] Tests: current detections (regression) + each miss / false positive above (Red: 16 pass / 15 fail)
+- [x] Script fixes until all tests pass (Green: 31/31; `review-score.test.sh` 27/27). 54,000 synthetic lines: ~2.9s (was ~1.7s with a third of the findings)
+- [x] Update note on `meta/adr/ADR-0010-domain-boundary-contract.md`; `README.md` tree mentions the new test
+
+### Files touched
+
+`.claude/hooks/domain-boundary-check.sh`, `meta/tests/domain-boundary-check.test.sh` (new),
+`meta/adr/ADR-0010-domain-boundary-contract.md`, `README.md`, `PLAN.md`.
+
+### Status
+
+Implemented on branch `fix/domain-boundary-accuracy` (worktree `.claude/worktrees/domain-boundary-accuracy`); not committed.
+Next: run the check outside `/review` (prepare-merge, then a PostToolUse hook) — separate entries.
+
 ## Loop Engineering roadmap + Stage 1: mechanical TDD enforcement (2026-10-03)
 
 ### Decision
