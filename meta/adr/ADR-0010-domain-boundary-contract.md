@@ -21,6 +21,18 @@ Accepted
 > `createMany` / `saveMany`, `forceFill`), and a route-bound Model whose class name ends in
 > `Service` / `Action` (treated as an injected collaborator). Running the check outside
 > `/review` is a separate, later decision.
+>
+> Updated 2026-10-03 (where it runs): `prepare-merge` now runs the check on every merge, in
+> both Git profiles. Why: it ran only from `/review`, and the `lite` profile (ADR-0015) asks
+> for `/review` only on sensitive paths — so an ordinary Controller change usually reached
+> `main` without the check ever running. It stays non-blocking, in keeping with "detects, does
+> not prevent" below: findings never change the merge tier or make `/review` mandatory; with
+> no `/review` since the last commit, the AI asks once (fix / review / merge as is), and the
+> count is kept in the merge commit's `Merge-Check:` trailer. Rejected: making findings a
+> `required`-tier trigger — on a brownfield Controller every merge would demand `/review`
+> for violations nobody introduced. Still open: a PostToolUse hook that reports findings while
+> the code is being written (would revise "not a registered lifecycle hook" below and the
+> hookify deferral in ADR-0014).
 
 ## Context
 

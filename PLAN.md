@@ -2,41 +2,36 @@
 
 > Keep under 300 lines (`.claude/rules/60-docs.md`). Archived: 2026-08-03 – 2026-09-26 → `meta/history/plan-archive.md` (2026-09-30, 2026-10-03).
 
-## Domain Boundary check: fewer misses and false positives, with its own tests (2026-10-03)
+## Domain Boundary check: accuracy + own tests, then run it at prepare-merge (2026-10-03)
 
 ### Decision
 
-- A fixture run of `.claude/hooks/domain-boundary-check.sh` found misses and false positives
-  (listed in the 2026-10-03 update note on `meta/adr/ADR-0010-domain-boundary-contract.md`).
-- Order: tests first (`meta/tests/domain-boundary-check.test.sh`, same style as
-  `review-score.test.sh`; fixtures are inline heredocs), then the script fixes. Running the
-  check outside `/review` (prepare-merge, a PostToolUse hook) comes later and separately —
-  precision first, so a wider rollout does not spread false positives.
-- Fixes, all inside the script: join lines starting with `->` / `?->` onto the previous
-  line (findings report the statement's first line); collapse nested parentheses level by
-  level so chains are matched through any argument depth; accept a `Class::method()` chain
-  root; treat variables type-hinted as `*Service` / `*Action` in the current method as
-  sanctioned; widen role patterns (reversed, `->value`, chained `in_array`); count `->can(`
-  / `->cannot(` / `->cant(` as authorization for the priority signal.
-- Unchanged on purpose: untyped variables (`$cart->update()`) stay flagged; output format,
-  exit codes, env vars, and `--audit-all` / `--stats` stay as they are; still one finding per
-  line. Known remaining gaps go into an update note on ADR-0010.
+- Part 1 (merged, `84f26bc`): fixture-found misses and false positives fixed inside
+  `.claude/hooks/domain-boundary-check.sh`, pinned by `meta/tests/domain-boundary-check.test.sh`
+  (31 cases); details and remaining gaps in the 2026-10-03 note on `meta/adr/ADR-0010`.
+- Part 2: the check only ran from `/review`, which `lite` rarely asks for on an ordinary
+  Controller change — so it usually never ran before a merge. `prepare-merge` now runs it in
+  step 2 next to `review-score.sh`, every merge, both profiles (deterministic, ~1s).
+- Findings never change the tier and never make `/review` mandatory (pattern matches, not
+  verdicts — ADR-0010). Violations or a priority file, with no `/review` since the last
+  commit → ask once in plain words: fix first, run `/review`, or merge as is. After a
+  `/review`, they are only listed in the plan. Heuristic-only warnings are listed, not asked.
+- The count goes into the `Merge-Check:` trailer (`boundary N`, only when non-zero), so
+  `git log --first-parent` shows whether the boundary holds over time.
+- A script error or "skipping" output does not stop the merge; it is shown in the plan.
+- Not touched (another branch edits it): the self-check list in `review-guidelines.md`.
 
 ### Checklist
 
-- [x] Tests: current detections (regression) + each miss / false positive above (Red: 16 pass / 15 fail)
-- [x] Script fixes until all tests pass (Green: 31/31; `review-score.test.sh` 27/27). 54,000 synthetic lines: ~2.9s (was ~1.7s with a third of the findings)
-- [x] Update note on `meta/adr/ADR-0010-domain-boundary-contract.md`; `README.md` tree mentions the new test
-
-### Files touched
-
-`.claude/hooks/domain-boundary-check.sh`, `meta/tests/domain-boundary-check.test.sh` (new),
-`meta/adr/ADR-0010-domain-boundary-contract.md`, `README.md`, `PLAN.md`.
+- [x] Part 1 merged and pushed
+- [x] Part 2 docs: `git-workflow.md` §5/§6, ADR-0010 + ADR-0015 notes, pointers in `10-laravel.md`, `README.md`
+- [x] Part 2 procedure: `.claude/skills/prepare-merge/SKILL.md` steps 2-5
+- [x] Verify: scratch repos — violating Controller (`>> 2 violation(s) ... 1 priority file(s)`, exit 1 → ask), clean one (exit 0 → silent); this repo (`nothing to check`, exit 0)
 
 ### Status
 
-Implemented on branch `fix/domain-boundary-accuracy` (worktree `.claude/worktrees/domain-boundary-accuracy`); not committed.
-Next: run the check outside `/review` (prepare-merge, then a PostToolUse hook) — separate entries.
+Part 2 implemented on branch `feat/boundary-check-at-merge` (worktree `.claude/worktrees/boundary-check-at-merge`); not committed.
+Later, separately: a PostToolUse hook (needs an ADR-0014 / ADR-0010 revision).
 
 ## Loop Engineering roadmap + Stage 1: mechanical TDD enforcement (2026-10-03)
 

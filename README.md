@@ -65,7 +65,7 @@ Template's Own Layer        → meta/adr/ (outside the project's own decision-ma
 │   │   ├── grill-me/                  # Trial (meta/adr/ADR-0013) — one-question-at-a-time requirements interview
 │   │   └── prepare-merge/             # Trial (meta/adr/ADR-0015) — pre-merge check + --no-ff merge on instruction
 │   ├── hooks/
-│   │   ├── domain-boundary-check.sh   # Domain Boundary contract check (run in /review Step 0; --audit-all for whole-repo audit)
+│   │   ├── domain-boundary-check.sh   # Domain Boundary contract check (run in /review Step 0 and prepare-merge; --audit-all for whole-repo audit)
 │   │   └── review-score.sh            # Scores the branch diff: review level (/review Step 0) + pre-merge tier (prepare-merge)
 │   └── settings.json                  # Project permissions: git push asks, force push denied (see docs/development/git-workflow.md §4)
 │

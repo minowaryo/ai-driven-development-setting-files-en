@@ -93,6 +93,7 @@ Tests: php artisan test (128 passed)
 ```
 
 - `Review:` is `normal` / `enhanced` / `skipped`; in `standard`, `skipped` only for `light` / `recommended`. For `light`, the why line is optional
+- `Merge-Check:` ends with `; boundary N` when the Domain Boundary check (§6) reported N violations, e.g. `Merge-Check: light (score 6; boundary 2)`
 
 ## §6 Pre-Merge Check
 
@@ -106,6 +107,15 @@ Runs once per branch at merge time (never per commit), from `.claude/hooks/revie
 
 Score 10 ≈ 100-150 changed lines, 30 ≈ 350-450 lines. Thresholds are Trial (ADR-0015).
 **Talking to the user**: never show the score or the tier names (`light` / `recommended` / `required`). Say in plain words only what the user must decide — e.g. "this touches a DB migration / authorization, run `/review` first?" — or, in `standard`, why the merge waits for `/review` (a large change, or a sensitive area). At most a one-line note that the change is large. The score and tier are recorded only in the merge commit's `Merge-Check:` trailer.
+
+**Domain Boundary check** (both profiles, every merge): `prepare-merge` also runs
+`.claude/hooks/domain-boundary-check.sh` on the branch's Controllers (`meta/adr/ADR-0010`).
+Its findings are pattern matches, not verdicts, so they never change the tier and never make
+`/review` mandatory. When it reports violations or a priority file and `/review` has not run
+since the branch's last commit, the AI asks once in plain words — fix first, run `/review`,
+or merge as is (e.g. "OrderController writes to the DB directly in 2 places — fix, review, or
+merge?"). Otherwise the findings are only listed in the plan. A script error or skip is shown
+and does not stop the merge.
 
 ## §7 Parallel Sessions and Worktrees
 
