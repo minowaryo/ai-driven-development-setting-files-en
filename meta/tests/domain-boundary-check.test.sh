@@ -284,7 +284,7 @@ check "F2 injection does not leak into the next method" 'finding 15 eloquent-wri
 # F3: ->cannot() is a Policy call, so the file is not a priority file
 d=$(new_repo); ctrl "$d" CannotController <<'EOF'
         if ($request->user()->cannot('update', $order)) { abort(403); }
-        if ($request->user()->isAdmin()) { $order->touch(); }
+        if ($request->user()->isAdmin()) { $order->load('items'); }
         $order->update($request->validated());
 EOF
 run "$d"
@@ -293,7 +293,7 @@ check "F3 ->cannot() counts as authorization" 'summary 2 0 0'
 # F4: ->can() is a Policy call, so the file is not a priority file
 d=$(new_repo); ctrl "$d" CanController <<'EOF'
         abort_unless($request->user()->can('update', $order), 403);
-        if ($request->user()->hasRole('editor')) { $order->touch(); }
+        if ($request->user()->hasRole('editor')) { $order->load('items'); }
         $order->update($request->validated());
 EOF
 run "$d"

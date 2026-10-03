@@ -16,8 +16,11 @@ Accepted
 > (template-internal). Cost: 54,000 synthetic lines take ~2.9s with `--audit-all` (was
 > ~1.7s for the same tree, which also had a third of the findings). Still out of reach:
 > cross-entity decisions in plain PHP, untyped variables (flagged, since they may be
-> Models), chains whose continuation line starts with something other than `->`, and
-> `Model::destroy()`. Running the check outside `/review` is a separate, later decision.
+> Models), chains whose continuation line starts with something other than `->`, write
+> methods outside the script's list (e.g. `destroy`, `touch`, `push`, `*Quietly`,
+> `createMany` / `saveMany`, `forceFill`), and a route-bound Model whose class name ends in
+> `Service` / `Action` (treated as an injected collaborator). Running the check outside
+> `/review` is a separate, later decision.
 
 ## Context
 
