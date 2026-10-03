@@ -2,6 +2,46 @@
 
 > Keep under 300 lines (`.claude/rules/60-docs.md`). Archived: 2026-08-03 – 2026-09-26 → `meta/history/plan-archive.md` (2026-09-30, 2026-10-03).
 
+## Deterministic checks, group 1: strict Eloquent in tests, spec-lint, doc consistency (2026-10-03)
+
+### Decision
+
+- From a whole-cycle survey (`meta/design/template-improvement-directions.md`, B10–B19):
+  group 1 adds no dependency and does not overlap ADR-0016; group 2 (B13–B16) went to the
+  Loop session.
+- **1 Strict modes in tests** — `10-laravel.md`: `Model::shouldBeStrict(! $this->app->isProduction())`
+  in `AppServiceProvider::boot()` (not `isLocal()`, false under `APP_ENV=testing`);
+  `30-testing.md`: `Http::preventStrayRequests()` in `tests/TestCase.php`. `SETUP.md` Step 4
+  adds both once. Existing codebases: a Backlog item, on only by human decision.
+- **2 `.claude/hooks/spec-lint.sh`** — read-only bash + awk, exit 0 / 1 findings / 2 usage.
+  UC heading `### UC-NNN: title` and F-ID format/uniqueness; each UC has Actor, Basic Flow,
+  Error Cases, Permissions with content; `Related requirement` resolves; unused F-IDs;
+  leftover placeholders outside the Approval Record; mockups vs UC IDs; warn-only words in
+  the four high-precision smell categories (EN + short JA list). Skips requirements checks
+  when `requirements.md` is a pointer. The AI runs it before Gate 1 / Gate 2 / the Gate 0-3
+  sign-off (`SETUP.md` Steps 2, 2B; `/onboard-existing-codebase`); it informs, never decides.
+  Tests: `meta/tests/spec-lint.test.sh`. Gate definitions unchanged.
+- **3 Doc consistency** — PHPStan only where Larastan is installed (Vue starter kit: level 7;
+  adding it = ADR + baseline); raw SQL stated once in `20-mysql.md` (bindings + why-comment;
+  `DB::statement`/`unprepared` need an ADR), pointed to from `10-laravel` / `40-security`;
+  one author self-check in `review-guidelines.md` (`review-checklist.md` points to it);
+  UC IDs `UC-006` in docs, `UC006`/`uc006` in file names; `phpunit.xml` defaults to in-memory
+  SQLite (verified, 13.x) → `SETUP.md` Step 4 sets a MySQL test DB; `ValidateCsrfToken`;
+  `20-mysql.md` utf8mb4 example; Pint "required in CI" → before merge.
+
+### Files touched (planned)
+
+`.claude/hooks/spec-lint.sh`, `meta/tests/spec-lint.test.sh` (new); `.claude/rules/{10,20,30,40}-*.md`;
+`SETUP.md`; `.claude/commands/{onboard-existing-codebase,generate-mock}.md`;
+`docs/development/{ai-workflow,coding-standards,review-checklist,review-guidelines,e2e-testing}.md`;
+`docs/product/{use-cases,ui-guidelines}.md`, `uat-results/README.md`; `docs/development/testing-strategy.md`;
+`docs/ai-context/common-commands.md`; `CLAUDE.md`, `AGENTS.md` (one row each); `README.md`; `meta/design/template-improvement-directions.md`; `PLAN.md`.
+
+### Status
+
+Implemented on `feat/deterministic-checks`; spec-lint tests 40/40, review-score 27/27.
+Unverified: `SETUP.md` Step 4 snippets not run in a real Laravel app — check on the first project.
+
 ## Loop Engineering roadmap + Stage 1: mechanical TDD enforcement (2026-10-03)
 
 ### Decision

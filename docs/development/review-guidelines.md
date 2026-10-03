@@ -27,7 +27,9 @@ Check these yourself before merging:
 - [ ] Does `php artisan test` pass?
 - [ ] If a critical flow changed, did you add a Playwright E2E test and does `npx playwright test` pass?
 - [ ] Is code style clean after running `./vendor/bin/pint`?
+- [ ] Does `./vendor/bin/phpstan analyse` pass (where Larastan is installed — see Quality Gates in `docs/development/ai-workflow.md`)?
 - [ ] Are there any dangerous operations in the migration?
+- [ ] For a DB change, is `docs/architecture/data-model.md` updated? For a design decision, is there an ADR?
 - [ ] Are secrets or PII included in the code?
 - [ ] Have any unrelated files been edited?
 - [ ] Do Vue components use `<script setup>` + the Composition API (if Vue+Inertia was selected and there is a frontend change; if another stack was selected, check against that stack's rule file instead)?
@@ -49,6 +51,7 @@ Check these yourself before merging:
 ### Security
 - [ ] Is validation appropriate?
 - [ ] Is there an authorization check?
+- [ ] Do new endpoints sit behind authentication middleware?
 - [ ] Are secrets included?
 - [ ] Is PII appearing in logs?
 - [ ] Are privileged / destructive operations recorded on the `audit` channel with the fixed minimal schema (`.claude/rules/40-security.md`)?

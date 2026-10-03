@@ -109,12 +109,45 @@ was told?**" — and that the answer is cheap machinery around the AI, not more 
 |---|---|---|---|---|
 | B1 | State the "machines first" division of labor in `docs/development/ai-workflow.md` | D1 | XS | Done 2026-10-03 |
 | B2 | Strict Pest/PHPUnit settings in the template's test guidance | D1, D3 | S | Overlaps ADR-0016 Stage 2 |
-| B3 | `/tdd` Refactor runs `pint` before the AI's own refactoring | D1 | S | Changes `/tdd` steps |
+| B3 | `/tdd` Refactor runs `pint` before the AI's own refactoring | D1 | S | Superseded by B14 |
 | B4 | `/review` Step 0 also collects Larastan / `composer audit` output | D1, D6 | S | Extends ADR-0009 Step 0 |
 | B5 | Rule-enforcement inventory (which costly rules are prompt-only) | D2 | M | Produces the list for later items |
 | B6 | `Read` deny for `.env*`, `docs/credentials/**`, `storage/logs/**` in `settings.json` | D10 | S | Supplement only; check impact on legitimate reads |
 | B7 | Platform-fact register: verified Claude Code version per fact, re-check on upgrade | D9 | S | Could live in `meta/design/` |
 | B8 | Eval cases for new behavior (test lock, `disable-model-invocation`) | D7 | S | `.claude/evals/` |
 | B9 | Domain Boundary backlog fixed item by item (finder → LLM → check) as a standard procedure | D1 | M | Candidate Stage 2 experiment task |
+| B10 | `Model::shouldBeStrict(! isProduction())` + `Http::preventStrayRequests()` in tests | D1 | XS | Done 2026-10-03 (rules + `SETUP.md` Step 4); snippets not yet run in a real Laravel app |
+| B11 | `spec-lint.sh`: structure, IDs, links, placeholders, mockups, narrow word list in requirements / use-cases | D1 | S | Done 2026-10-03 |
+| B12 | Doc consistency: PHPStan only where Larastan exists, raw SQL stated once, one author self-check, UC ID notation, SQLite test default, CSRF class name | D1, D11 | S | Done 2026-10-03 |
+| B13 | Diff-check script for `prepare-merge`: edited run migrations, dangerous ops without an ADR, secrets / `.env`, `app/` change without `tests/Feature`, `pint --test`, `composer audit`, PHPStan if present | D1, D6 | M | Group 2 — build as `gate.sh` v0 (ADR-0016 Stage 2) |
+| B14 | `/tdd`: `pint --dirty` before Refactor (own `style:` commit when it touches unrelated lines), `npm run build` on frontend diffs | D1 | S | Group 2 — after Stage 1 (same file) |
+| B15 | Mutation testing of changed classes after Green (`pest --mutate --class=…`, Xdebug/PCOV); survivors go back to `test-writer` | D3, D6 | M | Group 2 — Stage 2 experiment candidate; cannot run before Gate 4 |
+| B16 | UC tag in tests (`->group('UC-NNN')`) + scripted traceability skeleton (LLM keeps the implementation match) | D1 | M | Group 2 — Stage 3/4 |
+| B17 | Spec drift: report edits to `use-cases.md` since its approval commit; Approval Record in `requirements.md` / `data-model.md`; lock `docs/product/**` for the implementer | D2, D3 | S | Pairs with the Stage 1 hook |
+| B18 | `acceptance-criteria.md` has no reader; `00-global.md` and `SETUP.md` list different required ai-context files | D11 | S | Needs a decision (Loop Stage 4 for AC) |
+| B19 | Deferred: commit-msg hook (per clone), `Read` deny for `.env` (also blocks `.env.example` writes, leaks via subprocess), data-model ↔ schema diff (needs a DB), ESLint / gitleaks / migration linters (new deps, immature) | D1, D10 | — | Revisit on demand |
 
-Order of attack: B1 → (ADR-0016 Stage 1) → B5 → B7 → B2/B3/B4 → B6/B8 → B9.
+Order of attack: B1 → (ADR-0016 Stage 1) → B5 → B7 → B2/B3/B4 → B6/B8 → B9. Amended
+2026-10-03 by the user: group 1 (B10–B12) first; group 2 (B13–B16) belongs to the Loop stages.
+
+## Whole-cycle survey (2026-10-03)
+
+Asked of every phase: can a tool check it, do it, or find where? Findings that shaped B10–B19:
+
+- The spec side is regular enough for awk (UC headings, sections, F-ID links), and the
+  SDD tools' own "analyze" steps are LLM prompts; the one deterministic validator (OpenSpec)
+  is a heading/keyword check. LLM spec review found a median 47% of expert issues with 11%
+  false flags (arXiv 2609.03230) — run deterministic checks first, LLM review as advice.
+- Word-list smell detection is worth it only for four categories (Smella, arXiv 1611.08847);
+  pronoun and negation checks are noise. A lint cannot catch *missing* requirements, the
+  most-cited problem (NaPiRE, 48%) — that stays with the human reviewer. Late fixes cost a
+  median 1.85× more for requirements issues (Menzies et al. 2016), not 100×.
+- Implementation side: written quality gates (`pint --test`, PHPStan) were never run by any
+  command; Laravel's built-in strict modes turn N+1 / mass-assignment slips into failing
+  tests at zero cost. Lint-gated edits raised SWE-agent's resolve rate 15.0% → 18.0%
+  (arXiv 2405.15793). Mutation feedback raised LLM test suites' mutation scores ~78% → ~90%
+  (arXiv 2506.02954).
+- Loop gaps found on the way and passed to that session: Stage 1 locks `tests/` but not the
+  spec, so SPEC_CONFLICT's `grep -F` quote check can be satisfied by editing the spec;
+  `disable-model-invocation` on every command may stop `/tdd` → `/generate-e2e-test` and
+  `prepare-merge` → `/commit` hand-offs; Larastan is a new dependency, not an existing one.

@@ -29,7 +29,7 @@ at project kickoff — it is not part of the steady-state per-session reading li
 
 | Task type | Read this |
 |---|---|
-| Creating / updating requirements.md or use-cases.md | `docs/original-docs/` (primary sources) + `docs/product/requirements.md`; for ambiguous points, `.claude/skills/grill-me/SKILL.md` (one-question-at-a-time interview, Trial) |
+| Creating / updating requirements.md or use-cases.md | `docs/original-docs/` (primary sources) + `docs/product/requirements.md`; for ambiguous points, `.claude/skills/grill-me/SKILL.md` (one-question-at-a-time interview, Trial); before asking for approval, run `bash .claude/hooks/spec-lint.sh` (`--requirements` before Gate 1) |
 | Requirements / UC reference | `docs/product/requirements.md` + `docs/product/use-cases.md` |
 | Code implementation (feature development) | `docs/product/use-cases.md` + `docs/architecture/data-model.md` + `docs/product/mockups/` |
 | UI implementation / mock-based development | `docs/product/ui-guidelines.md` + `docs/product/mockups/` |

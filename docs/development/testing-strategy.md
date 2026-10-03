@@ -45,6 +45,7 @@
 
 ## Test Data Management
 
+- **Database**: a dedicated MySQL test database, not Laravel's default in-memory SQLite (`SETUP.md` Step 4)
 - **Factory**: Standard method for generating test data
 - **DatabaseTransactions**: Data isolation between tests
 - **RefreshDatabase**: When DB initialization is required

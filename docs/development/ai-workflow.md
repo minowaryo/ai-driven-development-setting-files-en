@@ -94,9 +94,12 @@ See `.claude/rules/30-testing.md` for the sub-agent setup, when to run each skil
 AI-generated code must satisfy:
 1. `php artisan test` passes
 2. `./vendor/bin/pint --test` passes
-3. `./vendor/bin/phpstan analyse` passes
+3. `./vendor/bin/phpstan analyse` passes — where Larastan is installed (the Laravel Vue
+   starter kit ships it at level 7; the bare `laravel/laravel` skeleton does not). Adding it
+   to a project is an ADR decision, adopted with `--generate-baseline` so only new code is held
+   to it
 4. If a critical flow changed, `npx playwright test` passes
-5. Review in `docs/development/review-checklist.md` is complete
+5. The author self-check in `docs/development/review-guidelines.md` is complete
 
 ## Division of Labor: Deterministic Tools First
 

@@ -19,6 +19,12 @@ Verify that each use case defines the following:
 - [ ] Are permissions considered?
 - [ ] Are all CRUD operations covered?
 
+> `bash .claude/hooks/spec-lint.sh` pre-checks the structure (UC ids, Actor / Basic Flow /
+> Error Cases / Permissions present, requirement links, leftover placeholders) — spend the
+> review on whether the content is right and complete.
+> UC ids are `UC-NNN` here and in other documents; file names drop the hyphen
+> (`screen-UC006-…`, `uc006-…`).
+
 ---
 
 ## Use Case Template

@@ -27,12 +27,12 @@ Unlike `docs/original-docs/` (reference-only, editing prohibited), `docs/credent
 - Authentication: use Laravel Sanctum / Passport
 - Authorization: **always use Policy / Gate** (direct role checks are prohibited)
 - Sessions: set HttpOnly + Secure cookies
-- CSRF: always enable the `VerifyCsrfToken` middleware
+- CSRF: keep the `ValidateCsrfToken` middleware (Laravel 11+; formerly `VerifyCsrfToken`) enabled; exclude a route only when it cannot send a token (e.g. a webhook)
 
 ## Input Validation
 
 - Always validate user input with FormRequest
-- SQL injection prevention: use Eloquent (raw SQL is prohibited)
+- SQL injection prevention: use Eloquent / the Query Builder; raw SQL only with parameter bindings, per the Query Policy in `.claude/rules/20-mysql.md`
 - XSS prevention: use Blade's `{{ }}` (minimize use of `{!! !!}`)
 - File uploads: validate MIME type, size, and extension
 

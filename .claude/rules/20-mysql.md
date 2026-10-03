@@ -25,7 +25,7 @@ Step 3: Run the column-drop migration
 
 ### Notes for Laravel Migrations
 ```php
-// OK: explicitly specify utf8mb4
+// OK: utf8mb4 / utf8mb4_unicode_ci come from config/database.php (see Character Set)
 Schema::create('users', function (Blueprint $table) {
     $table->id();
     $table->string('name');
@@ -53,8 +53,9 @@ Schema::create('users', function (Blueprint $table) {
 
 ## Query Policy
 
-- Prefer Eloquent Builder
-- Add a comment explaining the reason when raw SQL is necessary
+- Prefer Eloquent / the Query Builder. This is the one rule for raw SQL (`10-laravel.md` and `40-security.md` point here):
+  - Raw expressions (`DB::select`, `selectRaw`, `whereRaw`, `orderByRaw`, `DB::raw`, …) only with parameter bindings (`?` or named) — never concatenate or interpolate input into SQL — and with a comment explaining why the builder was not enough
+  - `DB::statement()` / `DB::unprepared()` require an ADR
 - Verify the execution plan with `EXPLAIN` before releasing
 - Always resolve N+1 queries (use `with()` for Eager Loading)
 - Avoid `SELECT *` (retrieve only the required columns)

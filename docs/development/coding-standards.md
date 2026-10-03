@@ -5,8 +5,8 @@
 ## Basic Policy
 
 - PSR-12 compliant
-- Format with Laravel Pint (required in CI)
-- PHPStan Level 6 or higher must pass
+- Format with Laravel Pint (`./vendor/bin/pint --test` must pass before merge)
+- PHPStan (Larastan) level 6 or higher must pass where it is installed — see Quality Gates in `docs/development/ai-workflow.md`
 
 ## PHP
 

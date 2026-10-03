@@ -16,7 +16,8 @@
 
 - Always add a Feature Test for every change
 - For bug fixes, write a regression test first (TDD)
-- Do not mock the DB in tests (use a real DB)
+- Do not mock the DB in tests (use a real DB — MySQL, not the in-memory SQLite that Laravel's default `phpunit.xml` sets; see `SETUP.md` Step 4)
+- Tests make no real outbound HTTP calls: `Http::preventStrayRequests()` in `tests/TestCase.php` fails any request that is not faked
 - Use Factories to generate test data
 - Name test cases based on UC titles and flows from `use-cases.md`
 

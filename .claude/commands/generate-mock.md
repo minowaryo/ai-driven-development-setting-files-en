@@ -18,9 +18,10 @@ Generate an HTML mockup for the UC number specified as an argument and save it t
    - Main content for the target UC (structure appropriate to the screen type: list / form / detail, etc.)
    - Action buttons and interactive elements
    - Dummy data (real data must not be used)
-4. Use the UC title from `use-cases.md` in English snake_case for the screen name
-   (e.g. UC-006 "Order List" → `order-list`)
-5. Save as `docs/product/mockups/screen-[UC number]-[screen name].html`
+4. Use the UC title from `use-cases.md` in English, lowercase and hyphen-separated, for the
+   screen name (e.g. UC-006 "Order List" → `order-list`)
+5. Save as `docs/product/mockups/screen-UC[number]-[screen name].html` — the UC id without
+   its hyphen (e.g. `screen-UC006-order-list.html`; `spec-lint.sh` checks this name)
 6. Add the screen to the list in `docs/product/mockups/README.md`
 
 ## Constraints

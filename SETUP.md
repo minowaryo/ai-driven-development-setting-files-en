@@ -130,6 +130,8 @@ hand. See `docs/development/ai-workflow.md`'s "Role Breakdown" for both paths si
 - If the code disagrees with pre-existing org docs, add a **discrepancy note** to the
   Needs-confirmation list — never silently resolve it either direction; changing code or
   spec is a human decision under the existing rule in `.claude/rules/00-global.md`
+- Check the draft with `bash .claude/hooks/spec-lint.sh` before the review, and again before
+  the sign-off (no unresolved `[inferred]` marker should remain)
 
 #### Step 3B — Extract `data-model.md` from the actual schema
 
@@ -211,6 +213,13 @@ docs/product/mockups/               ← AI may draft (/generate-mock command)
 docs/product/acceptance-criteria.md ← AI may draft
 ```
 
+Before asking for Gate 1, run `bash .claude/hooks/spec-lint.sh --requirements`; before
+Gate 2, run `bash .claude/hooks/spec-lint.sh` (requirements, use cases, mockups). It checks
+structure only — ids, required use-case sections, requirement links, leftover placeholders,
+mockup names, vague words — so the reviewer can spend the review on content. Show its
+findings with the approval request; it never approves or blocks anything, and it cannot
+notice a requirement that is missing altogether.
+
 Mockup generation, one UC at a time:
 
 ```
@@ -235,6 +244,24 @@ docs/adr/ADR-xxxx-[title].md     ← Created each time a technology decision is 
 ### Step 4 (both paths) — Code generation and implementation (only after Gates 2 and 3 are passed)
 
 > Same procedure whichever path above you came through.
+
+**One-time test setup, before the first `/tdd` cycle** — so that tests fail on mistakes the
+rules otherwise only describe (`.claude/rules/10-laravel.md`, `30-testing.md`):
+
+```php
+// app/Providers/AppServiceProvider.php — boot(): N+1, unfillable attributes, unloaded attributes throw
+Model::shouldBeStrict(! $this->app->isProduction());
+
+// tests/TestCase.php — setUp(), after parent::setUp(): unfaked outbound HTTP fails the test
+Http::preventStrayRequests();
+```
+
+- `phpunit.xml`: Laravel's default runs tests on in-memory SQLite (`DB_CONNECTION=sqlite`,
+  `DB_DATABASE=:memory:`). Point it at a dedicated MySQL test database (e.g.
+  `DB_CONNECTION=mysql`, `DB_DATABASE=<app>_test`, created once — never the development or
+  production database), so strict mode, collation, and `decimal` behave as in production
+- Existing-Codebase Path: these may make existing tests fail and staging throw, so they are
+  Backlog items from `/onboard-existing-codebase` — switch them on only when the human decides
 
 Implementation proceeds via the `/tdd` command using **TDD (Red → Green → Refactor)**.
 
