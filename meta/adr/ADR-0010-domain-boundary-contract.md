@@ -6,6 +6,19 @@ Accepted
 ## Date
 2026-09-14
 
+> Updated 2026-10-03 (detection accuracy): a fixture run showed the script missed static
+> chains (`Order::where()->update()`, `Order::findOrFail($id)->delete()`), chains split over
+> lines, writes whose arguments nest parentheses, nullsafe writes, and reversed / enum /
+> chained-`in_array` role checks; it also flagged method-injected `*Service` / `*Action`
+> parameters as Eloquent writes and listed files that call `->can()` / `->cannot()` as
+> priority files. All fixed in the script itself; output format, exit codes, and env vars
+> are unchanged. Behaviour is now pinned by `meta/tests/domain-boundary-check.test.sh`
+> (template-internal). Cost: 54,000 synthetic lines take ~2.9s with `--audit-all` (was
+> ~1.7s for the same tree, which also had a third of the findings). Still out of reach:
+> cross-entity decisions in plain PHP, untyped variables (flagged, since they may be
+> Models), chains whose continuation line starts with something other than `->`, and
+> `Model::destroy()`. Running the check outside `/review` is a separate, later decision.
+
 ## Context
 
 Every rule file in this harness prohibits Fat Controllers — `.claude/rules/10-laravel.md`,

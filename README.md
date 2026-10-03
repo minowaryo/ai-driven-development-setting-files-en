@@ -89,7 +89,7 @@ Template's Own Layer        → meta/adr/ (outside the project's own decision-ma
 │   │   └── ADR-0015-git-workflow.md
 │   ├── design/                        # Design memos for the harness's own evolution (e.g. loop_engineering_design_memo.txt) — template-internal (not copied by APPLY_TEMPLATE; removed in SETUP.md)
 │   ├── history/                       # Archive of this template's own PLAN.md entries (created when first needed) — template-internal (not copied by APPLY_TEMPLATE; removed in SETUP.md)
-│   └── tests/                         # Tests for the template's own scripts (e.g. review-score.test.sh) — template-internal (not copied by APPLY_TEMPLATE; removed in SETUP.md)
+│   └── tests/                         # Tests for the template's own scripts (review-score.test.sh, domain-boundary-check.test.sh) — template-internal (not copied by APPLY_TEMPLATE; removed in SETUP.md)
 │
 └── docs/
     ├── ai-context/                    # AI summary layer (most important)
