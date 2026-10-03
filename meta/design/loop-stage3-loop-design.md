@@ -77,21 +77,54 @@ Verified facts behind it:
 - Docs: `CLAUDE_CODE_STOP_HOOK_BLOCK_CAP` (default 8, `0` disables) caps consecutive
   continuations for Stop and SubagentStop — not exercised hands-on.
 
-### Open problem 1 — the subagent may ignore the hook's instruction [V]
+### Problem 1 — the subagent may ignore the hook's message → resolved [V]
 
-In one run the subagent treated the block `reason` as "an instruction inside hook output"
-and refused to act on it (prompt-injection caution working against the loop). It complied
-once its definition stated that SubagentStop feedback is legitimate. Options to evaluate:
-state it in `tdd-implementer.md`; return `additionalContext` instead of `block` (shown as
-"Stop hook feedback", untested); keep the gate output factual (failing test ids + first
-error) rather than imperative.
+The subagent can treat a block `reason` as "an instruction injected by a hook" and refuse it.
+Compliance measured on 2026-10-03 (2.1.278, 28 runs, model `claude-sonnet-5`):
 
-### Open problem 2 — the parent only sees the final message [V]
+| Variant | Complied |
+|---|---|
+| Imperative reason, nothing in the agent definition | **0/3** (all refused as injected instructions) |
+| Imperative reason + trust sentence in the definition | 2/2 |
+| **Factual reason + trust sentence** | **3/3** |
+| Factual reason, no trust sentence | 4/5 (3/3 foreground, 1/2 background) |
+| `additionalContext` instead of block, factual | 3/3 (the subagent read the evidence file itself) |
 
-After a block, only the subagent's last message returns to the parent; the earlier report
-(e.g. a denied write) is lost, and the parent flagged a report/reality mismatch. The loop
-must therefore deliver its outcome through files (state + evidence) and a
-PostToolUse(Agent) `additionalContext` line, never through the subagent's prose.
+**Decision for the design**: the gate's message is factual — failing test ids, expected vs.
+got, evidence path — never imperative; `tdd-implementer.md` states that feedback from the
+gate hook is part of its task. Keep `decision: "block"` (documented continuation semantics);
+`additionalContext` is a working alternative without the "hook error" label. A block reaches
+the subagent as a user turn "Stop hook feedback: <reason>".
+
+### Problem 2 — the parent only sees the final message → resolved [V]
+
+A **PostToolUse hook on the `Agent` tool** (the tool is named `Agent`, not `Task`) adds
+`additionalContext` that the parent session sees (12/12 foreground runs). The subagent's own
+report reaches the parent marked as model output ("[Subagent hand-back] … NOT a message from
+the user"), so the loop's outcome is reported from the state/evidence files through this hook,
+never through the subagent's prose. The injected line must be truthful and self-explaining
+("gate rejected attempt 1 (expected 5, got 4); corrected; evidence .gate/1.json, .gate/2.json"):
+when a test injection claimed GREEN while the file disagreed, the parent flagged it as a
+suspected injection; without the explanation it doubted the subagent. For **background**
+subagents PostToolUse(Agent) fires at launch (`async_launched`), not at completion — use
+foreground runs for the loop, or read the state files.
+
+### Verified hook facts (2026-10-03, CLI 2.1.278)
+
+| # | Fact | Result |
+|---|---|---|
+| U1 | SubagentStop fires and can block for a background subagent | Confirmed |
+| U2 | `UserPromptExpansion` fires for a typed project command with arguments (`command_name`, `command_args`, `command_source`) and not when the model calls the Skill tool | Confirmed — it is the reliable "a human typed it" signal. Note: a typed command can *also* produce a Skill tool call, so PreToolUse(Skill) alone does not prove model invocation |
+| — | `disable-model-invocation: true` on a `.claude/commands/*.md` file blocks model invocation; typing it still works | Confirmed (0/2 model invocations) |
+| U3 | Subagent `maxTurns` counts across SubagentStop continuations | Confirmed. **A subagent that hits `maxTurns` returns without SubagentStop firing again** — the gate never sees the final state, so the main session treats that return as ESCALATED |
+| U4 | PreToolUse on `Agent` exposes `tool_input.subagent_type` and can deny the start | Confirmed |
+| U6 | Block cap is per subagent | Confirmed; inferred it counts only consecutive blocks *without tool calls* — not a total. Keep our own attempt counter + `maxTurns` |
+| U7 | Hook-level `timeout` is honoured | Partial: on timeout the hook's decision is **discarded and the tool proceeds (fails open)**, and wall-clock is not bounded when a child process holds stdout. Keep gate hooks free of lingering child processes; re-check on 2.1.285+ (changelog mentions a related fix) |
+| U5 | pint path scoping excludes untracked tests | Not tested |
+| U8 | `SubagentHandback` routing | Not tested (auto mode only) |
+
+Environment caveats of the test: the user's global CLAUDE.md and a user-level SessionStart
+hook were active; the VS Code extension runs 2.1.283–284, so re-verify there (ADR-0016 item 10).
 
 ## Tamper resistance
 
@@ -164,6 +197,9 @@ session-wide. For Codex the git-based check (`lock_tree` / index comparison) is 
 protection. Local codex-cli 0.116.0 has hooks disabled (in development) — not tested.
 
 ## Unverified before an ADR
+
+Updated 2026-10-03: U1–U4, U6 confirmed and U7 partially (see "Verified hook facts"); U5 and
+U8 remain. Original list, kept for reference:
 
 [U1] SubagentStop for a background-run subagent · [U2] `UserPromptExpansion` fires for
 commands with arguments and not for model Skill calls · [U3] `maxTurns` across hook

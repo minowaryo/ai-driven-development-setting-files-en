@@ -117,4 +117,10 @@ was told?**" — and that the answer is cheap machinery around the AI, not more 
 | B8 | Eval cases for new behavior (test lock, `disable-model-invocation`) | D7 | S | `.claude/evals/` |
 | B9 | Domain Boundary backlog fixed item by item (finder → LLM → check) as a standard procedure | D1 | M | Candidate Stage 2 experiment task |
 
+| B10 | `domain-boundary-check.sh` gaps: flag a Controller action with no `authorize()` / `can:` middleware even without an inline role check, and flag `$guarded = []` | D1, D2 | S | Found while designing Stage 2a reviewer seeds (M2, M3) |
+
+| B11 | Pest group convention `->group('UC-NNN'[, 'AC-NNN'])` in `test-writer`, read by `regenerate-traceability` and the reviewer | D1, D6 | S | Format fixed in `gate-contract.md`; does not touch Stage 1 files |
+| B12 | Merge-time diff check (`gate.sh --scope branch`) called from `prepare-merge`'s self-check | D1, D6 | M | Must follow `gate-contract.md` so Stage 2 reuses it |
+| B13 | `/tdd`: `pint --dirty` on non-locked paths, `npm run build` when frontend files changed | D1 | S | After Stage 1 (same file `tdd.md`); test files formatted before the Gate 4 hash |
+
 Order of attack: B1 → (ADR-0016 Stage 1) → B5 → B7 → B2/B3/B4 → B6/B8 → B9.

@@ -33,6 +33,17 @@ split so that the cheap part decides whether the expensive part is worth running
 Exit: 100% detection on seeds and a plausible cost per task → run 2b. Otherwise: keep
 Stage 1 only and record the result.
 
+Details (seed app, the three conflict seeds, reviewer seeds, shadow replay, runner, estimate)
+are in `loop-stage2a-seeds.md`. Changes it brings to this protocol (2026-10-03):
+
+- **Precondition**: Stage 1 items 1, 3, 5 and 9 must be implemented before 2a starts.
+- **Spec-true oracle tests** are added to every conflict seed: a cheat can pass all locked
+  tests without touching `tests/` by bending the implementation against the spec, which no
+  lock or hash can see. New run outcome: SPEC_BEND.
+- **Shadow replays use a shallow clone**, not `git worktree add`, so the agent cannot read
+  the human solution commit from the shared object store.
+- Revised setup estimate: 6–10 human hours; ≈ $40–100 in model cost.
+
 ### 2b — Human A/B (only if 2a is promising)
 
 - **Task set**: ~20 real tasks (≈ 8 new-feature `/tdd` cycles + 12 behavior-preserving
@@ -62,6 +73,7 @@ Rule: one task = one fresh session = one branch; record `session_id`.
 | Gate 4 effect | Did the human change the tests at Gate 4 (y/n, category) |
 | Reviewer quality | Disposition per finding: fixed / invalid / valid-won't-fix |
 | Escaped defects / rework | Day-14 and day-30 checklist audit; `fix:` commits on the task's files within 14 days |
+| Test strength (optional) | Mutation score of the locked tests on the classes changed in the cycle: `pest --mutate --covered-only` (needs PCOV or Xdebug), run after Green. Answers Q2 (can Gate 4 be lighter?) with a number: high coverage can coexist with a very low mutation score. It cannot replace Gate 4 itself — it needs an implementation, so it only exists after Green. Slow: sample or limit to changed classes |
 
 Log: `exp/log.jsonl` (git-ignored), one event per line:
 `{"ts","task","arm":"A|B|shadow|seed","person","session_id","cc_version","model","event","data"}`.

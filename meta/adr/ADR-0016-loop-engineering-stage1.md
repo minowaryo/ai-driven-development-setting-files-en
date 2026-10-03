@@ -124,14 +124,35 @@ definitions (`00-global.md` / `SETUP.md` / `AGENTS.md`) do not change before Sta
    Windows, already a prerequisite). It is designed to hold on the weakest platform —
    native Windows, which has no OS sandbox — and can be strengthened with the sandbox on
    macOS / Linux / WSL2.
+   The same hook also denies, for `tdd-implementer`, Bash commands that change the index
+   or the working tree through git (`git add`, `commit`, `stash`, `checkout`, `restore`,
+   `reset`, `rm`, `mv`, `apply`, `update-index`); `tdd-implementer.md` drops its "`git add`
+   is fine" allowance. The implementer has no need to stage, and staging would let it move
+   a baseline that compares against the index (see item 5). *(Amended 2026-10-03.)*
+   The locked paths are `tests/` **and `docs/product/`** (use cases, acceptance criteria,
+   requirements): an implementer that could edit the spec could "finish" by rewriting it
+   (memo §6, goal hacking), and the SPEC_CONFLICT report is checked against verbatim quotes
+   from `use-cases.md`, which only works while the spec cannot move. *(Amended 2026-10-03.)*
+   **A hook that times out fails open**: verified 2026-10-03 (2.1.278, Windows) — on timeout
+   the hook's deny is discarded and the tool call proceeds, and a child process that keeps
+   stdout open holds the call for its full run regardless of the timeout. The lock hook
+   therefore must stay fast (bash builtins only, no external commands) and must never leave
+   a child process running. *(Amended 2026-10-03.)*
 4. **Hook tests** — `meta/tests/` (template-internal, like `review-score.test.sh`).
-5. **Green evidence** — when Gate 4 is approved, `/tdd` stages the approved Red state
-   (`git add -- tests/`); after Green it confirms that `tests/` matches the index
-   (`git diff --quiet -- tests/`) and that no untracked file appeared under `tests/`
-   (`git ls-files --others --exclude-standard -- tests/` is empty). Comparing against the
-   index, not `HEAD`, is required because the `lite` Git profile commits once per cycle,
-   after Green — new Red test files are still untracked at that point. This catches writes
-   the hook cannot see (e.g. through a subprocess).
+5. **Green evidence** — when Gate 4 is approved, `/tdd` (main session) records the approved
+   state of the locked paths (`tests/` and `docs/product/`, see item 3) as a tree hash
+   computed through a **temporary index**, independent of the real one:
+   `GIT_INDEX_FILE=<tmp> git add -A -- tests/ docs/product/ && GIT_INDEX_FILE=<tmp> git write-tree`.
+   The hash is stored under `$(git rev-parse --git-path claude-tdd)/` (inside `.git/`, never
+   committed) and also printed into the conversation, where the implementer cannot change it.
+   After Green, the same computation on the current locked paths must give the same hash; it
+   covers modified, deleted and new (untracked) files at once. Neither `HEAD` nor the real
+   index can serve as the baseline: the `lite` Git profile commits only after Green (new Red
+   files are untracked until then), and anyone who runs `git add` moves the index — the
+   original design here compared against the index and could be defeated by a tampered test
+   followed by `git add -A` (found in review, amended 2026-10-03). This catches writes the
+   hook cannot see (e.g. through a subprocess). This is the `lock_tree` of the Stage 3
+   design, introduced in Stage 1.
 6. **Record corrections** — `ADR-0007` (Probity: no subagent/agent-type support, Pest
    syntax not recognized, ~834 MB of dependencies, its own config unprotected) and
    `ADR-0014` (Laravel Boost now has an MCP-only install path) get dated update notes.
@@ -152,17 +173,27 @@ definitions (`00-global.md` / `SETUP.md` / `AGENTS.md`) do not change before Sta
    every Claude Code upgrade; the interactive TUI was not tested. Also add
    `"skillOverrides": {"code-review": "user-invocable-only"}` to `.claude/settings.json`
    (verified: the model then never picked the bundled review, and a human typing
-   `/code-review` still ran it). Whether `disable-model-invocation: true` takes effect on a
-   *command* file (as opposed to a skill) is verified during implementation; fallback:
-   `skillOverrides` entries `"review": "user-invocable-only"` etc. Note: in Git Bash,
-   `claude -p "/review"` is mangled by MSYS path conversion — test from PowerShell.
+   `/code-review` still ran it). Verified 2026-10-03 (2.1.278): `disable-model-invocation:
+   true` on a `.claude/commands/*.md` file blocks model invocation (0/2) while typing the
+   command still works; fallback if a later version changes this: `skillOverrides` entries
+   such as `"review": "user-invocable-only"`. Note: in Git Bash, `claude -p "/review"` is
+   mangled by MSYS path conversion — test from PowerShell.
+   Callers that currently start another command must stop doing so, because the flag also
+   stops the model from starting it on a human's behalf: `/tdd` step 6 ("run
+   `/generate-e2e-test`") and `prepare-merge` step 1 ("run `/commit` steps 1-5") change to
+   "read `.claude/commands/<name>.md` and follow its steps" — the flag blocks invocation, not
+   reading the file. *(Amended 2026-10-03.)*
 8. **Hook reaches adopted projects** — `APPLY_TEMPLATE.md` class C currently merges only
    the `permissions` entries of `.claude/settings.json` into a target that already has one;
    extend it to merge the `hooks` entries too, or the test lock silently disappears on the
    Existing-Codebase Path.
 9. **Denial log** — `logs/audit.jsonl` at the project root (JSONL, one line per denial:
    time, event, `session_id`, `agent_type`, tool, normalized path — never file contents),
-   git-ignored. `session_id` lets Stage 2 join denials to tasks.
+   git-ignored. `session_id` lets Stage 2 join denials to tasks. The path follows the
+   AI-work audit-log convention in `GLOBAL_CLAUDE.md` (`logs/audit.jsonl`); each line carries
+   an `event` type (e.g. `agent_guard_denial`), and the docs state in one line that this is
+   the record of AI agent activity, distinct from the application's own `audit` log channel
+   (`storage/logs/audit.log`, `.claude/rules/40-security.md`). *(Amended 2026-10-03.)*
 10. **Version check** — platform facts above were verified with the CLI on PATH (2.1.278),
    while VS Code extension sessions ran 2.1.283–2.1.284 in the same week. Re-run the
    verification fixture on the version actually used before relying on the hook, and record
@@ -187,9 +218,9 @@ Approved 2026-10-03: every item is Trial; "not yet implemented" is cleared as ea
 |---|---|---|
 | 1 SPEC_CONFLICT | Trial (not yet implemented) | Prompt-level; backed by the ImpossibleBench result |
 | 2 Stop conditions | Trial (not yet implemented) | Watch for premature escalation on legitimate retries |
-| 3 Test lock hook | Trial (not yet implemented) | First registered lifecycle hook in this template; watch false positives |
+| 3 Test lock hook | Trial (not yet implemented) | First registered lifecycle hook in this template; also denies index-changing git commands for the implementer (amended 2026-10-03); watch false positives |
 | 4 Hook tests | Trial (not yet implemented) | — |
-| 5 Green evidence | Trial (not yet implemented) | Changes the `/tdd` step at Gate 4 approval (staging) |
+| 5 Green evidence | Trial (not yet implemented) | Tree hash via a temporary index at Gate 4 approval (amended 2026-10-03: index-based check was bypassable with `git add`) |
 | 6 ADR-0007 / ADR-0014 notes | Trial (not yet implemented) | Record-only |
 | 7 `disable-model-invocation` on commands + `skillOverrides` for `code-review` | Trial (not yet implemented) | Project `/review` wins today (undocumented — re-check on upgrade) |
 | 8 APPLY_TEMPLATE hook merge | Trial (not yet implemented) | — |
@@ -207,7 +238,7 @@ option.
 | Stage | New dependency | Note |
 |---|---|---|
 | 1 | **None** | Bash + `awk`/`sed`/`grep` + Git — already prerequisites (`README.md` "Prerequisites"). The hook parses its JSON input without `jq`, Node or PHP, like the existing hooks |
-| 2 | None required (Pest, Pint, Larastan, `composer audit` are already in the quality gates of `docs/development/ai-workflow.md`) | Optional only: Rector (+ Laravel rules; Composer dev package), Laravel Boost (Composer dev package), Probity (Node 22, ~834 MB) |
+| 2 | None required: `php artisan test` (Pest), `pint --test` and PHPStan Level 6+ are already required (`docs/development/ai-workflow.md` "Quality Gates", `docs/development/coding-standards.md`), and `composer audit` by `.claude/rules/40-security.md`. Larastan (PHPStan's Laravel extension) is **not** yet required anywhere — a Composer dev package if a project adopts it | Optional only: Larastan, Rector (+ Laravel rules), Laravel Boost (Composer dev packages); PCOV or Xdebug (PHP extension) for mutation testing (`pest --mutate`); Probity (Node 22, ~834 MB) |
 | 3 | None (Claude Code built-ins: Stop hooks, `--json-schema`, `--max-budget-usd`) | — |
 | 4 | Codex configuration only (hooks / permission profiles) | Optional: PR-Agent for the company GitLab (Python/Docker, separate LLM API key) |
 | 5 | WSL2 or a devcontainer (for the OS sandbox) | Decided in its own ADR |

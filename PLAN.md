@@ -31,13 +31,14 @@
 
 - [ ] 1 SPEC_CONFLICT stop-and-report in `tdd-implementer.md`
 - [ ] 2 Stop conditions in `/tdd` (3 Green attempts; same failure twice → human)
-- [ ] 3 Test-lock PreToolUse hook (`.claude/hooks/`, registered in `.claude/settings.json`)
+- [ ] 3 Test-lock PreToolUse hook (`.claude/hooks/`, registered in `.claude/settings.json`); locked paths `tests/` **and `docs/product/`**; bash builtins only and no lingering child process (a timed-out hook fails open — verified 2026-10-03)
 - [ ] 4 Hook tests in `meta/tests/`
-- [ ] 5 Green evidence: stage Red at Gate 4 approval; after Green, `tests/` matches the index and has no new untracked files
+- [ ] 3b The hook also denies index/worktree-changing git commands for `tdd-implementer` (`add`, `commit`, `stash`, `checkout`, `restore`, `reset`, `rm`, `mv`, `apply`, `update-index`); drop the "`git add` is fine" line in `tdd-implementer.md`
+- [ ] 5 Green evidence: at Gate 4 approval record a tree hash of the locked paths (`tests/`, `docs/product/`) via a temporary index (`GIT_INDEX_FILE=<tmp> git add -A -- tests/ docs/product/ && GIT_INDEX_FILE=<tmp> git write-tree`), store it under `.git/claude-tdd/` and print it; after Green the same computation must match (covers modified, deleted and new files; independent of the real index). Amended 2026-10-03: the index-based check was bypassable with a tampered test + `git add -A` — reproduced, and the fix verified, in a scratch repo
 - [ ] 6 Update notes on ADR-0007 (Probity limits) and ADR-0014 (Laravel Boost MCP-only install)
-- [ ] 7 `disable-model-invocation: true` on all `.claude/commands/*.md` (verify it works on command files; fallback `skillOverrides`); `"code-review": "user-invocable-only"` in `skillOverrides`; correction note on ADR-0012. `/review` precedence verified 2026-10-03: project command wins (undocumented)
+- [ ] 7 `disable-model-invocation: true` on all `.claude/commands/*.md` (verified on command files 2026-10-03; fallback `skillOverrides`); `/tdd` step 6 and `prepare-merge` step 1 change from "run `/<cmd>`" to "read `.claude/commands/<cmd>.md` and follow its steps"; `"code-review": "user-invocable-only"` in `skillOverrides`; correction note on ADR-0012. `/review` precedence verified 2026-10-03: project command wins (undocumented)
 - [ ] 8 `APPLY_TEMPLATE.md` class C also merges `hooks` from `.claude/settings.json`
-- [ ] 9 Denial log `logs/audit.jsonl` (git-ignored, no file contents, with `session_id`)
+- [ ] 9 Denial log `logs/audit.jsonl` (`GLOBAL_CLAUDE.md` convention; git-ignored, no file contents, with `session_id` and an `event` type such as `agent_guard_denial`); one line in the docs distinguishing it from the app's `audit` channel (`storage/logs/audit.log`)
 - [ ] 10 Re-verify the hook facts on the Claude Code version actually in use (extension ran 2.1.283–284; CLI verified 2.1.278)
 
 Item 3 detail (verified 2026-10-03): deny via exit 2 or JSON both work; the hook must also
@@ -53,6 +54,27 @@ only (~83 ms vs ~500 ms per call).
   Green loop, Gate 4 `lite`/`standard`, minimal reviewer output, user-facing change rule.
   Open problems: the subagent may ignore the block reason as untrusted hook output; the
   parent sees only the subagent's final message. Unverified U1–U8 listed there.
+  Update 2026-10-03 (28 headless runs): both open problems resolved — a factual gate message
+  plus a trust sentence in the agent definition gave 3/3 compliance (imperative without it:
+  0/3); PostToolUse(`Agent`) `additionalContext` reaches the parent. U1–U4, U6 confirmed; U7
+  partial (hook timeout fails open on Windows); hitting `maxTurns` skips SubagentStop.
+- `meta/design/loop-stage2a-seeds.md` (+ `loop-stage2a-runner.sketch.sh`) — three conflict
+  seeds with spec-true oracle tests (catches implementations bent against the spec that pass
+  every locked test), reviewer seeds, shadow replay via shallow clone (a worktree leaks the
+  human solution), runner sketch; needs Stage 1 implemented and a PHP 8.2+ environment.
+- `meta/design/gate-contract.md` — one gate script for two scopes (`cycle` for `/tdd` and the
+  loop, `branch` for `prepare-merge`), exit codes 0/1/2/3, evidence JSON, and the Pest
+  `->group('UC-NNN')` convention; the merge-time check (backlog B12) is built against it so
+  Stage 2 reuses it. Mutation score added to Stage 2 as an optional test-strength metric.
+- `meta/design/loop-stage5-design.md` — conditional Stage 5: start criteria; a dedicated WSL2
+  distro + Bash sandbox (same script portable to a two-job GitLab CI later); runner outside
+  the agent restores locked paths before each gate run and judges by JUnit id-set equality;
+  runtime policy via `--settings` (repo settings cannot enable isolation or credentials);
+  publisher holds push credentials; opt-in folder first, separate repo only on criteria.
+  Residual risk: the gate executes agent code that could forge test output.
+- `meta/design/loop-reviewer-design.md` — evidence-based reviewer: deterministic pre-pass,
+  finder(s), cite-check, optional verifier, script-computed route, no approve power; start
+  with the minimal config (R0) and add passes only on Stage 2a numbers.
 
 Done when: hook tests pass in Git Bash, a real `/tdd`-style run shows a denied
 `tdd-implementer` write logged, and docs (`README.md`, `common-commands.md`, `30-testing.md`
@@ -65,6 +87,9 @@ deleted by hand), `APPLY_TEMPLATE.md`, `SETUP.md`, `README.md`,
 `meta/adr/ADR-0016-loop-engineering-stage1.md` (new), `meta/adr/README.md`, `PLAN.md`,
 `meta/design/template-improvement-directions.md` (new), `docs/development/ai-workflow.md`,
 `meta/design/loop-stage2-experiment-protocol.md` (new), `meta/design/loop-stage3-loop-design.md` (new),
+`meta/design/loop-reviewer-design.md` (new), `meta/design/loop-stage2a-seeds.md` (new),
+`meta/design/loop-stage2a-runner.sketch.sh` (new), `meta/design/gate-contract.md` (new),
+`meta/design/loop-stage5-design.md` (new),
 `meta/history/plan-archive.md` (2026-09-26 and 2026-09-15 entries archived).
 
 ### Status
