@@ -2,7 +2,112 @@
 
 > Template-internal archive of this repository's own `PLAN.md` entries (newest first). Moved verbatim per `.claude/rules/60-docs.md`.
 > Not copied into target projects (`APPLY_TEMPLATE.md` class X; removed in `SETUP.md`).
-> Covers: 2026-08-03 – 2026-09-14 (archived 2026-09-30).
+> Covers: 2026-08-03 – 2026-09-26 (archived 2026-09-30, 2026-10-03).
+
+## Skills vs. commands criterion, /regenerate-traceability, standalone /adr export (2026-09-26)
+
+### Decision
+
+- Recorded the criterion for where a new AI entry point belongs, in
+  `meta/adr/ADR-0012-skills-vs-commands.md`: **forgetting to run it is the failure mode →
+  `.claude/skills/`** (carries a `description`, so AI may invoke it unprompted);
+  **running it at the wrong moment is the failure mode → `.claude/commands/`** (no
+  `description`, so invocation stays a deliberate human act). The six existing entry points
+  all fall on the command side and were deliberately left where they are — migrating them
+  would churn cross-references in `SETUP.md`, `README.md`, `.claude/rules/`, and
+  `common-commands.md` for no functional gain, and a `description` on `/review` or `/tdd`
+  would quietly undo `ADR-0009`'s Option A and Gate 4's approval pause respectively.
+- First application of the criterion: `/regenerate-traceability` ships as a skill
+  (`.claude/skills/regenerate-traceability/SKILL.md`), making the previously prose-only
+  Maintenance procedure in `docs/rcid/traceability-matrix.md` executable. A traceability
+  matrix fails by going quietly stale, never by being rebuilt at an awkward moment.
+  Its load-bearing constraint: it rewrites **only** the `Matrix` table, never the
+  hand-maintained `Change Tracking` table, which is an audit record that cannot be
+  re-derived from code. Its reported output leads with Status regressions
+  (`Complete` → `Not Found`), since those signal a renamed/deleted file or a match that
+  silently stopped working.
+- `/adr` was extracted as a standalone, shareable skill to `dist/skills/adr/SKILL.md` with
+  the harness-specific reference (`meta/adr/ADR-0007`) stripped and an ADR-directory
+  fallback added. `.claude/commands/adr.md` stays as-is and remains the source of truth —
+  `dist/` is `.gitignore`d build output, regenerated when someone asks for the file, never
+  edited in place. A tracked second copy would drift invisibly, since nothing fails when
+  the two disagree.
+- PLAN.md archiving was evaluated as a skill candidate in the same pass and **not adopted**
+  — line-count checking plus a verbatim move is faster done by hand than maintaining a
+  trigger for it.
+
+### Files touched
+
+`meta/adr/ADR-0012-skills-vs-commands.md` (new),
+`.claude/skills/regenerate-traceability/SKILL.md` (new), `dist/skills/adr/SKILL.md` (new,
+untracked), `.gitignore`, `README.md`, `meta/adr/README.md`,
+`docs/ai-context/common-commands.md`, `docs/rcid/traceability-matrix.md`,
+`.claude/rules/00-global.md`, `.claude/rules/60-docs.md`.
+
+### Status
+
+Implemented. Not committed — awaiting explicit instruction.
+
+## Existing-codebase adoption path for Gate 0-3 (2026-09-15)
+
+### Decision
+
+- This harness's Gate 0-4 pipeline assumed a greenfield project (a human writes
+  `requirements.md` from a blank page before any code exists). Added a generic
+  "Existing-Codebase Path" for adopting the harness onto a project that already has
+  running code: `SETUP.md` gets a new Step 0 branch (new project → unchanged Step 1-4;
+  existing code → Step 1B-3B, then rejoin at Step 4), recorded in
+  `meta/adr/ADR-0011-existing-codebase-adoption.md`. Single repo, single file, branching
+  inside Gate 0 — the same pattern `ADR-0005` already uses for frontend-stack selection —
+  not a fork, since Gate 1-4 and `.claude/rules/10-60` are identical either way.
+- Step 1B generalizes `ADR-0005`'s "detect, don't assume" treatment from frontend-only to
+  the whole stack (backend framework, DB engine, auth mechanism against
+  `ADR-0001`/`ADR-0002`/`ADR-0003`); a fundamental mismatch (non-PHP/Laravel backend) stops
+  and flags rather than forcing an ill-fitting adoption.
+- Two separate output lists, not one: a blocking **"Needs confirmation"** list (only things
+  affecting whether the drafted `ai-context/`/`use-cases.md`/`data-model.md` themselves are
+  trustworthy — resolving it *is* the single consolidated Gate 0-3 sign-off, replacing four
+  separate approvals) and a non-blocking **"Backlog"** list (`domain-boundary-check.sh
+  --audit-all` findings — existing code debt, never a blocker, per `ADR-0010`'s own
+  "backlog, not blocker" framing). An earlier draft folded Backlog findings into the gating
+  list and wired in the built-in `security-review` skill; both were corrected after review
+  — the former contradicted `ADR-0010`, and the latter is diff-scoped so it would review the
+  onboarding's own docs-only diff rather than the inherited application code.
+- New `/onboard-existing-codebase` command automates Step 1B-3B end to end. It is
+  positioned as an extended, template-aware version of Claude Code's built-in `/init` (not
+  a competitor) — running generic `/init` on this template is discouraged since it would
+  overwrite the templated `CLAUDE.md`.
+- The branch-detection trip-wire lives in `docs/ai-context/project-summary.md`'s
+  placeholder content, not `.claude/rules/00-global.md` — only the former is guaranteed to
+  be read on literally the first message of any session (`00-global.md` is only consulted
+  when relevant), so only the former can catch an arbitrary first prompt like "add a login
+  feature" with no prior knowledge of `SETUP.md`.
+- `docs/development/ai-workflow.md`'s Role Breakdown now shows greenfield and
+  existing-codebase splits side by side (same shape, different authoring-vs-verifying
+  role), with `meta/adr/ADR-0004` getting a short pointer amendment in its existing
+  2026-07-15-style format. `docs/original-docs/README.md` gets a clarifying bullet so its
+  existing "primary source" guidance (greenfield-only) doesn't read as contradicting the
+  new "code is truth" principle for existing-codebase adoption — both are grounded in the
+  pre-existing `.claude/rules/00-global.md` "User-Facing Behavior Changes Always Require
+  Approval" rule, which already governed spec-vs-code mismatches before this change.
+- Deliberately not a rulebook: no attempt to enumerate every kind of code-vs-docs ambiguity
+  in advance. The one firm guardrail, stated explicitly in `SETUP.md`, the new command, and
+  the ADR: when in doubt, put it on the Needs-confirmation list and ask — never resolve an
+  ambiguity by guessing and drafting/implementing on that guess.
+
+### Files touched
+
+`meta/adr/ADR-0011-existing-codebase-adoption.md` (new), `SETUP.md`,
+`.claude/commands/onboard-existing-codebase.md` (new), `docs/development/ai-workflow.md`,
+`meta/adr/ADR-0004-ai-development-policy.md`, `docs/ai-context/project-summary.md`,
+`.claude/rules/00-global.md`, `AGENTS.md`, `README.md`, `docs/original-docs/README.md`,
+`.claude/rules/60-docs.md`, `meta/adr/README.md`.
+
+### Status
+
+Completed. Documentation-only change (no application code, no build/test step). No open
+follow-ups; the command's actual drafting behavior will get its first real workout the
+first time a project uses it against genuine existing code.
 
 ## Domain Boundary stated as a contract, plus a deterministic Controller check (2026-09-14)
 

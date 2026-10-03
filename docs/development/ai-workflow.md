@@ -97,3 +97,17 @@ AI-generated code must satisfy:
 3. `./vendor/bin/phpstan analyse` passes
 4. If a critical flow changed, `npx playwright test` passes
 5. Review in `docs/development/review-checklist.md` is complete
+
+## Division of Labor: Deterministic Tools First
+
+For any rule or task, ask in this order, and hand the AI only what is left:
+
+1. **Can a tool check it?** Prefer a check over a prose rule (Pest arch tests, Larastan,
+   `.claude/hooks/domain-boundary-check.sh`, strict test settings).
+2. **Can a tool do it?** Let deterministic tools make the changes they can (`pint` for
+   formatting, Rector for mechanical rewrites) before the AI touches the code.
+3. **Can a tool find where?** Let tools produce the work list (static analysis, the Domain
+   Boundary audit); the AI fixes one item at a time; the check confirms each fix.
+
+The AI handles the judgment-heavy remainder. Machine-fixable failures should not consume
+AI iterations, and a check that runs every time beats a rule the AI may skip.

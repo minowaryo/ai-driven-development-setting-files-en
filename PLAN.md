@@ -1,6 +1,77 @@
 # PLAN.md
 
-> Keep under 300 lines (`.claude/rules/60-docs.md`). Archived: 2026-08-03 – 2026-09-14 → `meta/history/plan-archive.md` (2026-09-30).
+> Keep under 300 lines (`.claude/rules/60-docs.md`). Archived: 2026-08-03 – 2026-09-26 → `meta/history/plan-archive.md` (2026-09-30, 2026-10-03).
+
+## Loop Engineering roadmap + Stage 1: mechanical TDD enforcement (2026-10-03)
+
+### Decision
+
+- Source: `meta/design/loop_engineering_design_memo.txt` (moved out of `docs/original-docs/`,
+  which is for project primary sources; `meta/design/` is class X, removed in `SETUP.md`).
+  Evaluated with research, red-team and tool-adoption passes; full reasoning in
+  `meta/adr/ADR-0016-loop-engineering-stage1.md` (Proposed).
+- Goal: AI iterates implement → verify → review while TDD discipline and human decisions
+  stay intact. TDD is not negotiable; checking moves to machines, deciding stays with humans.
+- Five stages, each gated by measured exit criteria (ADR-0016 "Stages"). Gate definitions do
+  not change before Stage 3; no orchestrator and no separate repo before Stage 5.
+- Build only what nothing covers: a test-lock hook keyed on `agent_type` and a thin gate
+  wrapper; adopt built-ins and existing tools for the rest (ADR-0016 "Rationale").
+- Verified on Claude Code 2.1.278: a `settings.json` PreToolUse hook receives
+  `agent_type: "tdd-implementer"` for subagent writes (none for the main session); the same
+  hook in the subagent's frontmatter did not run under `claude -p`.
+- Stage 1 adds no new dependency (Bash + POSIX tools + Git only).
+- Stages 2–3 also use deterministic tools on the change side (Google/Slack migration
+  hybrids): auto-fixers before the LLM, machine-found work lists, and migration-type tasks
+  in the Stage 2 experiment (ADR-0016 "Deterministic tools on the change side too").
+- Loop-independent perspectives are mapped in `meta/design/template-improvement-directions.md`
+  (directions D1–D11 + backlog B1–B9). B1 done: "Deterministic Tools First" section in
+  `docs/development/ai-workflow.md`. Other backlog items get their own entries when started.
+
+### Stage 1 checklist (ADR-0016 items 1-9)
+
+- [ ] 1 SPEC_CONFLICT stop-and-report in `tdd-implementer.md`
+- [ ] 2 Stop conditions in `/tdd` (3 Green attempts; same failure twice → human)
+- [ ] 3 Test-lock PreToolUse hook (`.claude/hooks/`, registered in `.claude/settings.json`)
+- [ ] 4 Hook tests in `meta/tests/`
+- [ ] 5 Green evidence: stage Red at Gate 4 approval; after Green, `tests/` matches the index and has no new untracked files
+- [ ] 6 Update notes on ADR-0007 (Probity limits) and ADR-0014 (Laravel Boost MCP-only install)
+- [ ] 7 `disable-model-invocation: true` on all `.claude/commands/*.md` (verify it works on command files; fallback `skillOverrides`); `"code-review": "user-invocable-only"` in `skillOverrides`; correction note on ADR-0012. `/review` precedence verified 2026-10-03: project command wins (undocumented)
+- [ ] 8 `APPLY_TEMPLATE.md` class C also merges `hooks` from `.claude/settings.json`
+- [ ] 9 Denial log `logs/audit.jsonl` (git-ignored, no file contents, with `session_id`)
+- [ ] 10 Re-verify the hook facts on the Claude Code version actually in use (extension ran 2.1.283–284; CLI verified 2.1.278)
+
+Item 3 detail (verified 2026-10-03): deny via exit 2 or JSON both work; the hook must also
+check Bash `command` strings (a path-only check let a Bash write through); use bash builtins
+only (~83 ms vs ~500 ms per call).
+
+### Stage 2 / 3 design drafts (not decided)
+
+- `meta/design/loop-stage2-experiment-protocol.md` — split (approved 2026-10-03) into 2a (unattended: seeded
+  spec/test conflicts, shadow replays of migration tasks, reviewer seeds) and 2b (human A/B,
+  ~20 tasks, only if 2a is promising); hypotheses, metrics, frozen decision rule, budget.
+- `meta/design/loop-stage3-loop-design.md` — state machine, SubagentStop-driven bounded
+  Green loop, Gate 4 `lite`/`standard`, minimal reviewer output, user-facing change rule.
+  Open problems: the subagent may ignore the block reason as untrusted hook output; the
+  parent sees only the subagent's final message. Unverified U1–U8 listed there.
+
+Done when: hook tests pass in Git Bash, a real `/tdd`-style run shows a denied
+`tdd-implementer` write logged, and docs (`README.md`, `common-commands.md`, `30-testing.md`
+pointer) are updated.
+
+### Files touched (so far)
+
+`meta/design/loop_engineering_design_memo.txt` (new; original in `docs/original-docs/` to be
+deleted by hand), `APPLY_TEMPLATE.md`, `SETUP.md`, `README.md`,
+`meta/adr/ADR-0016-loop-engineering-stage1.md` (new), `meta/adr/README.md`, `PLAN.md`,
+`meta/design/template-improvement-directions.md` (new), `docs/development/ai-workflow.md`,
+`meta/design/loop-stage2-experiment-protocol.md` (new), `meta/design/loop-stage3-loop-design.md` (new),
+`meta/history/plan-archive.md` (2026-09-26 and 2026-09-15 entries archived).
+
+### Status
+
+ADR-0016 approved 2026-10-03 (Trial). Stage 1 implementation is handed to a separate
+session on branch `feat/loop-stage1`; this session continues Loop Engineering research and
+planning (Stages 2–5). Not committed.
 
 ## Per-session load reduction: move read-on-demand content out of auto-loaded files (2026-09-30)
 
@@ -186,108 +257,3 @@ projects copied from the template (which also removes `meta/tests/`, `meta/histo
 Implemented. Not committed — awaiting explicit instruction. Follow-up: revisit
 ADR-0013's rollout-tracking table once the batch has been used for a while — promote
 to Accepted, or roll back individually (watch `grill-me` first for human-side friction).
-
-## Skills vs. commands criterion, /regenerate-traceability, standalone /adr export (2026-09-26)
-
-### Decision
-
-- Recorded the criterion for where a new AI entry point belongs, in
-  `meta/adr/ADR-0012-skills-vs-commands.md`: **forgetting to run it is the failure mode →
-  `.claude/skills/`** (carries a `description`, so AI may invoke it unprompted);
-  **running it at the wrong moment is the failure mode → `.claude/commands/`** (no
-  `description`, so invocation stays a deliberate human act). The six existing entry points
-  all fall on the command side and were deliberately left where they are — migrating them
-  would churn cross-references in `SETUP.md`, `README.md`, `.claude/rules/`, and
-  `common-commands.md` for no functional gain, and a `description` on `/review` or `/tdd`
-  would quietly undo `ADR-0009`'s Option A and Gate 4's approval pause respectively.
-- First application of the criterion: `/regenerate-traceability` ships as a skill
-  (`.claude/skills/regenerate-traceability/SKILL.md`), making the previously prose-only
-  Maintenance procedure in `docs/rcid/traceability-matrix.md` executable. A traceability
-  matrix fails by going quietly stale, never by being rebuilt at an awkward moment.
-  Its load-bearing constraint: it rewrites **only** the `Matrix` table, never the
-  hand-maintained `Change Tracking` table, which is an audit record that cannot be
-  re-derived from code. Its reported output leads with Status regressions
-  (`Complete` → `Not Found`), since those signal a renamed/deleted file or a match that
-  silently stopped working.
-- `/adr` was extracted as a standalone, shareable skill to `dist/skills/adr/SKILL.md` with
-  the harness-specific reference (`meta/adr/ADR-0007`) stripped and an ADR-directory
-  fallback added. `.claude/commands/adr.md` stays as-is and remains the source of truth —
-  `dist/` is `.gitignore`d build output, regenerated when someone asks for the file, never
-  edited in place. A tracked second copy would drift invisibly, since nothing fails when
-  the two disagree.
-- PLAN.md archiving was evaluated as a skill candidate in the same pass and **not adopted**
-  — line-count checking plus a verbatim move is faster done by hand than maintaining a
-  trigger for it.
-
-### Files touched
-
-`meta/adr/ADR-0012-skills-vs-commands.md` (new),
-`.claude/skills/regenerate-traceability/SKILL.md` (new), `dist/skills/adr/SKILL.md` (new,
-untracked), `.gitignore`, `README.md`, `meta/adr/README.md`,
-`docs/ai-context/common-commands.md`, `docs/rcid/traceability-matrix.md`,
-`.claude/rules/00-global.md`, `.claude/rules/60-docs.md`.
-
-### Status
-
-Implemented. Not committed — awaiting explicit instruction.
-
-## Existing-codebase adoption path for Gate 0-3 (2026-09-15)
-
-### Decision
-
-- This harness's Gate 0-4 pipeline assumed a greenfield project (a human writes
-  `requirements.md` from a blank page before any code exists). Added a generic
-  "Existing-Codebase Path" for adopting the harness onto a project that already has
-  running code: `SETUP.md` gets a new Step 0 branch (new project → unchanged Step 1-4;
-  existing code → Step 1B-3B, then rejoin at Step 4), recorded in
-  `meta/adr/ADR-0011-existing-codebase-adoption.md`. Single repo, single file, branching
-  inside Gate 0 — the same pattern `ADR-0005` already uses for frontend-stack selection —
-  not a fork, since Gate 1-4 and `.claude/rules/10-60` are identical either way.
-- Step 1B generalizes `ADR-0005`'s "detect, don't assume" treatment from frontend-only to
-  the whole stack (backend framework, DB engine, auth mechanism against
-  `ADR-0001`/`ADR-0002`/`ADR-0003`); a fundamental mismatch (non-PHP/Laravel backend) stops
-  and flags rather than forcing an ill-fitting adoption.
-- Two separate output lists, not one: a blocking **"Needs confirmation"** list (only things
-  affecting whether the drafted `ai-context/`/`use-cases.md`/`data-model.md` themselves are
-  trustworthy — resolving it *is* the single consolidated Gate 0-3 sign-off, replacing four
-  separate approvals) and a non-blocking **"Backlog"** list (`domain-boundary-check.sh
-  --audit-all` findings — existing code debt, never a blocker, per `ADR-0010`'s own
-  "backlog, not blocker" framing). An earlier draft folded Backlog findings into the gating
-  list and wired in the built-in `security-review` skill; both were corrected after review
-  — the former contradicted `ADR-0010`, and the latter is diff-scoped so it would review the
-  onboarding's own docs-only diff rather than the inherited application code.
-- New `/onboard-existing-codebase` command automates Step 1B-3B end to end. It is
-  positioned as an extended, template-aware version of Claude Code's built-in `/init` (not
-  a competitor) — running generic `/init` on this template is discouraged since it would
-  overwrite the templated `CLAUDE.md`.
-- The branch-detection trip-wire lives in `docs/ai-context/project-summary.md`'s
-  placeholder content, not `.claude/rules/00-global.md` — only the former is guaranteed to
-  be read on literally the first message of any session (`00-global.md` is only consulted
-  when relevant), so only the former can catch an arbitrary first prompt like "add a login
-  feature" with no prior knowledge of `SETUP.md`.
-- `docs/development/ai-workflow.md`'s Role Breakdown now shows greenfield and
-  existing-codebase splits side by side (same shape, different authoring-vs-verifying
-  role), with `meta/adr/ADR-0004` getting a short pointer amendment in its existing
-  2026-07-15-style format. `docs/original-docs/README.md` gets a clarifying bullet so its
-  existing "primary source" guidance (greenfield-only) doesn't read as contradicting the
-  new "code is truth" principle for existing-codebase adoption — both are grounded in the
-  pre-existing `.claude/rules/00-global.md` "User-Facing Behavior Changes Always Require
-  Approval" rule, which already governed spec-vs-code mismatches before this change.
-- Deliberately not a rulebook: no attempt to enumerate every kind of code-vs-docs ambiguity
-  in advance. The one firm guardrail, stated explicitly in `SETUP.md`, the new command, and
-  the ADR: when in doubt, put it on the Needs-confirmation list and ask — never resolve an
-  ambiguity by guessing and drafting/implementing on that guess.
-
-### Files touched
-
-`meta/adr/ADR-0011-existing-codebase-adoption.md` (new), `SETUP.md`,
-`.claude/commands/onboard-existing-codebase.md` (new), `docs/development/ai-workflow.md`,
-`meta/adr/ADR-0004-ai-development-policy.md`, `docs/ai-context/project-summary.md`,
-`.claude/rules/00-global.md`, `AGENTS.md`, `README.md`, `docs/original-docs/README.md`,
-`.claude/rules/60-docs.md`, `meta/adr/README.md`.
-
-### Status
-
-Completed. Documentation-only change (no application code, no build/test step). No open
-follow-ups; the command's actual drafting behavior will get its first real workout the
-first time a project uses it against genuine existing code.
