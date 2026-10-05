@@ -2,6 +2,23 @@
 
 > Keep under 300 lines (`.claude/rules/60-docs.md`). Archived: 2026-08-03 – 2026-09-29 → `meta/history/plan-archive.md` (2026-09-30, 2026-10-03).
 
+## Harness traceability matrix + ADR-0018 for spec-lint (2026-10-05)
+
+### Decision
+
+- `meta/traceability-matrix.md` (template-internal, class X) traces every `.claude/hooks/*.sh`:
+  where it runs, how often, cost per run, decision (ADR), test, and sync across EN / JP /
+  company. Maintained by hand in the same commit as a script change; no dedicated test (user
+  decision 2026-10-05: keep only tests that guard a script). The project's own
+  `docs/rcid/traceability-matrix.md` is unchanged.
+- `meta/adr/ADR-0018-spec-lint.md` (Trial) records the spec-lint decision, which had none.
+  ADR-0017 is reserved by the Loop session for Stage 2a.
+
+### Status
+
+On `docs/harness-traceability`. Next: port the matrix and ADR-0018 to JP and company (check
+their `meta/adr/` numbering first).
+
 ## Deterministic checks, group 1: strict Eloquent in tests, spec-lint, doc consistency (2026-10-03)
 
 ### Decision
