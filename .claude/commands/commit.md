@@ -1,3 +1,7 @@
+---
+disable-model-invocation: true
+---
+
 # /commit — Commit Proposal Command
 
 Propose how to split the current changes into commits, and commit them after one human

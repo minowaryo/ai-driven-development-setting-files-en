@@ -1,3 +1,7 @@
+---
+disable-model-invocation: true
+---
+
 # /adr — ADR Creation Command
 
 Creates a new Architecture Decision Record (ADR).

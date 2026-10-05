@@ -1,3 +1,7 @@
+---
+disable-model-invocation: true
+---
+
 # /onboard-existing-codebase — Existing-Codebase Onboarding Command
 
 Runs `SETUP.md`'s Existing-Codebase Path (Step 1B-3B) end to end: detects the real stack,

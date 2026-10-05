@@ -51,7 +51,7 @@ Unlike `docs/original-docs/` (reference-only, editing prohibited), `docs/credent
 
 ### Audit Log Channel
 
-Audit entries for privileged or destructive operations go to a **dedicated `audit` channel**, not the default application log.
+Audit entries for privileged or destructive operations go to a **dedicated `audit` channel**, not the default application log. (Not to be confused with `logs/audit.jsonl` at the project root, which records AI agent activity — `docs/development/tdd-guard.md`.)
 
 - Define an `audit` channel in `config/logging.php` (`storage/logs/audit.log`, daily rotation, retention driven by a `LOG_AUDIT_DAYS` env var — add the key to `.env.example`)
 - Pin the channel's `level` to `info` **independently of `LOG_LEVEL`**, so raising the application log level in production can never silence the audit trail

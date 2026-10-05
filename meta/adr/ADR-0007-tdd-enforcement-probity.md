@@ -3,6 +3,16 @@
 ## Status
 Accepted
 
+> Updated 2026-10-05 (ADR-0016): a hands-on check of `@nizos/probity` 1.10.1 on Windows
+> found limits that matter for this harness. It cannot tell which agent is writing (it
+> drops the hook's `agent_type`), so it cannot lock `tests/` for `tdd-implementer` while
+> leaving `test-writer` free; `enforceTdd()` misjudges subagent flows (issue #80, fix
+> unreleased) and does not recognize Pest's `test()` / `it()`; `requireCommand()` checks
+> only that a command ran, not its result; Bash writes are not treated as writes; its own
+> config file is not protected; its dependencies take ~834 MB (Node 22+). Stage 1 of
+> ADR-0016 therefore uses an in-house hook (`.claude/hooks/agent-guard.sh`). Probity stays
+> an optional extra layer (e.g. requiring a command before `git commit`).
+
 ## Date
 2026-07-15
 

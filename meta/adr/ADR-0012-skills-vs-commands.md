@@ -3,6 +3,17 @@
 ## Status
 Accepted
 
+> Updated 2026-10-05 (ADR-0016): the premise below that "a command only ever runs when a
+> human types it" no longer holds. Current Claude Code treats `.claude/commands/*.md` as
+> skills the model may invoke on its own, using the first line as the description —
+> verified 2026-10-03 (2.1.278): a plain "please review" made the model start `/review`.
+> Every command in this template now carries `disable-model-invocation: true` in its
+> frontmatter (verified to block model invocation while typing the command still works),
+> which restores the criterion's intent: the command side is "run only when a person
+> types it". New commands must carry the same line. Callers that used to start another
+> command (`/tdd` → `/generate-e2e-test`, `prepare-merge` → `/commit`) now read the command
+> file and follow its steps instead.
+
 ## Date
 2026-09-26
 

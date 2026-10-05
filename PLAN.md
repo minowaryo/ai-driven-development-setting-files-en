@@ -102,16 +102,16 @@ Later, separately: a PostToolUse hook (needs an ADR-0014 / ADR-0010 revision).
 
 ### Stage 1 checklist (ADR-0016 items 1–10)
 
-- [ ] 1 SPEC_CONFLICT stop-and-report in `tdd-implementer.md` (+ a sentence that factual gate feedback is part of its task)
-- [ ] 2 Stop conditions in `/tdd` (3 Green attempts; same failure twice → human)
-- [ ] 3 PreToolUse hook in `.claude/settings.json`: for `agent_type == tdd-implementer` deny Write/Edit and Bash touching `tests/` or `docs/product/`, and git `add/commit/stash/checkout/restore/reset/rm/mv/apply/update-index/config`; drop "`git add` is fine" from `tdd-implementer.md`; bash builtins only, no lingering child process
-- [ ] 4 Hook tests in `meta/tests/` (path forms `C:\` / `/c/` / `c:/`, case, `..`, worktree `cwd`, Bash command strings)
-- [ ] 5 Approved snapshot: at Gate 4 approval copy `tests/` + `docs/product/` to `$(git rev-parse --git-path claude-tdd)/approved/`; after Green `diff -r`; on any difference show the diff and stop for the person
-- [ ] 6 Update notes on ADR-0007 (Probity limits) and ADR-0014 (Laravel Boost MCP-only install)
-- [ ] 7 `disable-model-invocation: true` on all `.claude/commands/*.md`; `/tdd` step 6 and `prepare-merge` step 1 read the command file instead of starting it; `"code-review": "user-invocable-only"` in `skillOverrides`; correction note on ADR-0012
-- [ ] 8 `APPLY_TEMPLATE.md` class C also merges `hooks` from `.claude/settings.json`
-- [ ] 9 Denial log `logs/audit.jsonl` (`GLOBAL_CLAUDE.md` convention; git-ignored; `event: agent_guard_denial`, `session_id`, no file contents); one docs line distinguishing it from the app's `audit` channel
-- [ ] 10 Re-verify the hook facts on the Claude Code version actually in use (VS Code extension ran 2.1.283–284)
+- [x] 1 SPEC_CONFLICT stop-and-report in `tdd-implementer.md` (+ a sentence that factual gate feedback is part of its task)
+- [x] 2 Stop conditions in `/tdd` (3 Green attempts; same failure twice → human)
+- [x] 3 PreToolUse hook in `.claude/settings.json`: for `agent_type == tdd-implementer` deny Write/Edit and Bash touching `tests/` or `docs/product/`, and git `add/commit/stash/checkout/restore/reset/rm/mv/apply/update-index/config`; drop "`git add` is fine" from `tdd-implementer.md`; bash builtins only, no lingering child process
+- [x] 4 Hook tests in `meta/tests/` (path forms `C:\` / `/c/` / `c:/`, case, `..`, worktree `cwd`, Bash command strings)
+- [x] 5 Approved snapshot: at Gate 4 approval copy `tests/` + `docs/product/` to `$(git rev-parse --git-path claude-tdd)/approved/`; after Green `diff -r`; on any difference show the diff and stop for the person
+- [x] 6 Update notes on ADR-0007 (Probity limits) and ADR-0014 (Laravel Boost MCP-only install)
+- [x] 7 `disable-model-invocation: true` on all `.claude/commands/*.md`; `/tdd` step 6 and `prepare-merge` step 1 read the command file instead of starting it; `"code-review": "user-invocable-only"` in `skillOverrides`; correction note on ADR-0012
+- [x] 8 `APPLY_TEMPLATE.md` class C also merges `hooks` from `.claude/settings.json`
+- [x] 9 Denial log `logs/audit.jsonl` (`GLOBAL_CLAUDE.md` convention; git-ignored; `event: agent_guard_denial`, `session_id`, no file contents); one docs line distinguishing it from the app's `audit` channel
+- [x] 10 Re-verify the hook facts on the Claude Code version actually in use (VS Code extension ran 2.1.283–284)
 
 Done when: hook tests pass in Git Bash; a real `/tdd` run shows a denied implementer write in
 the log and a snapshot diff after a forced tamper; docs updated (`README.md`,
@@ -132,8 +132,11 @@ gate messages; PostToolUse(`Agent`) reports to the parent; Gate 4 profiles defer
 
 ### Status
 
-Stage 1 approved (Trial), simplified 2026-10-05. Implementation goes to a separate session on
-a branch (e.g. `feat/loop-stage1`). This session continues research and planning.
+Stage 1 approved (Trial), simplified and implemented 2026-10-05 on `feat/loop-stage1`
+(worktree `.claude/worktrees/loop-stage1`): `agent-guard.sh` (43 tests), `tdd-snapshot.sh`
+(14 tests), all other `meta/tests` green, end-to-end `claude -p` run on 2.1.288 confirmed four
+denials, the allowed app write, the log lines and the snapshot diff. Next: commit, merge, then
+Stage 2a preparation (needs a PHP 8.2+ project).
 
 ## Per-session load reduction: move read-on-demand content out of auto-loaded files (2026-09-30)
 

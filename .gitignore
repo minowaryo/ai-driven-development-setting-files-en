@@ -5,6 +5,10 @@ docs/credentials/*
 # Local Claude Code settings (personal, machine-specific — never share team-wide permissions here)
 .claude/settings.local.json
 
+# Record of AI agent activity, e.g. blocked writes by tdd-implementer (ADR-0016) — local,
+# never committed; distinct from the application's own audit log (storage/logs/audit.log)
+/logs/
+
 # Worktrees for parallel AI sessions (see docs/development/git-workflow.md §7)
 .claude/worktrees/
 

@@ -4,7 +4,8 @@
 
 > Which of the two a given entry point lives in follows the criterion in
 > `meta/adr/ADR-0012-skills-vs-commands.md`: a skill may be invoked by AI on its own, a
-> command only when a human types it.
+> command only when a human types it (every command carries `disable-model-invocation: true`
+> — asking in plain words, e.g. "review this", does not start it; type the command).
 
 | Entry point | When to run it | Who triggers it |
 |---|---|---|
@@ -12,7 +13,7 @@
 | `/generate-mock UC-XXX` | Between Gate 1 and Gate 2 — HTML mockups for the business-side review | Human |
 | `/adr` | Whenever a technical decision is made — generates the ADR skeleton for a human to finalize | Human (AI proposes it) |
 | `/tdd UC-XXX [summary]` | Every feature / UC implementation: Red → Gate 4 approval → Green → Refactor | Human |
-| `/generate-e2e-test UC-XXX` | A UC critical flow that includes UI changes | Automatic — `/tdd` Step 6 runs it when applicable |
+| `/generate-e2e-test UC-XXX` | A UC critical flow that includes UI changes | Human — or `/tdd` Step 6 follows its steps when applicable |
 | `/review` | Before merging, when the pre-merge check calls for it (`docs/development/git-workflow.md` §6). Step 0 scores the branch diff to pick the review level | Human — `/tdd` and `prepare-merge` only remind you (deliberate; see `meta/adr/ADR-0009-review-escalation-mechanism.md`) |
 | `/commit` | When work is ready to commit — proposes the commit split and messages, commits after one approval, never pushes | Human |
 | `prepare-merge` (Trial) | When a branch is done ("merge this" / "マージして") — pre-merge check, drafted merge message, `--no-ff` merge only on instruction | AI or human — it is a skill; see `meta/adr/ADR-0015` |
@@ -109,6 +110,18 @@ bash .claude/hooks/spec-lint.sh
 
 # Before Gate 1: requirements.md only
 bash .claude/hooks/spec-lint.sh --requirements
+```
+
+## TDD Guard (tests and spec locked for tdd-implementer)
+
+`/tdd` runs these itself (`docs/development/tdd-guard.md`); run them by hand to check.
+
+```bash
+# Compare tests/ and docs/product/ with the snapshot saved at Gate 4 approval
+bash .claude/hooks/tdd-snapshot.sh verify
+
+# Save a new snapshot (what Gate 4 approval does)
+bash .claude/hooks/tdd-snapshot.sh record
 ```
 
 ## Database
