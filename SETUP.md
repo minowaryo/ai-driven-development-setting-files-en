@@ -259,7 +259,10 @@ Http::preventStrayRequests();
 - `phpunit.xml`: Laravel's default runs tests on in-memory SQLite (`DB_CONNECTION=sqlite`,
   `DB_DATABASE=:memory:`). Point it at a dedicated MySQL test database (e.g.
   `DB_CONNECTION=mysql`, `DB_DATABASE=<app>_test`, created once — never the development or
-  production database), so strict mode, collation, and `decimal` behave as in production
+  production database), so strict mode, collation, and `decimal` behave as in production.
+  No MySQL test database available? Keep the SQLite default — tests still run and the two
+  lines above still apply, but MySQL-only differences go undetected. Never point it at MySQL
+  without a dedicated test database: `RefreshDatabase` would wipe the development data
 - Existing-Codebase Path: these may make existing tests fail and staging throw, so they are
   Backlog items from `/onboard-existing-codebase` — switch them on only when the human decides
 
