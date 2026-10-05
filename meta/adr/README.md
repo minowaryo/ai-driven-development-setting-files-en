@@ -26,6 +26,7 @@ from `ADR-0001`.
 | ADR-0014 | Third-party integrations considered and deferred (Laravel Boost, cc-sdd, hookify, Superpowers) |
 | ADR-0015 | Git workflow — short-lived branches, `--no-ff` merge record, merge-check tiers |
 | ADR-0016 | Loop Engineering roadmap, and Stage 1 — mechanical TDD enforcement (Trial) |
+| ADR-0018 | Structural pre-check of the spec documents — `spec-lint` (Trial) |
 
 ## Harness-design ADR patterns to copy from
 
