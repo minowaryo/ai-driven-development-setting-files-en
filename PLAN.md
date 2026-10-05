@@ -97,8 +97,8 @@ Later, separately: a PostToolUse hook (needs an ADR-0014 / ADR-0010 revision).
   against a plain copy taken at Gate 4 approval — verified to catch both tricks and to give a
   readable diff.
 - Stage 1 adds no new dependency (Bash + POSIX tools + Git).
-- Company repository: no changes until the maintainer lifts the hold. JP: allowed (an ADR-0016
-  number reservation is being done in a separate session).
+- Company repository: hold lifted for Stage 1 only (2026-10-05); Stage 1 ported there
+  (`219dd51`, not pushed); Stages 2–5 stay on hold. JP: allowed (port in a separate session).
 
 ### Stage 1 checklist (ADR-0016 items 1–10)
 

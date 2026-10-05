@@ -225,8 +225,10 @@ lifetime, a locked-paths config file, changes to Gate 4, any orchestrator, insta
 ### Where things live
 
 - This template (EN) carries Stages 1–3 as Trial. JP receives a pointer first and the full
-  port after the Stage 2 experiment (Stage 4). The company repository receives nothing —
-  not even a pointer — until the maintainer lifts its hold *(amended 2026-10-03)*.
+  port after the Stage 2 experiment (Stage 4). The company repository received nothing
+  until the maintainer lifted its hold *(amended 2026-10-03)*; the hold was lifted for
+  **Stage 1 only** on 2026-10-05 and Stage 1 was ported there (company `219dd51`, not yet
+  pushed). Stages 2–5 stay on hold for the company repository.
 - No separate repository before Stage 5.
 - The design memo stays in `meta/design/` (template-internal; not copied into projects).
 

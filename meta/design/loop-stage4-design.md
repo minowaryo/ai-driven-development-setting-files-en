@@ -2,8 +2,9 @@
 
 > Template-internal design draft (class X), 2026-10-03. "Verified" = run locally on codex-cli
 > 0.116.0 (native Windows); "docs" = official Codex docs; [U] = neither.
-> **Maintainer decision (2026-10-03, reconfirmed 2026-10-05): JP port may proceed; the company repository gets no
-> changes yet — not even a pointer or ADR stub.**
+> **Maintainer decision (2026-10-03; updated 2026-10-05): JP port may proceed. The company
+> repository's hold was lifted for Stage 1 only on 2026-10-05 — Stage 1 is ported there
+> (company `219dd51`); Stages 2–5 stay on hold for it.**
 
 ## Facts that drive the design
 
@@ -64,7 +65,8 @@ Codex input adapters), the audit-log writer, `impl-result.schema.json` (used by 
 ## Porting plan
 
 - Order: EN Stages 1–3 Trial → EN Codex parity → **JP** (pointer now; full port after Stage 2)
-  → **company: nothing until the maintainer lifts the hold** (decision 2026-10-03).
+  → **company: Stage 1 ported 2026-10-05 (hold lifted for Stage 1 only); later stages wait
+  for the maintainer** (decision 2026-10-03, updated 2026-10-05).
 - Port only from tagged EN commits. Copy: scripts, schemas, settings hooks, `.codex/config.toml`,
   `.codex/hooks.json`, frontmatter lines, `meta/tests/`. Translate (JP only): ADR-0016 and the
   changed sections of `tdd.md`, `tdd-implementer.md`, `30-testing.md`, `AGENTS.md`,
