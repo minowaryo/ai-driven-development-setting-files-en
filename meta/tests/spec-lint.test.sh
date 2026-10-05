@@ -224,6 +224,74 @@ check "18 missing use-cases note" '[ "$CODE" -eq 0 ] && has "use-cases.md not fo
 d=$(new_dir); git -C "$d" init -q; mkdir -p "$d/app/sub"; OUT=$(cd "$d/app/sub" && bash "$SCRIPT"); CODE=$?
 check "19 subdirectory uses repo root" '[ "$CODE" -eq 0 ] && summary 0 0'
 
+# 20: Japanese templates (the JP sibling repository ships this same script)
+ja_dir() { # ja_dir -> fixture written with the JP template's headings and labels
+  local d
+  d=$(mktemp -d -p "$ROOT")
+  mkdir -p "$d/docs/product/mockups"
+  cat >"$d/docs/product/requirements.md" <<'EOF'
+# requirements.md — 要件定義
+
+## 4. 機能一覧
+
+| 機能ID | 機能名 | 概要 | Actor | 優先度 |
+|---|---|---|---|---|
+| F-001 | 受注一覧 | 担当者が受注を一覧する | 担当者 | 高 |
+EOF
+  cat >"$d/docs/product/use-cases.md" <<'EOF'
+# use-cases.md — ユースケース定義
+
+## レビュー基準
+
+- [ ] Actor が明確か
+
+## ユースケーステンプレート
+
+### UC-001: 受注を一覧する
+
+**Actor**: 担当者
+**関連要件**：F-001
+
+#### 基本フロー
+1. 担当者が一覧画面を開く
+2. システムが受注を表示する
+
+#### エラーケース
+| ケース | HTTPステータス | メッセージ |
+|---|---|---|
+| 未ログイン | 401 | ログインしてください |
+
+#### 権限
+- 担当者: 実行可
+
+---
+
+## 承認記録
+
+| 日付 | レビュアー | 結果 | コメント |
+|---|---|---|---|
+| YYYY-MM-DD | [名前] | 承認/差し戻し | [コメント] |
+EOF
+  cat >"$d/docs/product/mockups/README.md" <<'EOF'
+# Mockups
+
+## 画面一覧
+
+| ファイル名 | 対応UC | 画面名 | 作成日 | ビジネスレビュー | フィードバック反映 |
+|---|---|---|---|---|---|
+| *(追加してください)* | | | | | |
+| `screen-UC001-order-list.html` | UC-001 | 受注一覧 | 2026-10-05 | 済 | 済 |
+EOF
+  echo '<html></html>' >"$d/docs/product/mockups/screen-UC001-order-list.html"
+  echo "$d"
+}
+d=$(ja_dir); run "$d"
+check "20 JA clean" '[ "$CODE" -eq 0 ] && summary 0 0'
+d=$(ja_dir); f=$(uc_file "$d"); awk '!/^#### エラーケース/' "$f" >"$f.tmp" && mv "$f.tmp" "$f"; run "$d"
+check "20 JA missing section" 'has "^section .*エラーケース.*missing"'
+d=$(ja_dir); f=$(uc_file "$d"); sed -i 's/^\*\*関連要件\*\*：F-001/**関連要件**：F-009/' "$f"; run "$d"
+check "20 JA full-width colon label" 'has "^link .*UC-001.*F-009"'
+
 echo "----"
 echo "passed: $PASS  failed: $FAIL"
 [ "$FAIL" -eq 0 ]
