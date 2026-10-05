@@ -2,7 +2,120 @@
 
 > Template-internal archive of this repository's own `PLAN.md` entries (newest first). Moved verbatim per `.claude/rules/60-docs.md`.
 > Not copied into target projects (`APPLY_TEMPLATE.md` class X; removed in `SETUP.md`).
-> Covers: 2026-08-03 – 2026-09-26 (archived 2026-09-30, 2026-10-03).
+> Covers: 2026-08-03 – 2026-09-29 (archived 2026-09-30, 2026-10-03).
+
+## Git workflow rules: branches, commit unit, authority, --no-ff merge record, merge-check tiers (2026-09-29)
+
+### Decision
+
+- Full design spec: the author's local planning notes (`~/.claude/plans/`, not in this repo);
+  the durable record is `meta/adr/ADR-0015-git-workflow.md`.
+- Primary host is GitLab (GitHub must still work). MR/PR process, CI, and branch
+  protection are deferred; branches + commits + `--no-ff` merge commits alone must
+  produce the record.
+- GitHub-Flow-style short-lived branches (`<type>/<issue-no>-<slug>`); direct commits to
+  `main` only for docs/typo-only changes.
+- Commit unit: one-sentence test, green at every commit, behavior / refactor / formatting
+  kept apart; `/tdd` Red+Green = one commit, Refactor = separate commit, migration = own commit.
+- Authority: AI commits only via `/commit` (split proposal → one human approval); push
+  only on explicit instruction (`ask`); force-push denied; merge prepared by the new
+  `prepare-merge` skill and executed only on explicit instruction.
+- Merge commit = lightweight MR substitute: git default subject + short "why" body +
+  `Merge-Check:` / `Review:` / `Tests:` trailers.
+- Pre-merge check reuses `review-score.sh`: `light` (< 10, tests only) / `recommended`
+  (10-29, `/review` suggested) / `required` (≥ 30 or any sensitive path, `/review`
+  mandatory). Thresholds calibrated on 4 local Laravel repos' history plus Google
+  "Small CLs" / SmartBear guidance; Trial status.
+- Worktrees only for parallel sessions; no per-task sub-agent review loop; project rules
+  override Superpowers Git skills.
+- `.claude/rules/70-git.md` is the single source of truth for Git rules; every other
+  file keeps at most a one-line pointer.
+- After EN is complete, port to the JP sibling repo (`ai-driven-development-setting-files`).
+
+### Files touched
+
+Implementation plan: the author's local planning notes (not in this repo); branch
+`feat/git-workflow-rules`.
+
+Phase A (docs): `.claude/rules/70-git.md` (new), `meta/adr/ADR-0015-git-workflow.md` (new),
+`meta/adr/README.md`, `meta/adr/ADR-0009-review-escalation-mechanism.md`, `CLAUDE.md`,
+`AGENTS.md`, `.claude/rules/00-global.md`, `.claude/rules/30-testing.md`,
+`.claude/rules/50-review.md`, `.claude/rules/60-docs.md`,
+`docs/development/coding-standards.md`, `docs/development/review-checklist.md`,
+`docs/development/ai-workflow.md`, `docs/security/secrets-handling.md`,
+`docs/product/org-permission-philosophy.md`, `docs/product/user-guide.md`,
+`docs/ai-context/common-commands.md`, `README.md`.
+
+Phase B: `.claude/hooks/review-score.sh`, `meta/tests/review-score.test.sh` (new —
+template-internal, `APPLY_TEMPLATE.md` class X), `.claude/commands/commit.md` (new),
+`.claude/skills/prepare-merge/SKILL.md` (new), `.claude/commands/tdd.md`,
+`.claude/settings.json` (new), `.gitignore`, `APPLY_TEMPLATE.md`.
+
+### Status
+
+Completed in EN and JP: committed on `feat/git-workflow-rules`, `/review` (enhanced) passed
+with its findings fixed, then merged into `main` with `--no-ff` via `prepare-merge`.
+Verified: `bash meta/tests/review-score.test.sh` → 27/27; force push denied / normal push
+not denied in a live session; a fresh `claude -p` session loads `70-git.md` and
+`prepare-merge`. ADR-0015 is anonymized (no internal project names). The template's own
+PLAN.md archive lives in `meta/history/` (class X). Target projects start with a blank
+`PLAN.md` on both paths: `APPLY_TEMPLATE.md` class D, and `SETUP.md` "Before Step 1" for
+projects copied from the template (which also removes `meta/tests/`, `meta/history/`,
+`APPLY_TEMPLATE.md`). Follow-up: revisit the Trial thresholds after real use (ADR-0015).
+
+## Third-party skill/plugin adoption: 4 in-house skills (Trial) + a deferral record (2026-09-28)
+
+### Decision
+
+- A user-provided comparison of the "Superpowers" Claude Code plugin (`obra/superpowers`)
+  against this harness prompted a broader evaluation of third-party Claude Code tooling.
+  Two research passes verified the actual claims (repo survey of this template's own
+  `.claude/`, plus web verification of Superpowers, Laravel Boost, cc-sdd,
+  `mattpocock/skills`, and hookify) before any adoption decision was made.
+- **Adopted, in-house, all in one pass, marked Trial** (`meta/adr/ADR-0013-third-party-skill-adoption-trial.md`):
+  new skills `.claude/skills/systematic-debugging/SKILL.md` (reproduce-and-localize
+  discipline for unclear bugs) and `.claude/skills/verification-before-completion/SKILL.md`
+  (no "done" claim without an actual run this turn), a new "Test Quality Heuristics"
+  subsection in `.claude/rules/30-testing.md` (don't mock the behavior under test, don't
+  derive expected values from the implementation, sanity-check a test actually fails when
+  the code is broken), and a new skill `.claude/skills/grill-me/SKILL.md` (one-question-at-
+  a-time requirements interview, adapted and credited from `mattpocock/skills`). None are
+  installed plugins — Superpowers' own SessionStart force-injection (~1,300 tokens wrapped
+  in `<EXTREMELY_IMPORTANT>` tags — GitHub issues #1480/#1456/#2377) and non-enforced TDD
+  (issues #384/#2372) were verified real risks, so the underlying ideas were rewritten
+  in-house instead. The user explicitly chose to roll out all four together rather than
+  stage them one at a time, judging three of the four low-risk (they only tighten the AI's
+  own internal discipline); `grill-me` is flagged in ADR-0013's rollout-tracking table as
+  the one item that changes the human-interaction pattern and is worth watching for
+  friction. ADR-0013 introduces **Trial** as a new ADR Status value (alongside
+  Proposed/Accepted/Deprecated/Superseded), reflected in the templates in
+  `.claude/commands/adr.md` and `.claude/rules/60-docs.md`.
+- **Considered and deferred, record-only, no functional changes**
+  (`meta/adr/ADR-0014-third-party-integrations-deferred.md`): Laravel Boost (`laravel/boost`)
+  — deferred, not rejected, because `php artisan boost:install` overwrites `CLAUDE.md`/
+  `AGENTS.md`; if ever adopted, register only its MCP server manually
+  (`claude mcp add -s local -t stdio laravel-boost php artisan boost:mcp`), never run the
+  full installer against this template. cc-sdd (`gotalab/cc-sdd`) — rejected as redundant
+  with this harness's own Gate 0-3 pipeline. hookify (official Anthropic plugin) — deferred/
+  watch, since `ADR-0010`'s script-invoked-hook choice was deliberate and a real-hook trial
+  deserves its own separately-scoped evaluation. Superpowers itself (the wholesale plugin)
+  — rejected, citing the same two verified GitHub-issue risks above.
+
+### Files touched
+
+`meta/adr/ADR-0013-third-party-skill-adoption-trial.md` (new),
+`meta/adr/ADR-0014-third-party-integrations-deferred.md` (new),
+`.claude/skills/systematic-debugging/SKILL.md` (new),
+`.claude/skills/verification-before-completion/SKILL.md` (new),
+`.claude/skills/grill-me/SKILL.md` (new), `.claude/rules/30-testing.md`,
+`.claude/rules/00-global.md`, `CLAUDE.md`, `docs/ai-context/common-commands.md`,
+`README.md`, `meta/adr/README.md`, `.claude/commands/adr.md`, `.claude/rules/60-docs.md`.
+
+### Status
+
+Implemented. Not committed — awaiting explicit instruction. Follow-up: revisit
+ADR-0013's rollout-tracking table once the batch has been used for a while — promote
+to Accepted, or roll back individually (watch `grill-me` first for human-side friction).
 
 ## Skills vs. commands criterion, /regenerate-traceability, standalone /adr export (2026-09-26)
 

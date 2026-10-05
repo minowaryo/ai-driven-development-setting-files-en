@@ -92,6 +92,6 @@ Instructions for AI when generating mockups:
 
 ```
 Read docs/product/use-cases.md [UC-XXX] and docs/product/ui-guidelines.md,
-then generate an HTML mockup for [screen name] as docs/product/mockups/screen-[UC-XXX]-[screen-name].html.
+then generate an HTML mockup for [screen name] as docs/product/mockups/screen-UC[XXX]-[screen-name].html (e.g. screen-UC006-order-list.html).
 Real data is not needed. Please use dummy data.
 ```

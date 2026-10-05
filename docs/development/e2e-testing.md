@@ -15,11 +15,11 @@
 | Item | Convention |
 |---|---|
 | Location | `tests/e2e/` |
-| File name | `{UC-number}-{flow-summary}.spec.ts` (e.g. `uc01-user-registration.spec.ts`) |
+| File name | `uc{UC number}-{flow-summary}.spec.ts` (e.g. `uc001-user-registration.spec.ts`) |
 | Test name | Written in English, based on the UC title in `use-cases.md` |
 
 ```ts
-// tests/e2e/uc01-user-registration.spec.ts
+// tests/e2e/uc001-user-registration.spec.ts
 import { test, expect } from '@playwright/test';
 
 test('a user can create an account from the registration form', async ({ page }) => {
@@ -56,7 +56,7 @@ npx playwright install
 npx playwright test
 
 # Run a specific file only
-npx playwright test tests/e2e/uc01-user-registration.spec.ts
+npx playwright test tests/e2e/uc001-user-registration.spec.ts
 
 # Show the report from the most recent run (pass/fail list, screenshots, video)
 npx playwright show-report

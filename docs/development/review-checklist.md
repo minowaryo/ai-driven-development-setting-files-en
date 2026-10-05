@@ -5,37 +5,8 @@
 
 ## Author Self-Check (Before Merging)
 
-### Requirements & Design
-- [ ] Is it linked to the corresponding use case in `docs/product/use-cases.md`?
-- [ ] If there is a design change, has an ADR been created?
-
-### Code Quality
-- [ ] Has `./vendor/bin/pint` been run to format the code?
-- [ ] Are there no errors from `./vendor/bin/phpstan analyse`?
-- [ ] Is the Controller too fat (Fat Controller)?
-- [ ] Are there any N+1 queries? (Check with Telescope / Debugbar)
-
-### Authentication & Authorization
-- [ ] Is `$this->authorize()` called appropriately in the relevant Controller?
-- [ ] Has authentication middleware been set on new endpoints?
-
-### Security
-- [ ] Are secrets or API keys included in the code?
-- [ ] Is PII being output in logs?
-- [ ] Are privileged / destructive operations (delete, permission change, etc.) recorded on the `audit` channel?
-- [ ] Is validation appropriate (using FormRequest)?
-
-### Tests
-- [ ] Does `php artisan test` pass?
-- [ ] Is there a Feature Test for the happy path?
-- [ ] Is there a test for authorization (unauthenticated / unauthorized)?
-- [ ] Is there a test for validation errors?
-- [ ] Did you follow TDD (Red → Green → Refactor) — did the test exist before the implementation?
-- [ ] If a critical flow changed, did you add a Playwright E2E test and does `npx playwright test` pass?
-
-### Documentation
-- [ ] For DB changes → has `docs/architecture/data-model.md` been updated?
-- [ ] For design changes → have the relevant docs been updated?
+The single author self-check is "Pre-Review Self-Check" in
+`docs/development/review-guidelines.md` — `prepare-merge` runs that list on every merge.
 
 ---
 

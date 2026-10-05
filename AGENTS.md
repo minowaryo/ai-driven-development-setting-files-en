@@ -16,7 +16,7 @@ Laravel + MySQL web application
 
 | Task | Read |
 |---|---|
-| Creating / updating requirements.md or use-cases.md | `docs/original-docs/` (source materials) + `docs/product/requirements.md` |
+| Creating / updating requirements.md or use-cases.md | `docs/original-docs/` (source materials) + `docs/product/requirements.md`; before asking for approval, run `bash .claude/hooks/spec-lint.sh` (`--requirements` before Gate 1) |
 | Requirements / UC reference | `docs/product/requirements.md` + `docs/product/use-cases.md` |
 | Code implementation | `docs/product/use-cases.md` + `docs/architecture/data-model.md` + `docs/product/mockups/` |
 | UI implementation / mock-based dev | `docs/product/ui-guidelines.md` + `docs/product/mockups/` |

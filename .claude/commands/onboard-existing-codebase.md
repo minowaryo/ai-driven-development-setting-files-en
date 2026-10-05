@@ -101,6 +101,9 @@ procedural guardrail instead.
    discrepancy note to the Needs-confirmation list. Never silently resolve it either
    direction — see `.claude/rules/00-global.md`'s "User-Facing Behavior Changes Always
    Require Approval."
+4. Run `bash .claude/hooks/spec-lint.sh` and fix every structural finding (ids, missing
+   sections, leftover template text). Unresolved `[inferred]` markers stay — they are
+   settled through the Needs-confirmation list.
 
 ### Step 3B — Extract `data-model.md` from the actual schema
 
@@ -182,7 +185,9 @@ bucket from Triage, security-relevant items first. Explicitly note that this lis
 heads-up, not a requirement. Say which items come back on their own and which do not:
 domain-boundary findings resurface on every future `/review`, but other code defects are
 shown only this once, so the human should record any they want to keep (e.g. in their issue
-tracker).
+tracker). Also list, when absent, the one-time test setup from `SETUP.md` Step 4
+(`Model::shouldBeStrict`, `Http::preventStrayRequests()`, tests on MySQL instead of SQLite):
+it can make existing tests fail and staging throw, so switching it on is the human's call.
 
 Close with an explicit reminder to the human: **human review is required before any
 development** — answer the Needs-confirmation questions (this is the Gate 0-3 sign-off),
@@ -194,7 +199,9 @@ any implementation work.
 1. Reflect each answer into the files tagged on that question; remove the resolved
    **[inferred]** markers and Needs-confirmation notes.
 2. If an answer creates a new question, ask it — do not guess.
-3. Once every item is resolved, ask the human for an explicit sign-off. Only after they
+3. Once every item is resolved, re-run `bash .claude/hooks/spec-lint.sh` and show any
+   remaining finding (e.g. an `[inferred]` marker left behind) with the sign-off request.
+   Then ask the human for an explicit sign-off. Only after they
    give it, record it in `docs/product/use-cases.md`'s Approval Record (with the human as
    reviewer) and in `PLAN.md`. This single sign-off satisfies Gates 0-3. Never record it on
    your own judgment that everything is resolved.

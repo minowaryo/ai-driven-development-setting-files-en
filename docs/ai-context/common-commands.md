@@ -56,7 +56,7 @@ npx playwright install
 npx playwright test
 
 # Run a specific file only
-npx playwright test tests/e2e/uc01-user-registration.spec.ts
+npx playwright test tests/e2e/uc001-user-registration.spec.ts
 
 # UI mode (for debugging)
 npx playwright test --ui
@@ -97,8 +97,18 @@ npx probity check
 # Check only (no fixes)
 ./vendor/bin/pint --test
 
-# Static analysis
+# Static analysis (only where Larastan is installed — see Quality Gates in docs/development/ai-workflow.md)
 ./vendor/bin/phpstan analyse
+```
+
+## Spec Checks
+
+```bash
+# Before Gate 2: requirements + use cases + mockups (structure only; findings inform the reviewer)
+bash .claude/hooks/spec-lint.sh
+
+# Before Gate 1: requirements.md only
+bash .claude/hooks/spec-lint.sh --requirements
 ```
 
 ## Database
