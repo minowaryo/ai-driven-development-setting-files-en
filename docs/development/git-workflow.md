@@ -114,8 +114,9 @@ Its findings are pattern matches, not verdicts, so they never change the tier an
 `/review` mandatory. When it reports violations or a priority file and `/review` has not run
 since the branch's last commit, the AI asks once in plain words — fix first, run `/review`,
 or merge as is (e.g. "OrderController writes to the DB directly in 2 places — fix, review, or
-merge?"). Otherwise the findings are only listed in the plan. A script error or skip is shown
-and does not stop the merge.
+merge?"). Choosing review means the AI stops and the human runs `/review` (ADR-0009).
+Otherwise the findings are only listed in the plan. A script error or skip is shown and does
+not stop the merge.
 
 ## §7 Parallel Sessions and Worktrees
 

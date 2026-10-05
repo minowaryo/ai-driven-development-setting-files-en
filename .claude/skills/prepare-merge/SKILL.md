@@ -52,9 +52,12 @@ the rules; this file is only the procedure. The active profile is the `Profile:`
      mandatory. If there are violations or priority files and `/review` has not run, ask
      once in plain words, naming each Controller and what it does (e.g. "OrderController
      writes to the DB directly in 2 places"): fix first, run `/review`, or merge as is. On
-     "fix", stop — the fix goes on the branch, then start over. Ask this together with the
-     `lite` sensitive-path question when both apply. Otherwise (or for heuristic warnings
-     only) just list the findings in the step 5 plan
+     "fix", stop — the fix goes on the branch, then start over. On "review", stop and ask the
+     human to run `/review` (human-invoked — ADR-0009), then start over. Ask this together
+     with the `lite` sensitive-path question when both apply; when `standard` already stops
+     for a `required` tier, name the findings in that stop message instead of asking
+     separately. Otherwise (or for heuristic warnings only) just list the findings in the
+     step 5 plan
 4. **Draft the merge message** in the §5 shape — git's default subject
    (`Merge branch '<branch>'`), a one- or two-sentence why (UC-ID if any; optional for
    `light`), and the trailers `Merge-Check:` (tier, score, sensitive paths, and
