@@ -14,7 +14,7 @@ bounded; a read-only reviewer then reports findings; humans decide every exit.
 IDLE ─────────► RED ──red-check ok──► AWAIT_GATE4 ◄──────────────────────────┐
                 ▲  (test-writer)        │ human types `/tdd approve`           │
                 │                       ▼                                       │
-                │                    LOCKED (lock_tree recorded)                │
+                │                    LOCKED (snapshot taken)                    │
                 │                       ▼                                       │
                 │          ┌─block─ GREEN(n) ──stop──► VERIFY [SubagentStop: gate]
                 │          │ fail, n<3, new fingerprint    │                    │
@@ -36,9 +36,10 @@ IDLE ─────────► RED ──red-check ok──► AWAIT_GATE4 
   DONE → commit/merge.
 - State: `$(git rev-parse --git-path claude-tdd)/state.json` — inside `.git/`, per
   worktree, never committed; written only by hook scripts; each transition also appended to
-  `logs/audit.jsonl`. Locked set: `tests/**`, `phpunit.xml*`, `.claude/**`, the gate script;
-  `lock_tree` = tree hash of the locked set via a temporary index, also printed into the main
-  transcript at approval.
+  `logs/audit.jsonl`. Locked set (Stage 1): `tests/` + `docs/product/`, for `tdd-implementer`
+  only; Stage 3+ candidates: `phpunit.xml*`, `.env.testing`, `.claude/**`, the gate script.
+  The approved state is the Stage 1 snapshot copy in `$(git rev-parse --git-path
+  claude-tdd)/approved/` (ADR-0016 item 5); `state.json` records only the approval time.
 - Approval is provably human if `/tdd` has `disable-model-invocation: true` and the
   approval is recorded by a `UserPromptExpansion` hook [U2]; without an approval record a
   PreToolUse(Agent) hook refuses to start `tdd-implementer` [U4].
@@ -57,10 +58,10 @@ SubagentStop(tdd-implementer):
   s = load_state() or ESCALATE("state_missing")          # fail closed
   if s.state != GREEN: allow
   if spec_conflict_valid(msg): ESCALATE("spec_conflict")
-  if tree(locked_set) != s.lock_tree: ESCALATE("tamper")
-  autofix_non_locked(); recheck lock_tree                  # pint on non-locked paths only
-  r = gate --junit
-  if r.pass: s.state = REVIEW; allow
+  rc = gate.sh --scope cycle      # auto-fixers on non-locked paths, snapshot diff -r, checks
+  if rc == 2: ESCALATE("lock_violation")                  # never retried
+  if rc == 3: ESCALATE("tool_error")                      # environment; not counted as an attempt
+  if rc == 0: s.state = REVIEW; allow
   fp = sha1(sorted(failing_ids) + normalize(first_error_line))
   s.attempt += 1
   if s.attempt >= 3 or fp == s.last_fp: ESCALATE("max_attempts" | "same_failure")
@@ -103,7 +104,7 @@ A **PostToolUse hook on the `Agent` tool** (the tool is named `Agent`, not `Task
 report reaches the parent marked as model output ("[Subagent hand-back] … NOT a message from
 the user"), so the loop's outcome is reported from the state/evidence files through this hook,
 never through the subagent's prose. The injected line must be truthful and self-explaining
-("gate rejected attempt 1 (expected 5, got 4); corrected; evidence .gate/1.json, .gate/2.json"):
+("gate rejected attempt 1 (expected 5, got 4); corrected; evidence claude-gate/<ts1>.json, claude-gate/<ts2>.json"):
 when a test injection claimed GREEN while the file disagreed, the parent flagged it as a
 suspected injection; without the explanation it doubted the subagent. For **background**
 subagents PostToolUse(Agent) fires at launch (`async_launched`), not at completion — use
@@ -132,15 +133,19 @@ hook were active; the VS Code extension runs 2.1.283–284, so re-verify there (
   `logs/audit.jsonl` or the locked set (Bash checked by command string — [V] a Bash write
   carries `agent_type`, and a path-only check let it through).
 - On native Windows a subprocess can still bypass, so: missing/invalid state stops the loop;
-  the block cap bounds counter resets; a return "still GREEN" is treated as escalated and the
-  main session re-computes `lock_tree`. Rule: **tampering can only end the loop earlier.**
+  `maxTurns` bounds counter resets; a return "still GREEN" is treated as escalated and the
+  main session re-runs the snapshot comparison. Rule: **tampering can only end the loop earlier.**
+- A hook that times out fails open (ADR-0016 item 3, U7): the Stage 1 lock hook and the gate
+  hook must stay fast and leave no child process holding stdout; a return without a gate
+  verdict is treated as ESCALATED.
 - Hooks are written with bash builtins only — [V] grep/sed-based hook ≈ 500 ms per call vs
   builtins-only ≈ 83 ms on Windows Git Bash.
 
-## Gate 4 profiles (Stage 3 decision; evidence from Stage 2 Q2)
+## Gate 4 profiles (deferred until Stage 2 data)
 
-One line in `.claude/rules/30-testing.md`, same pattern as the Git profile line;
-`standard` default during Trial.
+Deferred until Stage 2 (Q2) data; likely low value, because the always-human categories below
+cover most tests. Sketch kept for reference: one line in `.claude/rules/30-testing.md`, same
+pattern as the Git profile line; `standard` default.
 
 | | `standard` | `lite` |
 |---|---|---|
@@ -148,24 +153,14 @@ One line in `.claude/rules/30-testing.md`, same pattern as the Git profile line;
 | Always human | All tests | authz, validation, regression, user_visible |
 | Machine-checked | also run | each test fails for an assertion/missing-symbol reason; strict modes; no `todo()` / `assertTrue(true)`; UC id in name/group |
 
-A grep-based classifier errs toward HUMAN; test-writer tags can add categories, never
-remove them. Changing Gate 4 touches the Gate definitions (`00-global.md`, `SETUP.md`,
-`AGENTS.md` together) and ~20 files that mention Gate 4.
+Changing Gate 4 touches the Gate definitions (`00-global.md`, `SETUP.md`, `AGENTS.md`
+together) and ~20 files that mention Gate 4.
 
-## Reviewer output (minimal)
+## Reviewer output
 
-No `decision`, no approval power; the route is computed by a script.
-
-```json
-{"v":1,"cycle":"…","diff_sha":"…","evidence_sha":"…",
- "findings":[{"category":"SPEC_CONFLICT|TEST_GAP|USER_FACING_CHANGE|SECURITY|DOMAIN_BOUNDARY|DEFECT",
-   "severity":"HIGH|MEDIUM|LOW","file":"…","line":12,"requirement":"UC-006",
-   "claim":"…","evidence":"quote or evidence-path#key"}],
- "not_verified":[{"what":"…","why":"…"}]}
-```
-
-Any SPEC_CONFLICT / SECURITY / USER_FACING_CHANGE / HIGH → human must acknowledge each
-before DONE; otherwise shown as information. The reviewer is a `Read, Grep, Glob`-only
+The single schema is **ReviewResult v2** in `loop-reviewer-design.md` (minimal config R0); no
+`decision`, no approval power; `route` is computed by a script. Every HUMAN_BLOCKING finding
+needs a person's acknowledgement before DONE; the rest is shown as information. The reviewer is a `Read, Grep, Glob`-only
 subagent reading the diff and the evidence; it never runs code. `/review` (ADR-0009, human,
 once per branch) is unchanged and never replaced. Needed amendments: ADR-0009 note;
 ADR-0015 #7 and git-workflow §7/§8 ("no automatic review→fix loop; at most one findings-only
@@ -174,15 +169,14 @@ pass per human-started `/tdd` cycle").
 ## User-facing change rule
 
 Diff paths in `resources/js/Pages|Components`, `resources/views`, `lang/`,
-`app/Http/Requests`, `app/Policies`, `app/Http/Middleware`, `routes/`, notifications/mail →
-modified existing file, or category not covered by a human-approved test →
-`USER_FACING_CHANGE`, HUMAN. Deterministic findings cannot be dropped by the LLM reviewer.
+`app/Http/Requests`, `app/Policies`, `app/Http/Middleware`, `routes/`, notifications/mail,
+with a change not covered by a human-approved test → `USER_FACING_CHANGE`, HUMAN. Deterministic findings cannot be dropped by the LLM reviewer.
 
 ## Failure modes
 
 | Mode | Mitigation |
 |---|---|
-| Infinite loop | 3 attempts, same-fingerprint stop, block cap, implementer not restarted after ESCALATED |
+| Infinite loop | 3 attempts + `maxTurns`; same failure twice stops (ADR-0016 item 2); implementer not restarted after ESCALATED |
 | Context growth | ≤ 3 continuations; reason ≤ 40 lines; logs as evidence paths |
 | Cost | `maxTurns` on the implementer [U3]; cost per cycle logged (no `--max-budget-usd` interactively) |
 | False SPEC_CONFLICT spam | must cite a test id, a UC id and a verbatim quote from use-cases.md (checked with `grep -F`); track confirmed rate |
@@ -193,7 +187,7 @@ modified existing file, or category not covered by a human-approved test →
 
 Codex PreToolUse input has no agent identity (only SubagentStart/SubagentStop do; docs), so
 role-based locking cannot be done with Codex hooks; `apply_patch` edits are interceptable
-session-wide. For Codex the git-based check (`lock_tree` / index comparison) is the primary
+session-wide. For Codex the approved-snapshot comparison (`diff -r`, tool-agnostic) is the primary
 protection. Local codex-cli 0.116.0 has hooks disabled (in development) — not tested.
 
 ## Unverified before an ADR

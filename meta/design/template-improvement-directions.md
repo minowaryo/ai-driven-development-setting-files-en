@@ -37,8 +37,8 @@ was told?**" — and that the answer is cheap machinery around the AI, not more 
 ### D3. Make cheating useless rather than impossible
 
 - In-process blocks can be bypassed (subprocesses; no OS sandbox on native Windows), so
-  every block is paired with an after-the-fact check (e.g. `tests/` compared with the
-  index staged at Gate 4 approval).
+  every block is paired with an after-the-fact check (e.g. `tests/` and `docs/product/`
+  compared with the plain copy taken at Gate 4 approval).
 - **Method**: design for the weakest supported platform; add the sandbox as a bonus where
   available (macOS / Linux / WSL2), never as the only layer.
 
@@ -148,7 +148,7 @@ Asked of every phase: can a tool check it, do it, or find where? Findings that s
   tests at zero cost. Lint-gated edits raised SWE-agent's resolve rate 15.0% → 18.0%
   (arXiv 2405.15793). Mutation feedback raised LLM test suites' mutation scores ~78% → ~90%
   (arXiv 2506.02954).
-- Loop gaps found on the way and passed to that session: Stage 1 locks `tests/` but not the
-  spec, so SPEC_CONFLICT's `grep -F` quote check can be satisfied by editing the spec;
+- Loop gaps found on the way and passed to that session: Stage 1 locked `tests/` but not the
+  spec, so SPEC_CONFLICT's `grep -F` quote check could be satisfied by editing the spec (since closed: ADR-0016 locks `docs/product/` too);
   `disable-model-invocation` on every command may stop `/tdd` → `/generate-e2e-test` and
   `prepare-merge` → `/commit` hand-offs; Larastan is a new dependency, not an existing one.

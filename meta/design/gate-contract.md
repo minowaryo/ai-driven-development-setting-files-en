@@ -2,7 +2,7 @@
 
 > Template-internal design note (class X). Written 2026-10-03 so that two efforts build one
 > script instead of two: the merge-time diff check proposed for `prepare-merge`'s self-check
-> (a template improvement) and the Stage 2 `gate.sh` of Loop Engineering
+> (backlog B12 in `template-improvement-directions.md`) and the Stage 2 `gate.sh` of Loop Engineering
 > (`loop-stage2-experiment-protocol.md`). The first version may ship as the merge-time check;
 > Stage 2 reuses it unchanged. Changing this contract needs an update here first.
 
@@ -12,7 +12,7 @@
 
 | Scope | Used by | Diff examined | Typical checks |
 |---|---|---|---|
-| `cycle` | `/tdd` Green/Refactor, the Stage 3 loop, Stage 2 runs | Changes since the approved Red state | Locked-path tree hash (ADR-0016 item 5), Pest (strict flags, JUnit), `pint --test` on non-locked paths, PHPStan if installed, Domain Boundary check |
+| `cycle` | `/tdd` Green/Refactor, the Stage 3 loop, Stage 2 runs | Changes since the approved Red state | Approved-snapshot comparison: `diff -r` of `tests/` + `docs/product/` against the Gate 4 copy in `$(git rev-parse --git-path claude-tdd)/approved/` (ADR-0016 item 5), Pest (strict flags, JUnit), `pint --test` on non-locked paths, PHPStan if installed, Domain Boundary check |
 | `branch` | `prepare-merge` self-check, `/review` Step 0 input | `--base` (default `main`, or `REVIEW_SCORE_BASE_BRANCH`) .. working tree | Everything in `cycle` that applies, plus: edits to already-run migrations, dangerous migration operations without an ADR (`.claude/rules/20-mysql.md`), secrets or `.env` values in the diff, `app/` changed without a Feature Test change, `composer audit` |
 
 ## Exit codes
@@ -37,7 +37,7 @@ inside `.git/`, never committed). One JSON object:
 
 ```json
 {"gate_version":"1","scope":"cycle|branch","head":"<sha>","base":"<ref>","dirty":true,
- "locked_tree":{"expected":"<sha>|null","actual":"<sha>","match":true},
+ "approved_snapshot":{"match":true,"changed_files":["<path>"]},
  "checks":[{"id":"pest","cmd":"…","exit":0,"status":"PASS|FAIL|WARN|SKIP|ERROR",
             "duration_ms":0,"summary":"≤ 3 lines","artifact":"<path to JUnit/JSON output>"}],
  "result":"PASS|FAIL|LOCK_VIOLATION|TOOL_ERROR","cc_version":"…"}
@@ -54,8 +54,11 @@ inside `.git/`, never committed). One JSON object:
 - No new runtime dependency: Bash + POSIX tools + Git; project tools only if installed.
 - Auto-fixers (`pint`) run only on non-locked paths, and only before the checks; a fixer that
   touches a locked path is a LOCK_VIOLATION.
-- Formatting of test files happens at the end of Red, before the Gate 4 hash is recorded —
-  never after (otherwise the tree hash reports a false violation).
+- Formatting of test files happens at the end of Red, before the Gate 4 snapshot is taken —
+  never after (otherwise the snapshot comparison reports a false violation).
+- The snapshot comparison reads files directly (`diff -r`), never through git, so git
+  filters or the index cannot change its result. `changed_files` lists paths only (modified,
+  added or deleted), never contents.
 - Deterministic: no AI calls inside the gate.
 
 ## Test-to-use-case mapping convention (used by the gate, reviewer and traceability)

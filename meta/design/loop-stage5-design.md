@@ -48,31 +48,34 @@ manual CI job), holds the push credential, and never executes repository code.
 
 ```
 run(task):                                   # approval.json written by the human's /tdd approve
-  A  = read approval.json                    # approved_ref, lock_tree, locked_paths, expected_ids, budget
+  A  = read approval.json                    # base_ref, snapshot, expected_ids, budget
   S  = /home/loop/runs/$RUN_ID               # state outside the workspace; agent can't read/write it
-  WS = clone --single-branch A.approved_ref from a local mirror; remove origin   # not a worktree
+  copy A.snapshot to S/approved/             # approval-time copy of tests/ + docs/product/
+  WS = clone --single-branch A.base_ref from a local mirror; remove origin   # not a worktree
+  copy S/approved/ over WS/tests, WS/docs/product                             # Red tests are never committed alone
   create DB loop_$RUN_ID + its own user; WS/.env from .env.loop.template         # never the real .env
   copy vendor/ from cache; render S/settings.json with absolute paths
-  fp_prev=""; cost=0; t0=now
+  fp_prev=""; cost=0                         # stops: 3 attempts, --max-turns, same failure twice, budget
   for n in 1..3:
     as agent: claude -p "$(task_prompt; cat S/feedback.txt)" --agent tdd-implementer \
       --settings S/settings.json --model $PINNED --permission-mode dontAsk \
       --max-turns 40 --max-budget-usd $PER_ATTEMPT --output-format json --json-schema impl.json > S/a$n.json
     cost += total_cost_usd
-    tamper = tree_hash(WS, A.locked_paths) != A.lock_tree      # detect before restoring
-    restore A.locked_paths from A.approved_ref; restore vendor/ and .env
+    tamper = diff -r S/approved {WS/tests, WS/docs/product} is not empty   # before restoring
+    restore tests/, docs/product/ from S/approved; restore vendor/ and .env
     if tamper: escalate("lock_violation")                       # never retried
     if structured_output.status == SPEC_CONFLICT: escalate(cites_ok ? "spec_conflict" : "spec_conflict_uncited")
     rc = as agent, network off: gate.sh --scope cycle --evidence S/e$n.json
     if rc == 2: escalate("lock_violation"); if rc == 3: escalate("tool_error")   # 3 is not an attempt
     if rc == 0 and junit_ids == A.expected_ids and failed == skipped == 0: goto PASS
     fp = sha1(sorted failing ids + first error line)
-    if fp == fp_prev or cost >= A.budget or now-t0 > 60m or denials >= 3: escalate(reason)
+    if fp == fp_prev: escalate("same_failure")                  # ADR-0016 item 2
+    if cost >= A.budget: escalate("budget")
     fp_prev = fp; write a factual summary (≤ 40 lines) to S/feedback.txt
   escalate("max_attempts")
 PASS:
   reviewer: claude -p --tools "Read,Grep,Glob" --json-schema finder.json → ReviewResult v2 → route
-  runner commits the diff (locked paths excluded) as loop-bot on loop/<task>-<RUN_ID>
+  runner commits the diff (locked paths as restored from S/approved) as loop-bot on loop/<task>-<RUN_ID>
   git bundle → outbox/$RUN_ID; state = READY_FOR_PUBLISH
 publish (host or manual CI job): verify bundle head; push; glab mr create --draft (evidence summary)
 ```
@@ -103,9 +106,12 @@ settings are ignored, and `mask` entries are honoured only from user/managed set
 {"permissions":{"defaultMode":"dontAsk",
   "allow":["Read","Grep","Glob","Edit(./app/**)","Edit(./routes/**)","Edit(./database/**)",
            "Bash(vendor/bin/pest *)","Bash(php artisan test *)","Bash(vendor/bin/pint *)"],
-  "deny":["Edit(./tests/**)","Write(./tests/**)","Edit(./docs/product/**)","Edit(./phpunit.xml*)",
-          "Read(./.env*)","Read(./docs/credentials/**)","Bash(git add *)","Bash(git commit *)",
-          "Bash(git push *)","Bash(composer *)","WebFetch","WebSearch"]},
+  "deny":["Edit(./tests/**)","Write(./tests/**)","Edit(./docs/product/**)","Write(./docs/product/**)",
+          "Edit(./phpunit.xml*)","Read(./.env*)","Read(./docs/credentials/**)",
+          "Bash(git add *)","Bash(git commit *)","Bash(git stash *)","Bash(git checkout *)",
+          "Bash(git restore *)","Bash(git reset *)","Bash(git rm *)","Bash(git mv *)",
+          "Bash(git apply *)","Bash(git update-index *)","Bash(git config *)","Bash(git push *)",
+          "Bash(composer *)","WebFetch","WebSearch"]},
  "sandbox":{"enabled":true,"failIfUnavailable":true,"allowUnsandboxedCommands":false,
   "autoAllowBashIfSandboxed":false,
   "filesystem":{"denyWrite":["<WS>/tests","<WS>/docs/product","<WS>/phpunit.xml","<WS>/.git"],
@@ -113,6 +119,9 @@ settings are ignored, and `mask` entries are honoured only from user/managed set
   "network":{"allowedDomains":[]},
   "credentials":{"envVars":[{"name":"ANTHROPIC_API_KEY","mode":"deny"}]}}}
 ```
+
+The git list is ADR-0016 item 3's (+ `push`). `tests/` + `docs/product/` are the Stage 1
+locked paths; `phpunit.xml*` here is a Stage 3+ candidate added for the runner.
 
 [U] path-prefix meaning of `./` in rules; `agent_type` reaching hooks under `--agent`;
 `dontAsk` with `autoAllowBashIfSandboxed: false`; **whether sandboxed commands can reach MySQL**
@@ -134,25 +143,25 @@ spend limit [U], scrubbed from subprocesses (`credentials.envVars` deny,
 
 Start as an opt-in folder copied only on request; move to a separate repository as soon as any
 right-hand criterion holds. **Always in the project's `.claude/`**: hooks, agent definitions,
-`gate.sh`, the locked-path list, the UC-group convention — they must work without the runner
+`gate.sh`, `snapshot.sh`, the UC-group convention — they must work without the runner
 (Stages 1–3), and the sandbox's protected paths cover `.claude/` [D]. Runner side:
-orchestration, settings template, publisher.
+orchestration, settings template, publisher. The Stage 1 hook stays active in runs and fails
+open on timeout (ADR-0016 item 3): it and any gate hook must stay fast and leave no child
+process running; the runner's own `gate.sh` call runs outside any hook.
 
 Minimum interface (each format carries `v`): the `gate.sh` CLI, exit codes and evidence JSON
-(`gate-contract.md`); `approval.json` v1 (approved_ref, lock_tree, locked_paths, expected_ids,
-UC, approver, ts — needs a commit of the Red tests: the `standard` profile's Red commit, or a
-bundle snapshot at approval, since under `lite` Red tests are untracked until Green);
+(`gate-contract.md`); `approval.json` v1 (base_ref, snapshot — the approval-time copy of
+`tests/` + `docs/product/` from `$(git rev-parse --git-path claude-tdd)/approved/`, copied into
+the run, because Red tests are never committed alone in either Git profile — expected_ids, UC,
+approver, ts);
 `state.json` v1 (PREPARED / ATTEMPT(n) / REVIEW / READY_FOR_PUBLISH / ESCALATED / PUBLISHED);
 `escalation.json` v1 (max_attempts / same_failure / lock_violation / tool_error / spec_conflict /
-budget / timeout / denials / review_unavailable); ReviewResult v2; the audit JSONL envelope.
+budget / review_unavailable); ReviewResult v2; the audit JSONL envelope.
 
 ## 6. Ready for parallel runs (not built now)
 
-Key everything on `RUN_ID` from day one: own clone (not a worktree — it shares the object
-store), DB and user, ports from an allocated range (`APP_PORT`, `VITE_PORT`), state directory,
-branch `loop/<task>-<RUN_ID>`; one run per task (lock file) plus a total budget cap; per-run
-logs merged afterwards; the `standard` Git profile (documented for parallel work, and its Red
-commit gives the runner its approved ref).
+Key every resource on `RUN_ID` from day one (own clone, DB and user, ports, state directory,
+branch `loop/<task>-<RUN_ID>`; one run per task), so parallel runs need no redesign later.
 
 Docs facts that shaped this: repository settings cannot turn filesystem isolation off; the
 sandbox wraps shell commands only (file tools and hooks run outside it); `claude -p` without

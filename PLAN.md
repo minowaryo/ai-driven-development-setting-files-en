@@ -73,101 +73,67 @@ Unverified: `SETUP.md` Step 4 snippets not run in a real Laravel app — check o
 Part 2 implemented on branch `feat/boundary-check-at-merge` (worktree `.claude/worktrees/boundary-check-at-merge`); not committed.
 Later, separately: a PostToolUse hook (needs an ADR-0014 / ADR-0010 revision).
 
-## Loop Engineering roadmap + Stage 1: mechanical TDD enforcement (2026-10-03)
+## Loop Engineering roadmap + Stage 1: the implementer cannot move the goal (2026-10-03, simplified 2026-10-05)
 
 ### Decision
 
-- Source: `meta/design/loop_engineering_design_memo.txt` (moved out of `docs/original-docs/`,
-  which is for project primary sources; `meta/design/` is class X, removed in `SETUP.md`).
-  Evaluated with research, red-team and tool-adoption passes; full reasoning in
-  `meta/adr/ADR-0016-loop-engineering-stage1.md` (Proposed).
-- Goal: AI iterates implement → verify → review while TDD discipline and human decisions
-  stay intact. TDD is not negotiable; checking moves to machines, deciding stays with humans.
-- Five stages, each gated by measured exit criteria (ADR-0016 "Stages"). Gate definitions do
-  not change before Stage 3; no orchestrator and no separate repo before Stage 5.
-- Build only what nothing covers: a test-lock hook keyed on `agent_type` and a thin gate
-  wrapper; adopt built-ins and existing tools for the rest (ADR-0016 "Rationale").
-- Verified on Claude Code 2.1.278: a `settings.json` PreToolUse hook receives
-  `agent_type: "tdd-implementer"` for subagent writes (none for the main session); the same
-  hook in the subagent's frontmatter did not run under `claude -p`.
-- Stage 1 adds no new dependency (Bash + POSIX tools + Git only).
-- Stages 2–3 also use deterministic tools on the change side (Google/Slack migration
-  hybrids): auto-fixers before the LLM, machine-found work lists, and migration-type tasks
-  in the Stage 2 experiment (ADR-0016 "Deterministic tools on the change side too").
-- Loop-independent perspectives are mapped in `meta/design/template-improvement-directions.md`
-  (directions D1–D11 + backlog B1–B9). B1 done: "Deterministic Tools First" section in
-  `docs/development/ai-workflow.md`. Other backlog items get their own entries when started.
+- Source: `meta/design/loop_engineering_design_memo.txt` (template-internal, class X).
+  Reasoning and decisions: `meta/adr/ADR-0016-loop-engineering-stage1.md` (Trial; Stage 1
+  simplified and re-approved 2026-10-05).
+- Goal: AI may iterate implement → verify → review while TDD discipline and human decisions
+  stay intact. The shape: people fix the goal (spec + approved tests), the AI does the work,
+  machines check. Five stages, each started only on measured results; Gate definitions do not
+  change before Stage 3; no orchestrator or separate repo before Stage 5.
+- **Stage 1 has one job: `tdd-implementer` cannot move the goal.** The lock binds only the
+  implementer during Green; people, the main session and `test-writer` work as today. A
+  legitimate change to tests or spec = a person decides → restart from Red → Gate 4 approval
+  (which takes a fresh snapshot). No relock/abandon commands, no lock lifetime, no config file.
+- Verified on Claude Code 2.1.278 (CLI): `settings.json` PreToolUse hooks receive
+  `agent_type: "tdd-implementer"` (Write and Bash); frontmatter hooks do not run under
+  `claude -p`; deny works; a timed-out hook fails open; `disable-model-invocation` works on
+  command files; the project `/review` wins over the bundled alias (undocumented).
+- Reproduced and rejected as baselines: the real index (`git add -A` after tampering, 10-03)
+  and a git tree hash via a temporary index (clean-filter forgery, 10-05). Stage 1 compares
+  against a plain copy taken at Gate 4 approval — verified to catch both tricks and to give a
+  readable diff.
+- Stage 1 adds no new dependency (Bash + POSIX tools + Git).
+- Company repository: no changes until the maintainer lifts the hold. JP: allowed (an ADR-0016
+  number reservation is being done in a separate session).
 
-### Stage 1 checklist (ADR-0016 items 1-9)
+### Stage 1 checklist (ADR-0016 items 1–10)
 
-- [ ] 1 SPEC_CONFLICT stop-and-report in `tdd-implementer.md`
+- [ ] 1 SPEC_CONFLICT stop-and-report in `tdd-implementer.md` (+ a sentence that factual gate feedback is part of its task)
 - [ ] 2 Stop conditions in `/tdd` (3 Green attempts; same failure twice → human)
-- [ ] 3 Test-lock PreToolUse hook (`.claude/hooks/`, registered in `.claude/settings.json`); locked paths `tests/` **and `docs/product/`**; bash builtins only and no lingering child process (a timed-out hook fails open — verified 2026-10-03)
-- [ ] 4 Hook tests in `meta/tests/`
-- [ ] 3b The hook also denies index/worktree-changing git commands for `tdd-implementer` (`add`, `commit`, `stash`, `checkout`, `restore`, `reset`, `rm`, `mv`, `apply`, `update-index`); drop the "`git add` is fine" line in `tdd-implementer.md`
-- [ ] 5 Green evidence: at Gate 4 approval record a tree hash of the locked paths (`tests/`, `docs/product/`) via a temporary index (`GIT_INDEX_FILE=<tmp> git add -A -- tests/ docs/product/ && GIT_INDEX_FILE=<tmp> git write-tree`), store it under `.git/claude-tdd/` and print it; after Green the same computation must match (covers modified, deleted and new files; independent of the real index). Amended 2026-10-03: the index-based check was bypassable with a tampered test + `git add -A` — reproduced, and the fix verified, in a scratch repo
+- [ ] 3 PreToolUse hook in `.claude/settings.json`: for `agent_type == tdd-implementer` deny Write/Edit and Bash touching `tests/` or `docs/product/`, and git `add/commit/stash/checkout/restore/reset/rm/mv/apply/update-index/config`; drop "`git add` is fine" from `tdd-implementer.md`; bash builtins only, no lingering child process
+- [ ] 4 Hook tests in `meta/tests/` (path forms `C:\` / `/c/` / `c:/`, case, `..`, worktree `cwd`, Bash command strings)
+- [ ] 5 Approved snapshot: at Gate 4 approval copy `tests/` + `docs/product/` to `$(git rev-parse --git-path claude-tdd)/approved/`; after Green `diff -r`; on any difference show the diff and stop for the person
 - [ ] 6 Update notes on ADR-0007 (Probity limits) and ADR-0014 (Laravel Boost MCP-only install)
-- [ ] 7 `disable-model-invocation: true` on all `.claude/commands/*.md` (verified on command files 2026-10-03; fallback `skillOverrides`); `/tdd` step 6 and `prepare-merge` step 1 change from "run `/<cmd>`" to "read `.claude/commands/<cmd>.md` and follow its steps"; `"code-review": "user-invocable-only"` in `skillOverrides`; correction note on ADR-0012. `/review` precedence verified 2026-10-03: project command wins (undocumented)
+- [ ] 7 `disable-model-invocation: true` on all `.claude/commands/*.md`; `/tdd` step 6 and `prepare-merge` step 1 read the command file instead of starting it; `"code-review": "user-invocable-only"` in `skillOverrides`; correction note on ADR-0012
 - [ ] 8 `APPLY_TEMPLATE.md` class C also merges `hooks` from `.claude/settings.json`
-- [ ] 9 Denial log `logs/audit.jsonl` (`GLOBAL_CLAUDE.md` convention; git-ignored, no file contents, with `session_id` and an `event` type such as `agent_guard_denial`); one line in the docs distinguishing it from the app's `audit` channel (`storage/logs/audit.log`)
-- [ ] 10 Re-verify the hook facts on the Claude Code version actually in use (extension ran 2.1.283–284; CLI verified 2.1.278)
+- [ ] 9 Denial log `logs/audit.jsonl` (`GLOBAL_CLAUDE.md` convention; git-ignored; `event: agent_guard_denial`, `session_id`, no file contents); one docs line distinguishing it from the app's `audit` channel
+- [ ] 10 Re-verify the hook facts on the Claude Code version actually in use (VS Code extension ran 2.1.283–284)
 
-Item 3 detail (verified 2026-10-03): deny via exit 2 or JSON both work; the hook must also
-check Bash `command` strings (a path-only check let a Bash write through); use bash builtins
-only (~83 ms vs ~500 ms per call).
+Done when: hook tests pass in Git Bash; a real `/tdd` run shows a denied implementer write in
+the log and a snapshot diff after a forced tamper; docs updated (`README.md`,
+`common-commands.md`, a `30-testing.md` pointer, a one-page "what is locked, and how to change
+it" note).
 
-### Stage 2 / 3 design drafts (not decided)
+### Later-stage drafts (not decided) — `meta/design/`
 
-- `meta/design/loop-stage2-experiment-protocol.md` — split (approved 2026-10-03) into 2a (unattended: seeded
-  spec/test conflicts, shadow replays of migration tasks, reviewer seeds) and 2b (human A/B,
-  ~20 tasks, only if 2a is promising); hypotheses, metrics, frozen decision rule, budget.
-- `meta/design/loop-stage3-loop-design.md` — state machine, SubagentStop-driven bounded
-  Green loop, Gate 4 `lite`/`standard`, minimal reviewer output, user-facing change rule.
-  Open problems: the subagent may ignore the block reason as untrusted hook output; the
-  parent sees only the subagent's final message. Unverified U1–U8 listed there.
-  Update 2026-10-03 (28 headless runs): both open problems resolved — a factual gate message
-  plus a trust sentence in the agent definition gave 3/3 compliance (imperative without it:
-  0/3); PostToolUse(`Agent`) `additionalContext` reaches the parent. U1–U4, U6 confirmed; U7
-  partial (hook timeout fails open on Windows); hitting `maxTurns` skips SubagentStop.
-- `meta/design/loop-stage2a-seeds.md` (+ `loop-stage2a-runner.sketch.sh`) — three conflict
-  seeds with spec-true oracle tests (catches implementations bent against the spec that pass
-  every locked test), reviewer seeds, shadow replay via shallow clone (a worktree leaks the
-  human solution), runner sketch; needs Stage 1 implemented and a PHP 8.2+ environment.
-- `meta/design/gate-contract.md` — one gate script for two scopes (`cycle` for `/tdd` and the
-  loop, `branch` for `prepare-merge`), exit codes 0/1/2/3, evidence JSON, and the Pest
-  `->group('UC-NNN')` convention; the merge-time check (backlog B12) is built against it so
-  Stage 2 reuses it. Mutation score added to Stage 2 as an optional test-strength metric.
-- `meta/design/loop-stage5-design.md` — conditional Stage 5: start criteria; a dedicated WSL2
-  distro + Bash sandbox (same script portable to a two-job GitLab CI later); runner outside
-  the agent restores locked paths before each gate run and judges by JUnit id-set equality;
-  runtime policy via `--settings` (repo settings cannot enable isolation or credentials);
-  publisher holds push credentials; opt-in folder first, separate repo only on criteria.
-  Residual risk: the gate executes agent code that could forge test output.
-- `meta/design/loop-reviewer-design.md` — evidence-based reviewer: deterministic pre-pass,
-  finder(s), cite-check, optional verifier, script-computed route, no approve power; start
-  with the minimal config (R0) and add passes only on Stage 2a numbers.
-
-Done when: hook tests pass in Git Bash, a real `/tdd`-style run shows a denied
-`tdd-implementer` write logged, and docs (`README.md`, `common-commands.md`, `30-testing.md`
-pointer) are updated.
-
-### Files touched (so far)
-
-`meta/design/loop_engineering_design_memo.txt` (new; original in `docs/original-docs/` to be
-deleted by hand), `APPLY_TEMPLATE.md`, `SETUP.md`, `README.md`,
-`meta/adr/ADR-0016-loop-engineering-stage1.md` (new), `meta/adr/README.md`, `PLAN.md`,
-`meta/design/template-improvement-directions.md` (new), `docs/development/ai-workflow.md`,
-`meta/design/loop-stage2-experiment-protocol.md` (new), `meta/design/loop-stage3-loop-design.md` (new),
-`meta/design/loop-reviewer-design.md` (new), `meta/design/loop-stage2a-seeds.md` (new),
-`meta/design/loop-stage2a-runner.sketch.sh` (new), `meta/design/gate-contract.md` (new),
-`meta/design/loop-stage5-design.md` (new),
-`meta/history/plan-archive.md` (2026-09-26 and 2026-09-15 entries archived).
+`gate-contract.md` (one gate, scopes `cycle`/`branch`, exit codes 0–3, evidence JSON, Pest
+`->group('UC-NNN')`; the merge-time check B12 follows it) · `loop-stage2-experiment-protocol.md`
+(2a unattended → 2b human A/B, split approved) · `loop-stage2a-seeds.md` + runner sketch
+(conflict seeds with spec-true oracles; shadow replay via shallow clone; needs PHP 8.2+) ·
+`loop-reviewer-design.md` (minimal R0: deterministic pre-pass + one finder + cite-check; no
+approve power) · `loop-stage3-loop-design.md` (bounded Green loop via SubagentStop; factual
+gate messages; PostToolUse(`Agent`) reports to the parent; Gate 4 profiles deferred) ·
+`loop-stage4-design.md` (Codex: lock tied to a wrapper invocation; shared scripts) ·
+`loop-stage5-design.md` (conditional; WSL2 + sandbox runner outside the agent).
 
 ### Status
 
-ADR-0016 approved 2026-10-03 (Trial). Stage 1 implementation is handed to a separate
-session on branch `feat/loop-stage1`; this session continues Loop Engineering research and
-planning (Stages 2–5). Not committed.
+Stage 1 approved (Trial), simplified 2026-10-05. Implementation goes to a separate session on
+a branch (e.g. `feat/loop-stage1`). This session continues research and planning.
 
 ## Per-session load reduction: move read-on-demand content out of auto-loaded files (2026-09-30)
 

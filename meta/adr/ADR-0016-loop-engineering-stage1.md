@@ -1,7 +1,8 @@
 # ADR-0016: Loop Engineering Roadmap, and Stage 1 — Mechanical TDD Enforcement (Trial)
 
 ## Status
-Trial — approved 2026-10-03 (see "Rollout tracking" below). Promote to Accepted after the
+Trial — approved 2026-10-03; Stage 1 simplified and re-approved 2026-10-05 (see "Who may
+change what" and item 5). Promote to Accepted after the
 Stage 2 experiment, or roll back per item.
 
 ## Date
@@ -104,6 +105,24 @@ reminder that review stays the bottleneck: advance only on measured results.
 Stages 2–5 each get their own ADR (or an amendment to this one) before work starts. Gate
 definitions (`00-global.md` / `SETUP.md` / `AGENTS.md`) do not change before Stage 3.
 
+### Who may change what (Stage 1)
+
+Stage 1 has one job: **the implementer cannot move the goal it is asked to reach.** The lock
+applies to `tdd-implementer` only, during Green; everyone else keeps working as today.
+
+| Who | `tests/` | Spec (`docs/product/`) | Application code |
+|---|---|---|---|
+| A person | Any time | Any time (through the change-request flow) | Any time |
+| Main session (talking with a person) | On the person's instruction | Drafts / fixes with the person's approval (Gates 1–2, change requests) | Yes (e.g. Refactor) |
+| `test-writer` (Red) | Writes them — its job | Reads only | No |
+| **`tdd-implementer` (Green)** | **Locked** | **Locked** | Writes it — its job |
+
+A legitimate change to tests or spec needs no special command: a person decides → restart
+from Red → Gate 4 approval, which takes a fresh snapshot (item 5). *(Simplified 2026-10-05:
+an earlier review proposal for `/tdd relock` / `/tdd abandon` commands, a lock lifetime and a
+locked-paths config file was dropped as too much to operate; none of it is needed once the
+lock only binds the implementer.)*
+
 ### Stage 1 items
 
 1. **SPEC_CONFLICT** — `tdd-implementer` stops and reports when the approved tests and the
@@ -126,9 +145,9 @@ definitions (`00-global.md` / `SETUP.md` / `AGENTS.md`) do not change before Sta
    macOS / Linux / WSL2.
    The same hook also denies, for `tdd-implementer`, Bash commands that change the index
    or the working tree through git (`git add`, `commit`, `stash`, `checkout`, `restore`,
-   `reset`, `rm`, `mv`, `apply`, `update-index`); `tdd-implementer.md` drops its "`git add`
-   is fine" allowance. The implementer has no need to stage, and staging would let it move
-   a baseline that compares against the index (see item 5). *(Amended 2026-10-03.)*
+   `reset`, `rm`, `mv`, `apply`, `update-index`) and `git config`; `tdd-implementer.md`
+   drops its "`git add` is fine" allowance. The implementer has no need to stage or to
+   configure git. *(Amended 2026-10-03; `git config` added 2026-10-05.)*
    The locked paths are `tests/` **and `docs/product/`** (use cases, acceptance criteria,
    requirements): an implementer that could edit the spec could "finish" by rewriting it
    (memo §6, goal hacking), and the SPEC_CONFLICT report is checked against verbatim quotes
@@ -139,20 +158,20 @@ definitions (`00-global.md` / `SETUP.md` / `AGENTS.md`) do not change before Sta
    therefore must stay fast (bash builtins only, no external commands) and must never leave
    a child process running. *(Amended 2026-10-03.)*
 4. **Hook tests** — `meta/tests/` (template-internal, like `review-score.test.sh`).
-5. **Green evidence** — when Gate 4 is approved, `/tdd` (main session) records the approved
-   state of the locked paths (`tests/` and `docs/product/`, see item 3) as a tree hash
-   computed through a **temporary index**, independent of the real one:
-   `GIT_INDEX_FILE=<tmp> git add -A -- tests/ docs/product/ && GIT_INDEX_FILE=<tmp> git write-tree`.
-   The hash is stored under `$(git rev-parse --git-path claude-tdd)/` (inside `.git/`, never
-   committed) and also printed into the conversation, where the implementer cannot change it.
-   After Green, the same computation on the current locked paths must give the same hash; it
-   covers modified, deleted and new (untracked) files at once. Neither `HEAD` nor the real
-   index can serve as the baseline: the `lite` Git profile commits only after Green (new Red
-   files are untracked until then), and anyone who runs `git add` moves the index — the
-   original design here compared against the index and could be defeated by a tampered test
-   followed by `git add -A` (found in review, amended 2026-10-03). This catches writes the
-   hook cannot see (e.g. through a subprocess). This is the `lock_tree` of the Stage 3
-   design, introduced in Stage 1.
+5. **Green evidence (approved snapshot)** — when Gate 4 is approved, `/tdd` (main session)
+   copies `tests/` and `docs/product/` into `$(git rev-parse --git-path claude-tdd)/approved/`
+   (inside `.git/`, never committed). After Green it compares the current files with that
+   copy (`diff -r`); if anything was modified, deleted or added, it shows the person the
+   diff and the cycle does not continue until the person decides. This catches writes the
+   hook cannot see (e.g. through a subprocess). A new Gate 4 approval replaces the copy.
+   Why a plain copy: the baseline must not depend on anything the implementer can move.
+   `HEAD` fails (the `lite` Git profile commits only after Green, so new Red files are
+   untracked); the real index fails (`git add -A` after tampering — reproduced 2026-10-03);
+   and a git tree hash via a temporary index also fails — it was **reproduced on 2026-10-05
+   that a clean filter (`git config filter.x.clean …` + `.gitattributes`) makes tampered
+   files hash to the approved value**. Comparing files directly does not go through git
+   filters, and it gives the person a readable diff instead of a hash. *(Rewritten
+   2026-10-05; supersedes the 2026-10-03 tree-hash version.)*
 6. **Record corrections** — `ADR-0007` (Probity: no subagent/agent-type support, Pest
    syntax not recognized, ~834 MB of dependencies, its own config unprotected) and
    `ADR-0014` (Laravel Boost now has an MCP-only install path) get dated update notes.
@@ -200,13 +219,14 @@ definitions (`00-global.md` / `SETUP.md` / `AGENTS.md`) do not change before Sta
    the version next to each platform fact.
 
 Deliberately **not** in Stage 1: the structured review result schema (no consumer yet),
-hash manifests (git diff is enough while a human is in the loop), changes to Gate 4,
-any orchestrator, installed plugins.
+hashes of any kind (item 5 uses a plain copy), lock-management commands or a lock
+lifetime, a locked-paths config file, changes to Gate 4, any orchestrator, installed plugins.
 
 ### Where things live
 
-- This template (EN) carries Stages 1–3 as Trial. JP and the company repo receive a pointer
-  first and the full port after the Stage 2 experiment (Stage 4).
+- This template (EN) carries Stages 1–3 as Trial. JP receives a pointer first and the full
+  port after the Stage 2 experiment (Stage 4). The company repository receives nothing —
+  not even a pointer — until the maintainer lifts its hold *(amended 2026-10-03)*.
 - No separate repository before Stage 5.
 - The design memo stays in `meta/design/` (template-internal; not copied into projects).
 
@@ -218,16 +238,18 @@ Approved 2026-10-03: every item is Trial; "not yet implemented" is cleared as ea
 |---|---|---|
 | 1 SPEC_CONFLICT | Trial (not yet implemented) | Prompt-level; backed by the ImpossibleBench result |
 | 2 Stop conditions | Trial (not yet implemented) | Watch for premature escalation on legitimate retries |
-| 3 Test lock hook | Trial (not yet implemented) | First registered lifecycle hook in this template; also denies index-changing git commands for the implementer (amended 2026-10-03); watch false positives |
+| 3 Test lock hook | Trial (not yet implemented) | First registered lifecycle hook in this template; locks `tests/` + `docs/product/` for the implementer only; also denies index-changing git commands and `git config`; watch false positives |
 | 4 Hook tests | Trial (not yet implemented) | — |
-| 5 Green evidence | Trial (not yet implemented) | Tree hash via a temporary index at Gate 4 approval (amended 2026-10-03: index-based check was bypassable with `git add`) |
+| 5 Green evidence | Trial (not yet implemented) | Approved snapshot copy + `diff -r` (rewritten 2026-10-05: index- and tree-hash-based checks were both shown forgeable) |
 | 6 ADR-0007 / ADR-0014 notes | Trial (not yet implemented) | Record-only |
 | 7 `disable-model-invocation` on commands + `skillOverrides` for `code-review` | Trial (not yet implemented) | Project `/review` wins today (undocumented — re-check on upgrade) |
 | 8 APPLY_TEMPLATE hook merge | Trial (not yet implemented) | — |
 | 9 Denial log | Trial (not yet implemented) | Includes `session_id` |
 | 10 Version check | Trial (not yet implemented) | Fixture re-run on the version in use |
 
-Stage 2 and 3 designs are drafted (not decided) in `meta/design/loop-stage2-experiment-protocol.md`
+Drafts for later stages (not decided): `meta/design/gate-contract.md`,
+`loop-stage2a-seeds.md`, `loop-reviewer-design.md`, `loop-stage4-design.md`,
+`loop-stage5-design.md`, and `meta/design/loop-stage2-experiment-protocol.md`
 and `meta/design/loop-stage3-loop-design.md`.
 
 ### Dependencies
@@ -237,7 +259,7 @@ option.
 
 | Stage | New dependency | Note |
 |---|---|---|
-| 1 | **None** | Bash + `awk`/`sed`/`grep` + Git — already prerequisites (`README.md` "Prerequisites"). The hook parses its JSON input without `jq`, Node or PHP, like the existing hooks |
+| 1 | **None** | Bash + POSIX tools (`cp`, `diff`) + Git — already prerequisites (`README.md` "Prerequisites"). The lock hook itself uses bash builtins only (speed, and a timed-out hook fails open — item 3); no `jq`, Node or PHP |
 | 2 | None required: `php artisan test` (Pest), `pint --test` and PHPStan Level 6+ are already required (`docs/development/ai-workflow.md` "Quality Gates", `docs/development/coding-standards.md`), and `composer audit` by `.claude/rules/40-security.md`. Larastan (PHPStan's Laravel extension) is **not** yet required anywhere — a Composer dev package if a project adopts it | Optional only: Larastan, Rector (+ Laravel rules), Laravel Boost (Composer dev packages); PCOV or Xdebug (PHP extension) for mutation testing (`pest --mutate`); Probity (Node 22, ~834 MB) |
 | 3 | None (Claude Code built-ins: Stop hooks, `--json-schema`, `--max-budget-usd`) | — |
 | 4 | Codex configuration only (hooks / permission profiles) | Optional: PR-Agent for the company GitLab (Python/Docker, separate LLM API key) |

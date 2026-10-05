@@ -18,14 +18,14 @@
 ## Pipeline
 
 ```
-gate evidence + diff (approved Red ref .. snapshot tree) + UC/AC excerpt + rule excerpts
+gate evidence + diff (cycle start .. working tree) + UC/AC excerpt + rule excerpts
         │
-P0  deterministic pre-pass (script) ── gate result, pint/Larastan, test-lock diff,
+P0  deterministic pre-pass (script) ── gate result, pint/Larastan, approved-snapshot diff,
         │                               domain-boundary-check, user-facing path rule,
         │                               text addressed to the reviewer → SUSPECT_INSTRUCTION
 P1  LLM finder(s) — fresh context, Read/Grep/Glob only, schema-validated output
         │
-P2  cite-check (script) ── file exists in the snapshot; quoted line found with grep -F in
+P2  cite-check (script) ── file exists in the reviewed tree; quoted line found with grep -F in
         │                   [line_start-3, line_end+3]; spec quote found in use-cases.md;
         │                   otherwise dropped and counted as "uncited"
 P3  verifier (optional) ── fresh context, sees only the claim + location; CONFIRMED /
@@ -35,21 +35,18 @@ P4  merge / dedup (script) ── key (file, line ±3, category); union; keep fo
 P5  route (script) ── HUMAN_BLOCKING or HUMAN_INFO → ReviewResult.json + logs/audit.jsonl
 ```
 
-**Configurations to compare in Stage 2a** (decide by recall/precision on the seed set):
+**Configuration: R0** = P0 + 1 finder + P2 (cite-check). R1–R3 are added only if Stage 2a
+numbers demand it:
 
-| Config | Passes | When to keep |
+| Config | Adds | Only if |
 |---|---|---|
-| R0 (start) | P0 + 1 finder + P2 | Default if it meets the thresholds below |
-| R1 | + second finder with another lens (spec vs security/authz, file order reversed) | Judgment-only recall below 50% with R0 |
-| R2 | + verifier (P3) | Precision below 50% after P2 |
-| R3 | + Codex as an extra finder (`codex exec --sandbox read-only --output-schema`) | Claude's judgment-only recall < 50% **and** Codex catches ≥ 2 seeds Claude missed |
+| R1 | second finder, other lens (spec vs security/authz) | R0 judgment-only recall < 50% |
+| R2 | verifier (P3) | precision < 50% after P2 |
+| R3 | Codex as an extra finder (`codex exec --sandbox read-only --output-schema`) | recall < 50% **and** Codex catches ≥ 2 seeds Claude missed |
 
-Repeated runs help recall (SWR-Bench: combining runs more than doubled recall, arXiv
-2509.01494), so merge by union, never by majority vote (voting discards exactly the
-single-pass judgment findings H6 measures). Measure k = 1/2/4 runs per lens and stop where
-recall flattens. Cross-model is not a free independence gain: errors correlate across
-providers (arXiv 2506.07962); its clearest benefit is avoiding self-preference when the coder
-is Claude (arXiv 2404.13076).
+If extra runs are added, merge by union, never by majority vote (voting discards the
+single-pass judgment findings H6 measures; arXiv 2509.01494). Cross-model errors correlate
+(arXiv 2506.07962); its main benefit is avoiding self-preference (arXiv 2404.13076).
 
 ## Inputs
 
@@ -75,20 +72,21 @@ Plain subagents have no output schema, so the headless form is preferred.
 ## Output (ReviewResult v2)
 
 ```json
-{"v":2,"cycle":"<task>/<attempt>","base_ref":"refs/exp/<task>-red","diff_sha":"…","evidence_sha":"…",
+{"v":2,"cycle":"<task>/<attempt>","base_ref":"<cycle start commit>","diff_sha":"…","evidence_sha":"…",
  "reviewer":{"model":"…","cc_version":"…","prompt_sha":"…","config":"R0"},
  "findings":[{"id":"F1","source":"deterministic|llm","found_by":["finder-1"],
    "category":"SPEC_CONFLICT|TEST_GAP|USER_FACING_CHANGE|SECURITY|DOMAIN_BOUNDARY|DEFECT|SUSPECT_INSTRUCTION",
    "severity":"HIGH|MEDIUM|LOW","file":"…","line_start":12,"line_end":14,
    "requirement":"UC-006|null","claim":"≤300 chars","evidence_quote":"verbatim single line ≤200",
-   "spec_quote":"verbatim UC line (SPEC_CONFLICT / TEST_GAP)","evidence_ref":"evidence/…json#/path",
+   "spec_quote":"verbatim UC line (SPEC_CONFLICT / TEST_GAP)","evidence_ref":"claude-gate/<ts>.json#/path",
    "verification":"deterministic|cited|confirmed"}],
  "not_verified":[{"what":"…","why":"…"}],
  "dropped":{"uncited":0,"refuted":0},
  "route":"HUMAN_BLOCKING|HUMAN_INFO"}
 ```
 
-- Removed vs the Stage 3 draft: `confidence` (self-reported confidence is overconfident,
+- This is the single schema; the Stage 3 draft refers to it. Removed vs the earlier v1:
+  `confidence` (self-reported confidence is overconfident,
   arXiv 2306.13063), `decision`, `suggested_direction` (invites auto-fixing).
 - The LLM fills only findings and `not_verified` (`minItems: 1`); the script fills `route`,
   `source`, `verification`, `dropped`.
@@ -97,12 +95,13 @@ Plain subagents have no output schema, so the headless form is preferred.
   failed (invalid schema, budget exhausted → `review_unavailable`, fail closed). Otherwise
   HUMAN_INFO. BLOCKING means a person acknowledges each such finding before DONE; it never
   blocks a merge by itself.
-- Cite-check: `git show "$snap:$file" | tr -d '\r' | sed -n "$((ls-3)),$((le+3))p" | grep -qF -- "$quote"`.
+- Cite-check, on the working tree (frozen while the reviewer runs; read directly, not through
+  git): `tr -d '\r' < "$file" | sed -n "$((ls-3)),$((le+3))p" | grep -qF -- "$quote"`.
 
 ## Evaluation
 
 Stage 2a — 8 planted defects (machine-findable vs judgment-only) + 2 clean controls + 1
-injection seed, 3 runs each, per configuration R0–R3:
+injection seed, 3 runs each, for R0 (R1–R3 only if R0 misses a threshold):
 
 | Metric | Threshold to earn a place in the loop (proposal, frozen on day 0) |
 |---|---|
@@ -130,6 +129,8 @@ finding was acknowledged. Whether small branches could skip `/review` is decided
 (count what only `/review` found), not before.
 
 ## Company GitLab — MR-level second opinion (Stage 4, outside the loop)
+
+On hold: no company-repository changes until the maintainer lifts the hold (2026-10-05).
 
 | Option | Independence | Notes |
 |---|---|---|

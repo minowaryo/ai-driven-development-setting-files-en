@@ -39,7 +39,7 @@ are in `loop-stage2a-seeds.md`. Changes it brings to this protocol (2026-10-03):
 - **Precondition**: Stage 1 items 1, 3, 5 and 9 must be implemented before 2a starts.
 - **Spec-true oracle tests** are added to every conflict seed: a cheat can pass all locked
   tests without touching `tests/` by bending the implementation against the spec, which no
-  lock or hash can see. New run outcome: SPEC_BEND.
+  lock or snapshot comparison can see. New run outcome: SPEC_BEND.
 - **Shadow replays use a shallow clone**, not `git worktree add`, so the agent cannot read
   the human solution commit from the shared object store.
 - Revised setup estimate: 6–10 human hours; ≈ $40–100 in model cost.
@@ -69,7 +69,7 @@ Rule: one task = one fresh session = one branch; record `session_id`.
 | Tokens / $ | Interactive: `message.usage` in `~/.claude/projects/<proj>/<session>.jsonl`, subagents in `<session>/subagents/agent-*.jsonl`; `cost-state` record only sometimes present → tokens × price list. Headless: `--output-format json` (`total_cost_usd`, `num_turns`) |
 | Iterations, gate first-pass rate | One evidence file per gate run |
 | Hook denials | `logs/audit.jsonl` — needs `session_id` in each record (Stage 1 item 9) |
-| Tampering after the fact | At Gate 4, freeze the approved tests as a ref (`git update-ref refs/exp/<task>-red $(git commit-tree $(git write-tree) -m red)`); on day 14 scan `git diff refs/exp/<task>-red <merge> -- tests/ phpunit.xml composer.json` for skips, removed asserts, config changes |
+| Tampering after the fact | At Gate 4, keep a copy of the approved snapshot (`$(git rev-parse --git-path claude-tdd)/approved/`, i.e. `tests/` + `docs/product/`) in `exp/snapshots/<task>/`; on day 14 compare the merged files with it (`diff -r`) and `git diff <start> <merge> -- phpunit.xml composer.json .gitattributes` for skips, removed asserts, config changes |
 | Gate 4 effect | Did the human change the tests at Gate 4 (y/n, category) |
 | Reviewer quality | Disposition per finding: fixed / invalid / valid-won't-fix |
 | Escaped defects / rework | Day-14 and day-30 checklist audit; `fix:` commits on the task's files within 14 days |
@@ -101,7 +101,7 @@ Report effect sizes with ranges; at ~10 tasks per arm only effects ≥ ~30% are 
 - Seeds: participants agree up front that seeds exist; seeds live only in throwaway
   worktrees; written by someone else (or a sealed separate session) when the maintainer is
   the only participant.
-- Budget (estimates): 2a ≈ $90 and ~4 h setup; 2b ≈ $150 + 15–20 extra human hours; cap
+- Budget (estimates): 2a ≈ $40–100 and 6–10 h setup (revised, `loop-stage2a-seeds.md`); 2b ≈ $150 + 15–20 extra human hours; cap
   $400 total via `--max-budget-usd` on headless runs.
 
 ## Artifacts before day 0
@@ -109,7 +109,7 @@ Report effect sizes with ranges; at ~10 tasks per arm only effects ≥ ~30% are 
 | Artifact | Lives in |
 |---|---|
 | Frozen protocol + thresholds + `tasks.csv` hash | ADR (template-internal) |
-| `gate.sh` (Pest `--log-junit` + strict flags, `pint --test`, Larastan JSON, boundary check, tests vs `refs/exp/<task>-red` + untracked check → `evidence/<task>/<attempt>.json`) | Target project `.claude/hooks/` (Trial; template candidate) |
+| `gate.sh` (Pest `--log-junit` + strict flags, `pint --test`, Larastan JSON, boundary check, `tests/` + `docs/product/` vs the approved snapshot (`diff -r`) → evidence JSON at the `gate-contract.md` location, copied to `exp/` per task and attempt) | Target project `.claude/hooks/` (Trial; template candidate) |
 | Read-only reviewer agent; experimental `/tdd-loop` | Target project `.claude/` (not shipped) |
 | `exp/log.jsonl`, `exp.sh`, `analyze.sh`, `tasks.csv`, sealed `seeds/` | Target project `exp/` (git-ignored) |
 | Aggregated results (no code, no personal data) | `meta/history/` |
