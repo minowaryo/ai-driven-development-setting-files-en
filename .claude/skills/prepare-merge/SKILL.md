@@ -25,6 +25,17 @@ the rules; this file is only the procedure. The active profile is the `Profile:`
    Read the `MERGE_CHECK=` line and the score. If the script exits non-zero or prints no
    `MERGE_CHECK=` line, treat the tier as `required` and show the error. If it reports
    that the base branch was not found, tell the user to set `REVIEW_SCORE_BASE_BRANCH`.
+
+   Then run the Domain Boundary check (§6) as a **separate command** — exit 1 means
+   "findings", not failure:
+
+   ```bash
+   bash "${CLAUDE_PLUGIN_ROOT:-.claude}/hooks/domain-boundary-check.sh"
+   ```
+
+   Read the `>> N violation(s), H heuristic warning(s), P priority file(s).` line (a "No
+   Domain Boundary violations" or "nothing to check" line means all zero). Any other exit
+   code, or a "skipping" line, is not a stop: note it for the step 5 plan and continue.
 3. **Tier gate** (§6) — `/review` "has run" only if it ran in this session after the
    branch's last commit, or the user confirms it did; never infer it.
    - `standard`:
@@ -37,9 +48,20 @@ the rules; this file is only the procedure. The active profile is the `Profile:`
      sensitive path matched **or the script failed** (step 2): then ask once, in plain words
      (e.g. "this touches a DB migration — run `/review` first?"), and follow the answer
      (`Review: skipped` if declined)
+   - Domain Boundary, both profiles — findings never change the tier or make `/review`
+     mandatory. If there are violations or priority files and `/review` has not run, ask
+     once in plain words, naming each Controller and what it does (e.g. "OrderController
+     writes to the DB directly in 2 places"): fix first, run `/review`, or merge as is. On
+     "fix", stop — the fix goes on the branch, then start over. On "review", stop and ask the
+     human to run `/review` (human-invoked — ADR-0009), then start over. Ask this together
+     with the `lite` sensitive-path question when both apply; when `standard` already stops
+     for a `required` tier, name the findings in that stop message instead of asking
+     separately. Otherwise (or for heuristic warnings only) just list the findings in the
+     step 5 plan
 4. **Draft the merge message** in the §5 shape — git's default subject
    (`Merge branch '<branch>'`), a one- or two-sentence why (UC-ID if any; optional for
-   `light`), and the trailers `Merge-Check:` (tier, score, sensitive paths),
+   `light`), and the trailers `Merge-Check:` (tier, score, sensitive paths, and
+   `boundary N` when the Domain Boundary check reported N > 0 violations),
    `Review:` (`normal` / `enhanced` / `skipped`), `Tests:` (filled in step 6).
    The tier and score go only into the `Merge-Check:` trailer; never show them to the user
    (`docs/development/git-workflow.md` §6, "Talking to the user").
@@ -50,6 +72,8 @@ the rules; this file is only the procedure. The active profile is the `Profile:`
    In a `lite` combined run (§4), the one plan also lists the commits to create and —
    only if the user asked for it — the final `git push origin <base>`, and must show the
    changed files and the test command; one approval then covers the whole sequence.
+   When the Domain Boundary check found anything, or failed or skipped, the plan says so in
+   plain words (file + what it does, or the error).
 
    ```bash
    git checkout <base>

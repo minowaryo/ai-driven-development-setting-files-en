@@ -21,6 +21,10 @@ Accepted — the merge-check thresholds, the `prepare-merge` skill, and the `lit
 > file can be skipped; then commit splitting and merge messages may be less tidy, while the
 > safety rules — including "a merge/push request is not the approval; approve a shown plan" —
 > stay in the core and still hold.
+>
+> Updated 2026-10-03: the pre-merge check also runs the Domain Boundary check
+> (`domain-boundary-check.sh`) on every merge, in both profiles. It never changes the tier;
+> its count is added to the `Merge-Check:` trailer. Reasoning: `meta/adr/ADR-0010` (2026-10-03 note).
 
 ## Date
 2026-09-29

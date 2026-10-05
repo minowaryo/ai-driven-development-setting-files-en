@@ -42,8 +42,9 @@ lives in the Service / Action layer; Models stay schema-and-relations only. "Mod
 is deliberately avoided as a term here because it means different things per framework.
 
 `.claude/hooks/domain-boundary-check.sh` flags the mechanically detectable half of this
-contract during `/review`. It cannot see the fourth rule — a cross-entity decision written
-in plain PHP contains no distinctive tokens — so that one relies on review.
+contract during `/review` and before every merge (`prepare-merge`). It cannot see the
+fourth rule — a cross-entity decision written in plain PHP contains no distinctive
+tokens — so that one relies on review.
 
 ### Service / Action
 - Follow the single responsibility principle (one class, one responsibility)
