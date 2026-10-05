@@ -24,11 +24,18 @@ set -euo pipefail
 
 SPEC_DIR="${SPEC_LINT_DIR:-docs/product}"
 
-# Use-case sections that must exist with content. They map to the happy-path / error /
-# authorization coverage that test-writer reports at Gate 4.
-REQUIRED_SECTIONS='Basic Flow|Error Cases|Permissions'
+# Headings and labels of the spec templates. Each accepts the English (this repository) and
+# the Japanese (JP sibling repository) wording, so both repositories ship this same file.
+# Use-case sections that must exist with content ('|' between sections, ',' between
+# spellings of one section). They map to the happy-path / error / authorization coverage
+# that test-writer reports at Gate 4.
+REQUIRED_SECTIONS='Basic Flow,基本フロー|Error Cases,エラーケース|Permissions,権限'
 ACTOR_LABEL='Actor'
-RELATED_LABEL='Related requirement'
+RELATED_LABEL='Related requirement,関連要件'
+# Sections skipped by the placeholder / wording scans (POSIX ERE on the "## " heading line).
+SKIP_SECTIONS='Approval Record|Review Criteria|承認記録|レビュー基準'
+# The mockups/README.md section that lists the screens (POSIX ERE on the "## " heading line).
+SCREEN_LIST='Screen List|画面一覧'
 
 # Vague-word lists, '|'-separated, matched case-insensitively on word boundaries.
 # Limited to the categories with high precision in requirements-smell research (Femmer et
@@ -90,7 +97,7 @@ function scan_words(s, ln, list, label,    n, terms, i) {
 function scannable(line) {
   if (line ~ /^[ \t]*(```|~~~)/) { in_fence = !in_fence; return 0 }
   if (in_fence) return 0
-  if (line ~ /^## /) skip_section = (line ~ /Approval Record|Review Criteria/)
+  if (line ~ /^## /) skip_section = (line ~ skip_re)
   return !skip_section
 }
 function scan_text(line, ln,    s, rest, inner, after, tag) {
@@ -136,21 +143,32 @@ ok && /^\|[ \t]*F-/ {
 
 AWK_UC='
 function norm(raw,    d) { d = raw; gsub(/[^0-9]/, "", d); return sprintf("UC-%03d", d + 0) }
-function close_uc(    i, name) {
+function shown(spellings,    s) { s = spellings; gsub(/,/, " / ", s); return s }
+# 1 when the line starts with "**<one of the spellings>**:" (ASCII or full-width colon).
+function has_label(line, spellings,    n, alts, k) {
+  n = split(spellings, alts, ",")
+  for (k = 1; k <= n; k++)
+    if (index(line, "**" alts[k] "**:") == 1 || index(line, "**" alts[k] "**\357\274\232") == 1) return 1
+  return 0
+}
+function close_uc(    i) {
   if (cur == "") return
-  if (!has_actor) finding("section", cur_ln, cur ": \"" actor "\" is missing")
+  if (!has_actor) finding("section", cur_ln, cur ": \"" shown(actor) "\" is missing")
   for (i = 1; i <= nreq; i++) {
-    name = req[i]
-    if (!(name in sec_seen)) finding("section", cur_ln, cur ": section \"" name "\" is missing")
-    else if (sec_content[name] == 0) finding("section", sec_seen[name], cur ": section \"" name "\" is empty")
+    if (!(i in sec_seen)) finding("section", cur_ln, cur ": section \"" shown(req[i]) "\" is missing")
+    else if (sec_content[i] == 0) finding("section", sec_seen[i], cur ": section \"" shown(req[i]) "\" is empty")
   }
   if (have_fids) {
-    if (!has_related) finding("link", cur_ln, cur ": no \"" related "\" line")
+    if (!has_related) finding("link", cur_ln, cur ": no \"" shown(related) "\" line")
   }
   delete sec_seen; delete sec_content
-  cur = ""; cur_sec = ""
+  cur = ""; cur_sec = 0
 }
-BEGIN { nreq = split(required, req, "|"); nf = split(fids, fl, " "); for (i = 1; i <= nf; i++) if (fl[i] != "") { known[fl[i]] = 1; have_fids = 1 } }
+BEGIN {
+  nreq = split(required, req, "|")
+  for (i = 1; i <= nreq; i++) { nalt = split(req[i], alts, ","); for (k = 1; k <= nalt; k++) section_of[tolower(alts[k])] = i }
+  nf = split(fids, fl, " "); for (i = 1; i <= nf; i++) if (fl[i] != "") { known[fl[i]] = 1; have_fids = 1 }
+}
 { sub(/\r$/, "") }
 { ok = scannable($0) }
 ok { scan_text($0, FNR) }
@@ -166,8 +184,8 @@ ok { scan_text($0, FNR) }
 }
 /^##[^#]/ || /^### / { if (!in_fence) close_uc(); next }
 cur == "" || in_fence { next }
-index($0, "**" actor "**:") == 1 { has_actor = 1 }
-index($0, "**" related "**:") == 1 {
+has_label($0, actor) { has_actor = 1 }
+has_label($0, related) {
   has_related = 1; rest = $0
   while (match(rest, /F-[0-9]+/)) {
     f = substr(rest, RSTART, RLENGTH); used[f] = 1
@@ -176,13 +194,13 @@ index($0, "**" related "**:") == 1 {
   }
 }
 /^#### / {
-  cur_sec = trim(substr($0, 6)); in_req = 0
-  for (i = 1; i <= nreq; i++) if (tolower(cur_sec) == tolower(req[i])) { cur_sec = req[i]; in_req = 1 }
-  if (in_req) { sec_seen[cur_sec] = FNR; sec_content[cur_sec] = 0 } else cur_sec = ""
+  name = tolower(trim(substr($0, 6)))
+  cur_sec = (name in section_of) ? section_of[name] : 0
+  if (cur_sec) { sec_seen[cur_sec] = FNR; sec_content[cur_sec] = 0 }
   prev_row = 0
   next
 }
-cur_sec != "" {
+cur_sec {
   line = trim($0)
   if (line == "" || line ~ /^-{3,}$/) { prev_row = 0; next }
   if (line ~ /^\|[-:| \t]+\|?$/) { if (prev_row) sec_content[cur_sec]--; prev_row = 0; next }
@@ -197,7 +215,7 @@ END {
 
 AWK_README='
 { sub(/\r$/, "") }
-/^## / { in_list = ($0 ~ /Screen List/); past_sep = 0; next }
+/^## / { in_list = ($0 ~ screen_re); past_sep = 0; next }
 in_list && /^\|[-:| \t]+\|?$/ { past_sep = 1; next }
 in_list && past_sep && /^\|/ {
   split($0, cells, "|"); name = cells[2]
@@ -210,7 +228,7 @@ in_list && past_sep && /^\|/ {
 run_awk() { # run_awk PROGRAM FILE [VAR=VALUE...]
   local prog=$1 file=$2; shift 2
   LC_ALL=C awk -v ws="$WORDS_SUBJECTIVE" -v wv="$WORDS_VAGUE" -v wl="$WORDS_LOOPHOLE" \
-    -v wo="$WORDS_OPEN_ENDED" "$@" "$AWK_COMMON $prog" "$file"
+    -v wo="$WORDS_OPEN_ENDED" -v skip_re="$SKIP_SECTIONS" "$@" "$AWK_COMMON $prog" "$file"
 }
 
 FINDINGS=0
@@ -277,7 +295,7 @@ if [ "$REQUIREMENTS_ONLY" -eq 0 ]; then
             OUT_LINES+=("$(printf '%-11s  %s:%s  %s' mockup "$MOCK_DIR/README.md" "$ln" "listed file $name does not exist")")
             FINDINGS=$((FINDINGS + 1))
           fi
-        done < <(LC_ALL=C awk "$AWK_README" "$MOCK_DIR/README.md")
+        done < <(LC_ALL=C awk -v screen_re="$SCREEN_LIST" "$AWK_README" "$MOCK_DIR/README.md")
       fi
       for path in "$MOCK_DIR"/*; do
         [ -f "$path" ] || continue
