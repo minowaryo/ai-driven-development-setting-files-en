@@ -1,3 +1,7 @@
+---
+disable-model-invocation: true
+---
+
 # /review — Code Review Command
 
 Perform a code review from the following perspectives.

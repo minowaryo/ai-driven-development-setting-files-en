@@ -65,10 +65,12 @@ Template's Own Layer        → meta/adr/ (outside the project's own decision-ma
 │   │   ├── grill-me/                  # Trial (meta/adr/ADR-0013) — one-question-at-a-time requirements interview
 │   │   └── prepare-merge/             # Trial (meta/adr/ADR-0015) — pre-merge check + --no-ff merge on instruction
 │   ├── hooks/
+│   │   ├── agent-guard.sh             # PreToolUse hook: tdd-implementer cannot write tests/ or docs/product/ or stage/commit/configure git (ADR-0016)
 │   │   ├── domain-boundary-check.sh   # Domain Boundary contract check (run in /review Step 0 and prepare-merge; --audit-all for whole-repo audit)
 │   │   ├── review-score.sh            # Scores the branch diff: review level (/review Step 0) + pre-merge tier (prepare-merge)
-│   │   └── spec-lint.sh               # Structure check of requirements / use cases / mockups, run before Gate 1 / Gate 2
-│   └── settings.json                  # Project permissions: git push asks, force push denied (see docs/development/git-workflow.md §4)
+│   │   ├── spec-lint.sh               # Structure check of requirements / use cases / mockups, run before Gate 1 / Gate 2
+│   │   └── tdd-snapshot.sh            # /tdd: saves tests/ + docs/product/ at Gate 4 approval, compares after Green (ADR-0016)
+│   └── settings.json                  # Project permissions (git push asks, force push denied — docs/development/git-workflow.md §4), the agent-guard hook, /code-review human-only
 │
 ├── meta/
 │   ├── adr/                           # The template/harness's own ADRs (managed separately from the project's ADRs — no editing or renumbering needed)
@@ -90,7 +92,7 @@ Template's Own Layer        → meta/adr/ (outside the project's own decision-ma
 │   │   └── ADR-0015-git-workflow.md
 │   ├── design/                        # Design memos for the harness's own evolution (e.g. loop_engineering_design_memo.txt) — template-internal (not copied by APPLY_TEMPLATE; removed in SETUP.md)
 │   ├── history/                       # Archive of this template's own PLAN.md entries (created when first needed) — template-internal (not copied by APPLY_TEMPLATE; removed in SETUP.md)
-│   └── tests/                         # Tests for the template's own scripts (review-score.test.sh, domain-boundary-check.test.sh) — template-internal (not copied by APPLY_TEMPLATE; removed in SETUP.md)
+│   └── tests/                         # Tests for the template's own scripts (review-score, domain-boundary-check, spec-lint, agent-guard, tdd-snapshot) — template-internal (not copied by APPLY_TEMPLATE; removed in SETUP.md)
 │
 └── docs/
     ├── ai-context/                    # AI summary layer (most important)
@@ -129,6 +131,7 @@ Template's Own Layer        → meta/adr/ (outside the project's own decision-ma
     │   ├── git-workflow.md            # Git workflow, full rules (read before branching/committing/merging)
     │   ├── git-troubleshooting.md     # When Git gets stuck — what to ask the AI (for people)
     │   ├── plan-archiving.md          # PLAN.md archive procedure (read when PLAN.md nears 300 lines)
+    │   ├── tdd-guard.md               # What is locked for tdd-implementer during /tdd, and how to change a test or the spec legitimately
     │   └── ai-workflow.md
     ├── security/
     │   └── secrets-handling.md

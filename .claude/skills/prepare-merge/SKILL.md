@@ -13,8 +13,9 @@ the rules; this file is only the procedure. The active profile is the `Profile:`
 
 1. **Preconditions** — on a feature branch (not `main`), working tree clean. If there are
    uncommitted changes: in `lite`, when the user asked for commit → merge (→ push) in one
-   go, run `/commit` steps 1-5 and include its table in the step 5 plan; otherwise stop
-   and suggest `/commit`. Then run the author self-check ("Pre-Review Self-Check" in
+   go, read `.claude/commands/commit.md` and follow its steps 1-5 (do not start `/commit`
+   itself — commands run only when a person types them, ADR-0016) and include its table in
+   the step 5 plan; otherwise stop and suggest `/commit`. Then run the author self-check ("Pre-Review Self-Check" in
    `docs/development/review-guidelines.md`) and list any unmet item in the step 5 plan.
 2. **Pre-merge check** — run:
 

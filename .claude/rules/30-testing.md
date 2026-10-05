@@ -55,7 +55,7 @@ Claude Code / Codex tend to write the implementation first and bolt tests on aft
 - After the tests are written in the Red phase, **a human must review and approve the test content before moving on to the Green phase (implementation)** (Gate 4 in `.claude/rules/00-global.md`)
   - Review points: does the test fail for the intended reason, and do the test cases cover the happy path / error cases / authorization described in `use-cases.md`?
   - The `/tdd` command will not auto-advance to the Green phase until this approval is given
-- If you want to enforce this mechanically, consider adopting `@nizos/probity` (see `meta/adr/ADR-0007-tdd-enforcement-probity.md`). This guideline applies regardless of whether that tool is adopted
+- Once approved, the tests and `docs/product/` are locked for `tdd-implementer` — a hook blocks its writes and `/tdd` compares them with the approved snapshot after Green (`docs/development/tdd-guard.md`, ADR-0016). To change them legitimately, restart from Red and approve again
 
 ### Running skills after the Green phase completes
 

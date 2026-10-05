@@ -5,6 +5,16 @@ Accepted (per the "Variant for Recording a Deferral" convention in
 `.claude/commands/adr.md` — what's approved is the decision not to adopt each item
 now, not the adoption of any of them)
 
+> Updated 2026-10-05 (ADR-0016 research): **Laravel Boost** — the reason for deferral has
+> partly gone. Since v2.10 (2026-09-23) `php artisan boost:install --mcp --no-interaction`
+> installs only the MCP configuration, and its guideline writer now replaces only its own
+> `<laravel-boost-guidelines>` block instead of overwriting `CLAUDE.md`. It still writes
+> `boost.json` / `.mcp.json`, and a new "Project Rules" feature lets the agent write
+> `.ai/rules/*` itself (switch off with `BOOST_RULES_ENABLED=false`, as it conflicts with
+> docs-first). Verdict stays "deferred, not rejected"; if a project adopts it, use the
+> MCP-only path with rules disabled. **hookify** — still deferred: it cannot key on the
+> hook's `agent_type`, so it could not implement ADR-0016's implementer-only lock.
+
 ## Date
 2026-09-28
 

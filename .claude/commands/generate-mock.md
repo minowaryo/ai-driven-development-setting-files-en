@@ -1,3 +1,7 @@
+---
+disable-model-invocation: true
+---
+
 # /generate-mock — Mock Generation Command
 
 Generate an HTML mockup for the UC number specified as an argument and save it to `docs/product/mockups/`.

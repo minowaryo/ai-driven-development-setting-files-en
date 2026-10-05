@@ -232,20 +232,20 @@ lifetime, a locked-paths config file, changes to Gate 4, any orchestrator, insta
 
 ### Rollout tracking
 
-Approved 2026-10-03: every item is Trial; "not yet implemented" is cleared as each lands.
+Approved 2026-10-03; all items implemented 2026-10-05 on `feat/loop-stage1` (hook tests, snapshot tests and an end-to-end `claude -p` run on 2.1.288 pass).
 
 | Item | Status | Notes |
 |---|---|---|
-| 1 SPEC_CONFLICT | Trial (not yet implemented) | Prompt-level; backed by the ImpossibleBench result |
-| 2 Stop conditions | Trial (not yet implemented) | Watch for premature escalation on legitimate retries |
-| 3 Test lock hook | Trial (not yet implemented) | First registered lifecycle hook in this template; locks `tests/` + `docs/product/` for the implementer only; also denies index-changing git commands and `git config`; watch false positives |
-| 4 Hook tests | Trial (not yet implemented) | — |
-| 5 Green evidence | Trial (not yet implemented) | Approved snapshot copy + `diff -r` (rewritten 2026-10-05: index- and tree-hash-based checks were both shown forgeable) |
-| 6 ADR-0007 / ADR-0014 notes | Trial (not yet implemented) | Record-only |
-| 7 `disable-model-invocation` on commands + `skillOverrides` for `code-review` | Trial (not yet implemented) | Project `/review` wins today (undocumented — re-check on upgrade) |
-| 8 APPLY_TEMPLATE hook merge | Trial (not yet implemented) | — |
-| 9 Denial log | Trial (not yet implemented) | Includes `session_id` |
-| 10 Version check | Trial (not yet implemented) | Fixture re-run on the version in use |
+| 1 SPEC_CONFLICT | Trial | Prompt-level; backed by the ImpossibleBench result |
+| 2 Stop conditions | Trial | Watch for premature escalation on legitimate retries |
+| 3 Test lock hook | Trial | First registered lifecycle hook in this template; locks `tests/` + `docs/product/` for the implementer only; also denies index-changing git commands and `git config`; watch false positives |
+| 4 Hook tests | Trial | — |
+| 5 Green evidence | Trial | Approved snapshot copy + `diff -r` (rewritten 2026-10-05: index- and tree-hash-based checks were both shown forgeable) |
+| 6 ADR-0007 / ADR-0014 notes | Trial | Record-only |
+| 7 `disable-model-invocation` on commands + `skillOverrides` for `code-review` | Trial | Project `/review` wins today (undocumented — re-check on upgrade) |
+| 8 APPLY_TEMPLATE hook merge | Trial | — |
+| 9 Denial log | Trial | Includes `session_id` |
+| 10 Version check | Trial | Re-verified 2026-10-05 on 2.1.288 (VS Code extension): all denials, the allowed app write and the log line behave as on 2.1.278 |
 
 Drafts for later stages (not decided): `meta/design/gate-contract.md`,
 `loop-stage2a-seeds.md`, `loop-reviewer-design.md`, `loop-stage4-design.md`,

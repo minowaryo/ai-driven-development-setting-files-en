@@ -1,3 +1,7 @@
+---
+disable-model-invocation: true
+---
+
 # /generate-e2e-test — Playwright E2E test generation command
 
 Generate a draft Playwright E2E test for the critical flow of the UC number given as an argument.
