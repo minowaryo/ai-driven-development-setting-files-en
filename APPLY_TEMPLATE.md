@@ -81,7 +81,7 @@ path. The Bash snippets need Git Bash or WSL on Windows (same prerequisite as
 4. Build the collision inventory:
 
    ```bash
-   git -C "$TPL" ls-files | grep -Ev '^meta/(tests|history)/' | while read -r f; do [ -e "$f" ] && echo "EXISTS: $f"; done
+   git -C "$TPL" ls-files | grep -Ev '^meta/((tests|history|design)/|traceability-matrix\.md$)' | while read -r f; do [ -e "$f" ] && echo "EXISTS: $f"; done
    [ -e README_harness.md ] && echo "EXISTS: README_harness.md"
    ```
 
@@ -105,7 +105,7 @@ path. The Bash snippets need Git Bash or WSL on Windows (same prerequisite as
 
 ```bash
 git -C "$TPL" ls-files \
-  | grep -vxE 'README\.md|PLAN\.md|CLAUDE\.md|AGENTS\.md|\.gitignore|\.gitattributes|APPLY_TEMPLATE\.md|meta/(tests|history)/.*' \
+  | grep -vxE 'README\.md|PLAN\.md|CLAUDE\.md|AGENTS\.md|\.gitignore|\.gitattributes|APPLY_TEMPLATE\.md|meta/(tests|history|design)/.*|meta/traceability-matrix\.md' \
   | while read -r f; do
       [ -e "$f" ] && continue   # already exists: handled in Phase 0 (class E) or Phase 2 (class C)
       mkdir -p "$(dirname "$f")" && cp "$TPL/$f" "$f"
@@ -141,7 +141,7 @@ chose in a class E resolution. Keep the list for the final report.
 
    ```bash
    git -C "$TPL" ls-files \
-     | grep -vxE 'README\.md|PLAN\.md|CLAUDE\.md|AGENTS\.md|\.gitignore|\.gitattributes|\.mcp\.json|\.claude/settings\.json|APPLY_TEMPLATE\.md|meta/(tests|history)/.*' \
+     | grep -vxE 'README\.md|PLAN\.md|CLAUDE\.md|AGENTS\.md|\.gitignore|\.gitattributes|\.mcp\.json|\.claude/settings\.json|APPLY_TEMPLATE\.md|meta/(tests|history|design)/.*|meta/traceability-matrix\.md' \
      | while read -r f; do cmp -s "$TPL/$f" "$f" || echo "DIFFERS: $f"; done
    cmp -s "$TPL/README.md" README_harness.md || echo "DIFFERS: README_harness.md"
    ```
@@ -152,7 +152,7 @@ chose in a class E resolution. Keep the list for the final report.
 
    ```bash
    { git -C "$TPL" ls-files \
-       | grep -vxE 'README\.md|PLAN\.md|APPLY_TEMPLATE\.md|meta/(tests|history)/.*'; \
+       | grep -vxE 'README\.md|PLAN\.md|APPLY_TEMPLATE\.md|meta/(tests|history|design)/.*|meta/traceability-matrix\.md'; \
      echo README_harness.md; echo PLAN.md; } \
      | git check-ignore --no-index --stdin
    ```
