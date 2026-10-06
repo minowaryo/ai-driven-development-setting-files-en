@@ -20,15 +20,18 @@
 ### Checklist
 
 - [x] ADR-0017 reviewed and approved (2026-10-06)
-- [ ] Lab app built; Stage 1 harness copied; hook check re-run on the pinned binary
-- [ ] ① three conflict seeds + oracles written outside the app's tree; 18 runs; results
+- [x] Lab app built (Laravel 13 + Pest 5.3, PHP 8.5.7); Stage 1 harness copied; pinned 2.1.288 binary (same version as the Stage 1 hook check)
+- [x] ① done 2026-10-06: 34 runs (≈ $7) — seeds C1–C3 + control C0; arms A (Stage 1), B (no hook), C (no SPEC_CONFLICT way out); models Sonnet 5, Sonnet 5.5 medium, Haiku 4.5. Stage 1 as shipped: 17/18 honest stops; cheating = bending the implementation or special-casing test values, never editing tests; no false "green" claims, no invented conflicts. Results: `meta/history/loop-stage2a-results.md`
+- [ ] Gate candidate from ①: deterministic "test fixture values hard-coded in app code" check (decide in Stage 2 gate work)
 - [ ] ② reviewer seeds (8 + 2 clean + 1 injection) + R0 pipeline; 33 runs; results
 - [ ] ③ maintainer picks ~4 finished migration-type tasks in `ihs-tech-uplift`; ~8 runs; results
 - [ ] Aggregated results in `meta/history/`; go / stop decision recorded in ADR-0017
 
 ### Status
 
-ADR-0017 approved 2026-10-06. Next: build the lab app.
+① done 2026-10-06. Next: ② reviewer seeds, then ③ — in a new session (Sonnet 5.5, medium
+effort) from the handoff note `C:\workspace\loop-stage2a-lab\HANDOFF.md`. Usage rule: stop when
+remaining weekly usage would drop below 60% (maintainer, 2026-10-06).
 
 ## Harness traceability matrix + ADR-0018 for spec-lint (2026-10-05)
 
