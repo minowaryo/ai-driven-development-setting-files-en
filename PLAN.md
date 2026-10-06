@@ -13,11 +13,19 @@
   `docs/rcid/traceability-matrix.md` is unchanged.
 - `meta/adr/ADR-0018-spec-lint.md` (Trial) records the spec-lint decision, which had none.
   ADR-0017 is reserved by the Loop session for Stage 2a.
+- Follow-ups (2026-10-06): `APPLY_TEMPLATE.md` copy filters now also exclude `meta/design/`
+  and the matrix; backlog B5 recorded as `meta/design/rule-enforcement-inventory.md`; open
+  items ranked by effect / security / governance / groundwork / UX in
+  `template-improvement-directions.md` (B25, B27, B28 dropped); B21 (`#[Unguarded]`, `v-html`,
+  CSRF and auth-middleware names) and B26 (`DB::prohibitDestructiveCommands` in production)
+  done; `do-not-touch.md` keeps existing Policy rules locked but treats adding a Policy for a
+  new feature as normal work (user decision).
 
 ### Status
 
-On `docs/harness-traceability`. Next: port the matrix and ADR-0018 to JP and company (check
-their `meta/adr/` numbering first).
+Merged and pushed in EN, JP and company (EN `c0e5222`…`57c09a1`, JP `1375fff`, company
+`b2665e5`). Next for this track: B10, then B23 — each after the user approves its extra
+findings / merge question.
 
 ## Deterministic checks, group 1: strict Eloquent in tests, spec-lint, doc consistency (2026-10-03)
 
