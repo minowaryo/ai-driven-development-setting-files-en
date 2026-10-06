@@ -15,7 +15,7 @@
 | Target | Reason |
 |---|---|
 | Authentication middleware setup (`bootstrap/app.php` `withMiddleware()` on Laravel 11+; `app/Http/Middleware/Authenticate.php` on Laravel 10 and earlier) | Risk of authentication bypass |
-| All of `app/Policies/` | Risk of privilege escalation |
+| Existing rules in `app/Policies/` — loosening, removing, or changing who may do what (adding a Policy or method for a new feature is normal work) | Risk of privilege escalation |
 | Auth middleware settings in `routes/api.php` | Risk of breaking API authentication |
 
 ## Database
