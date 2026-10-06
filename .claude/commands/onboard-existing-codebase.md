@@ -190,7 +190,7 @@ heads-up, not a requirement. Say which items come back on their own and which do
 domain-boundary findings resurface on every future `/review`, but other code defects are
 shown only this once, so the human should record any they want to keep (e.g. in their issue
 tracker). Also list, when absent, the one-time test setup from `SETUP.md` Step 4
-(`Model::shouldBeStrict`, `Http::preventStrayRequests()`, tests on MySQL instead of SQLite):
+(`Model::shouldBeStrict`, `DB::prohibitDestructiveCommands`, `Http::preventStrayRequests()`, tests on MySQL instead of SQLite):
 it can make existing tests fail and staging throw, so switching it on is the human's call.
 
 Close with an explicit reminder to the human: **human review is required before any

@@ -251,6 +251,8 @@ rules otherwise only describe (`.claude/rules/10-laravel.md`, `30-testing.md`):
 ```php
 // app/Providers/AppServiceProvider.php — boot(): N+1, unfillable attributes, unloaded attributes throw
 Model::shouldBeStrict(! $this->app->isProduction());
+// ...and in production, db:wipe / migrate:fresh / refresh / reset / rollback refuse to run
+DB::prohibitDestructiveCommands($this->app->isProduction());
 
 // tests/TestCase.php — setUp(), after parent::setUp(): unfaked outbound HTTP fails the test
 Http::preventStrayRequests();
@@ -263,6 +265,9 @@ Http::preventStrayRequests();
   No MySQL test database available? Keep the SQLite default — tests still run and the two
   lines above still apply, but MySQL-only differences go undetected. Never point it at MySQL
   without a dedicated test database: `RefreshDatabase` would wipe the development data
+- With the production ban, a schema change is undone by a new forward migration, not by
+  `migrate:rollback` (in line with `.claude/rules/20-mysql.md`); a deploy script that rolls
+  back in production must be changed first
 - Existing-Codebase Path: these may make existing tests fail and staging throw, so they are
   Backlog items from `/onboard-existing-codebase` — switch them on only when the human decides
 

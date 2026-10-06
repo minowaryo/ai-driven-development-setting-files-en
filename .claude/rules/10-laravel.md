@@ -52,7 +52,7 @@ tokens — so that one relies on review.
 - Manage transactions at the Service layer
 
 ### Model
-- Explicitly declare `$fillable` (`$guarded = []` is prohibited)
+- Explicitly declare the mass-assignable attributes — `$fillable`, or `#[Fillable([...])]` on Laravel 13 (`$guarded = []` and `#[Unguarded]` are prohibited)
 - Outside production, Eloquent is strict: `Model::shouldBeStrict(! $this->app->isProduction())` in `AppServiceProvider::boot()` makes lazy loading (N+1), attributes missing from `$fillable`, and reads of unloaded attributes throw, so tests catch them (not `isLocal()` — it is false under `APP_ENV=testing`)
 - Define scopes on the Model
 - Actively define relationships
@@ -94,6 +94,6 @@ do not apply it globally through a base model or a wildcard observer.
 ## Prohibited Practices
 
 - Raw SQL outside the rule in `.claude/rules/20-mysql.md` (Query Policy)
-- `$guarded = []`
+- `$guarded = []` / `#[Unguarded]`
 - Business logic in Controllers
 - N+1 queries (use `with()` for Eager Loading proactively; strict mode above makes them fail in tests)

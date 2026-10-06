@@ -14,7 +14,7 @@
 
 | Target | Reason |
 |---|---|
-| `app/Http/Middleware/Authenticate.php` | Risk of authentication bypass |
+| Authentication middleware setup (`bootstrap/app.php` `withMiddleware()` on Laravel 11+; `app/Http/Middleware/Authenticate.php` on Laravel 10 and earlier) | Risk of authentication bypass |
 | All of `app/Policies/` | Risk of privilege escalation |
 | Auth middleware settings in `routes/api.php` | Risk of breaking API authentication |
 

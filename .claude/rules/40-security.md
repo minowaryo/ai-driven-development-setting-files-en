@@ -33,7 +33,7 @@ Unlike `docs/original-docs/` (reference-only, editing prohibited), `docs/credent
 
 - Always validate user input with FormRequest
 - SQL injection prevention: use Eloquent / the Query Builder; raw SQL only with parameter bindings, per the Query Policy in `.claude/rules/20-mysql.md`
-- XSS prevention: use Blade's `{{ }}` (minimize use of `{!! !!}`)
+- XSS prevention: use Blade's `{{ }}` (minimize use of `{!! !!}`); in Vue, never bind user input with `v-html`
 - File uploads: validate MIME type, size, and extension
 
 ## Logging & Auditing

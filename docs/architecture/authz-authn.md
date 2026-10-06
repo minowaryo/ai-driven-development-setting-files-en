@@ -20,7 +20,7 @@ POST /login
 
 ### Security Settings
 - Session: HttpOnly + Secure + SameSite=Strict
-- CSRF: `VerifyCsrfToken` middleware enabled
+- CSRF: `ValidateCsrfToken` middleware enabled (Laravel 11+; formerly `VerifyCsrfToken`)
 - Rate limiting: `throttle:5,1` applied to `/login` endpoint
 - Password reset: signed URL + 1-hour expiry
 
