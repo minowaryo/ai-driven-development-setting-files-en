@@ -111,7 +111,7 @@ was told?**" — and that the answer is cheap machinery around the AI, not more 
 | B2 | Strict Pest/PHPUnit settings in the template's test guidance | D1, D3 | S | Overlaps ADR-0016 Stage 2 |
 | B3 | `/tdd` Refactor runs `pint` before the AI's own refactoring | D1 | S | Superseded by B13 |
 | B4 | `/review` Step 0 also collects Larastan / `composer audit` output | D1, D6 | S | Extends ADR-0009 Step 0 |
-| B5 | Rule-enforcement inventory (which costly rules are prompt-only) | D2 | M | Produces the list for later items |
+| B5 | Rule-enforcement inventory (which costly rules are prompt-only) | D2 | M | Done 2026-10-06: `meta/design/rule-enforcement-inventory.md` |
 | B6 | `Read` deny for `.env*`, `docs/credentials/**`, `storage/logs/**` in `settings.json` | D10 | S | Supplement only; check impact on legitimate reads |
 | B7 | Platform-fact register: verified Claude Code version per fact, re-check on upgrade | D9 | S | Could live in `meta/design/` |
 | B8 | Eval cases for new behavior (test lock, `disable-model-invocation`) | D7 | S | `.claude/evals/` |
@@ -128,8 +128,46 @@ was told?**" — and that the answer is cheap machinery around the AI, not more 
 | B19 | `acceptance-criteria.md` has no reader; `00-global.md` and `SETUP.md` list different required ai-context files | D11 | S | Needs a decision (Loop Stage 4 for AC) |
 | B20 | Deferred: commit-msg hook (per clone), `Read` deny for `.env` (also blocks `.env.example` writes, leaks via subprocess), data-model ↔ schema diff (needs a DB), ESLint / gitleaks / migration linters (new deps, immature) | D1, D10 | — | Revisit on demand |
 
+| B21 | Small doc fixes: `authz-authn.md` still names `VerifyCsrfToken`; XSS rule omits Vue `v-html`; ban `#[Unguarded]` (Laravel 13) next to `$guarded = []`; `do-not-touch.md` cites `Authenticate.php` (absent since Laravel 11) and puts all of `app/Policies/` under "ADR required", which clashes with adding a Policy per feature | D11 | XS | Done 2026-10-06 (also `#[Fillable]` accepted on Laravel 13) |
+| B22 | Required ai-context files: `00-global.md` lists 2, `SETUP.md` 4 (part of B19) — Gate 0 wording, keep `00-global.md` / `SETUP.md` / `AGENTS.md` in sync | D11 | XS | Gate 0 text; no UX change |
+| B23 | `review-score.sh` sensitive paths: add `routes/api.php`, `config/database.php`, `bootstrap/app.php` | D1 | XS | UX: merges touching them ask about `/review` |
+| B24 | More finders for the merge-time check (B12): `float`/`double` money columns, PII-looking fields in `Log::` calls, audit channel config, code change without its doc (migrations → `data-model.md`, Policies → `authz-authn.md`), new model without CRUD Feature tests, `fix:` commit without a test, mocked DB in tests | D1, D6 | M | Fold into B12 (Loop); findings only |
+| B25 | Repo hygiene checks: `PLAN.md` line count, branch name, E2E file name | D1 | XS | Dropped 2026-10-06: low effect |
+| B26 | `DB::prohibitDestructiveCommands($this->app->isProduction())` in `SETUP.md` Step 4 (blocks `migrate:fresh` / `db:wipe` in production) | D1, D3 | XS | Done 2026-10-06 (also blocks production `migrate:rollback`; undo with a forward migration) |
+| B27 | Larastan opt-in rules (`checkModelProperties`, `checkModelMethodVisibility`, `checkDispatchInTransactionAfterCommit`) where Larastan is installed | D1 | XS | Dropped 2026-10-06: Larastan projects only, low effect |
+| B28 | Frontend greps: Options API, `target="_blank"` without `rel`, `document.querySelector`, missing `<style scoped>` | D1 | S | Dropped 2026-10-06: low risk once `v-html` is in the rules (B21) |
+
 Order of attack: B1 → (ADR-0016 Stage 1) → B5 → B7 → B2/B3/B4 → B6/B8 → B9. Amended
 2026-10-03 by the user: group 1 (B14–B16) first; group 2 (B11–B13, B17) belongs to the Loop stages.
+Superseded 2026-10-06 by the priority list below.
+
+## Priority of the open items (2026-10-06)
+
+Weighed by effect, security, governance (rules that hold without relying on the AI or a
+reviewer remembering them), groundwork for later automation (the Loop stages), and UX (what
+changes for the people using the harness — an item that adds questions or waiting is ranked
+down unless its security value is high). Owner: **T** = this track (loop-independent),
+**L** = the Loop Engineering session.
+
+| Priority | Item | Owner | Why | UX impact |
+|---|---|---|---|---|
+| P1 | B10 missing `authorize()` / `$guarded = []` in the boundary check | T | Security: broken access control and mass assignment are the top Laravel risks; small change to an existing script | More findings in `/review` and at merge — only when the code has the problem; never blocks |
+| P1 | B12 merge-time diff check (+ B4) | L | Highest leverage: secrets / `.env`, edited or dangerous migrations, `composer audit`, untested `app/` changes on every merge; it is `gate.sh` v0, the base of Stages 2–3 | Findings in the merge plan, a few seconds per merge; must stay findings-only to keep merges smooth |
+| P1 | B18 spec drift since approval + Gate 1 / 3 approval records | L / T | Governance: an approved spec cannot change silently; groundwork for `SPEC_CONFLICT` and Stage 4 traceability | One more line in the approval record per Gate; a drift notice only when the spec changed |
+| P2 | B23 sensitive-path list | T | Governance: routing, DB and app bootstrap changes get the same merge question as migrations and Policies | One more question at merge when those files change (in `lite`) |
+| P2 | B14 run `SETUP.md` Step 4 in a real Laravel app | T | Effect: confirms the strict modes catch N+1 / unfillable attributes before teams rely on them | None |
+| P2 | B24 extra finders (fold into B12) | L | Security (PII in logs) and governance (audit channel, doc map) | More merge findings; FIND-type items can be noisy — keep them in the plan, never as questions |
+| P2 | B11 UC tag in tests | L | Groundwork: makes requirement → test traceability scriptable (Stage 3 / 4) | Test-writer adds one `->group()` per test; humans see no change |
+| P2 | B7 platform-fact register | T / L | Governance of the harness itself: Claude Code changes broke ADR premises silently; overlaps ADR-0016 item 10 | None (maintainer-facing) |
+| P2 | B19 / B22 Gate 0 file set; `acceptance-criteria.md` reader | T / L | Governance: one Gate 0 definition; the AC part waits for Stage 4 | None for B22; AC part decides whether a document is still asked for |
+| P2 | B13 `/tdd` Pint / build | L | Effect: machine-fixable failures stop consuming AI turns | Faster cycles; formatting may add a `style:` commit |
+| P2 | B8 eval cases | L | Groundwork: regression tests for harness behavior | None |
+| P2 | B17 mutation testing / B2 strict PHPUnit | L | Effect on test quality | Longer post-Green step (seconds to minutes); needs Xdebug / PCOV |
+| P3 | B9 boundary backlog procedure | L | Stage 2 experiment task | None until used |
+| — | B6, B20 | — | Deferred (side effects, new dependencies, per-clone setup) | `.env` read deny would block legitimate setup writes |
+
+Next for this track: B10 (approve its extra findings first), then B23 (approve the extra
+merge question first). B21 and B26 were done 2026-10-06; B25, B27 and B28 were dropped as low effect.
 
 ## Whole-cycle survey (2026-10-03)
 
