@@ -2,7 +2,37 @@
 
 > Template-internal archive of this repository's own `PLAN.md` entries (newest first). Moved verbatim per `.claude/rules/60-docs.md`.
 > Not copied into target projects (`APPLY_TEMPLATE.md` class X; removed in `SETUP.md`).
-> Covers: 2026-08-03 – 2026-09-29 (archived 2026-09-30, 2026-10-03).
+> Covers: 2026-08-03 – 2026-09-30 (archived 2026-09-30, 2026-10-03, 2026-10-06).
+
+## Per-session load reduction: move read-on-demand content out of auto-loaded files (2026-09-30)
+
+### Decision
+
+- Same core/detail pattern as the Git split, applied only where the content is needed at one
+  moment: `.claude/rules/31-e2e-testing.md` → `docs/development/e2e-testing.md` (read by
+  `/generate-e2e-test`); `50-review.md` body → `docs/development/review-guidelines.md` (read by
+  `/review`; a 3-line core stays); `60-docs.md` PLAN archive procedure →
+  `docs/development/plan-archiving.md` (limit and destination stay), ADR template → points to
+  `.claude/commands/adr.md` (its single source); "When Git Gets Stuck" →
+  `docs/development/git-troubleshooting.md` (out of the read-first `common-commands.md`).
+- Every move is verbatim (diff-checked); only titles and self-references were adjusted.
+- Result: auto-loaded rules ~13,260 → ~10,630 tokens; with the read-first ai-context files
+  ~16,370 → ~13,530. A fresh `claude -p` session located every moved item correctly.
+- Not done (deferred): `paths:` scoping for `10-laravel` / `15-frontend` / `20-mysql` —
+  decide after personal trial.
+
+### Files touched
+
+`CLAUDE.md`, `README.md`, `.claude/rules/30-testing.md`, `.claude/rules/50-review.md`,
+`.claude/rules/60-docs.md`, `.claude/commands/review.md`, `.claude/commands/generate-e2e-test.md`,
+`docs/ai-context/common-commands.md`, `docs/development/{e2e-testing,review-guidelines,git-troubleshooting,plan-archiving}.md`
+(new or moved), `docs/development/git-workflow.md`, `docs/development/review-checklist.md`,
+`docs/development/testing-strategy.md`, `PLAN.md`, `meta/history/plan-archive.md` (2026-08-27 and 2026-09-14 entries archived).
+
+### Status
+
+Implemented on `feat/token-reduction` (EN); not committed. Next: port to JP and company after
+their Git-workflow ports land.
 
 ## Git workflow rules: branches, commit unit, authority, --no-ff merge record, merge-check tiers (2026-09-29)
 

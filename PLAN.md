@@ -1,6 +1,34 @@
 # PLAN.md
 
-> Keep under 300 lines (`.claude/rules/60-docs.md`). Archived: 2026-08-03 – 2026-09-29 → `meta/history/plan-archive.md` (2026-09-30, 2026-10-03).
+> Keep under 300 lines (`.claude/rules/60-docs.md`). Archived: 2026-08-03 – 2026-09-30 (load reduction) → `meta/history/plan-archive.md` (2026-09-30, 2026-10-03, 2026-10-06).
+
+## Loop Engineering Stage 2a: unattended checks before any loop (2026-10-06)
+
+### Decision
+
+- Record: `meta/adr/ADR-0017-loop-engineering-stage2a.md` (Trial, approved 2026-10-06). Stage 2 is split
+  (approved 2026-10-03): 2a runs unattended checks; 2b (human A/B) only if 2a is promising.
+- ① Seeded spec/test conflicts (18 runs) and ② reviewer seeds (33 runs, config R0) in a
+  local-only lab app `C:\workspace\loop-stage2a-lab` (Laravel + Pest + SQLite, PHP 8.5.7 by full
+  path, Stage 1 harness copied in); ③ shadow replays (~8 runs) on shallow clones of
+  `ihs-tech-uplift` with their own MySQL test databases — the original is never touched.
+- Claude Code pinned by copying the 2.1.288 binary into the lab; model pinned; per-run
+  `--max-turns` / `--max-budget-usd`. The maintainer is on a $125/month subscription, so runs
+  go in small batches, checking remaining usage between batches.
+- Exit criteria are frozen in ADR-0017. The template itself gains no hook or test file in 2a.
+
+### Checklist
+
+- [x] ADR-0017 reviewed and approved (2026-10-06)
+- [ ] Lab app built; Stage 1 harness copied; hook check re-run on the pinned binary
+- [ ] ① three conflict seeds + oracles written outside the app's tree; 18 runs; results
+- [ ] ② reviewer seeds (8 + 2 clean + 1 injection) + R0 pipeline; 33 runs; results
+- [ ] ③ maintainer picks ~4 finished migration-type tasks in `ihs-tech-uplift`; ~8 runs; results
+- [ ] Aggregated results in `meta/history/`; go / stop decision recorded in ADR-0017
+
+### Status
+
+ADR-0017 approved 2026-10-06. Next: build the lab app.
 
 ## Harness traceability matrix + ADR-0018 for spec-lint (2026-10-05)
 
@@ -162,36 +190,6 @@ Stage 1 approved (Trial), simplified and implemented 2026-10-05 on `feat/loop-st
 (14 tests), all other `meta/tests` green, end-to-end `claude -p` run on 2.1.288 confirmed four
 denials, the allowed app write, the log lines and the snapshot diff. Next: commit, merge, then
 Stage 2a preparation (needs a PHP 8.2+ project).
-
-## Per-session load reduction: move read-on-demand content out of auto-loaded files (2026-09-30)
-
-### Decision
-
-- Same core/detail pattern as the Git split, applied only where the content is needed at one
-  moment: `.claude/rules/31-e2e-testing.md` → `docs/development/e2e-testing.md` (read by
-  `/generate-e2e-test`); `50-review.md` body → `docs/development/review-guidelines.md` (read by
-  `/review`; a 3-line core stays); `60-docs.md` PLAN archive procedure →
-  `docs/development/plan-archiving.md` (limit and destination stay), ADR template → points to
-  `.claude/commands/adr.md` (its single source); "When Git Gets Stuck" →
-  `docs/development/git-troubleshooting.md` (out of the read-first `common-commands.md`).
-- Every move is verbatim (diff-checked); only titles and self-references were adjusted.
-- Result: auto-loaded rules ~13,260 → ~10,630 tokens; with the read-first ai-context files
-  ~16,370 → ~13,530. A fresh `claude -p` session located every moved item correctly.
-- Not done (deferred): `paths:` scoping for `10-laravel` / `15-frontend` / `20-mysql` —
-  decide after personal trial.
-
-### Files touched
-
-`CLAUDE.md`, `README.md`, `.claude/rules/30-testing.md`, `.claude/rules/50-review.md`,
-`.claude/rules/60-docs.md`, `.claude/commands/review.md`, `.claude/commands/generate-e2e-test.md`,
-`docs/ai-context/common-commands.md`, `docs/development/{e2e-testing,review-guidelines,git-troubleshooting,plan-archiving}.md`
-(new or moved), `docs/development/git-workflow.md`, `docs/development/review-checklist.md`,
-`docs/development/testing-strategy.md`, `PLAN.md`, `meta/history/plan-archive.md` (2026-08-27 and 2026-09-14 entries archived).
-
-### Status
-
-Implemented on `feat/token-reduction` (EN); not committed. Next: port to JP and company after
-their Git-workflow ports land.
 
 ## Git workflow: `lite` profile (default) alongside `standard`, one-line switch (2026-09-30)
 
