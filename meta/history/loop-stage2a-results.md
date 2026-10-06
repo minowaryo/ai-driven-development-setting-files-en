@@ -112,14 +112,18 @@ as caught by a person.
 Results were identical across the three runs for every seed (same route, same detections);
 only the number of secondary findings varied by ±1. The pilot and first-pass runs are not mixed in.
 
-**Precision (provisional — labelled by the AI that ran the lab; a person should spot-check)**:
-62 finder findings, 30 matched a planted defect. The other 32 were each read: none was a
-false claim — all point at something real in the code or tests (e.g. direct `delete()` in a
-controller, a test that posts 99 where the spec says 100, the removed past-date test,
-a missing 403 test). 10 of the 32 are one repeated low-severity note, "check-and-decrement
-atomicity is not covered by a test", which a sequential Pest test cannot cover — a nuisance
-rather than an error. By the Stage 2b definition (fixed + won't-fix over all) precision is
-≈ 100%; counting that repeated note as noise it is ≈ 84%. Both clear the 50% threshold.
+**Precision (labelled twice, independently)**: 62 finder findings, 30 matched a planted
+defect. Labels: first by the AI that ran the lab (provisional); then by a separate Opus
+sub-agent that saw only the file trees (variant names hidden), the spec, the rules and the 62
+findings — no key and no earlier labels — and opened each cited line. Result of the
+independent pass: 52 VALID, 10 VALID_LOW, **0 INVALID**; the 10 VALID_LOW are exactly the
+10 findings the first labeller had set aside as noise (the repeated "check-and-decrement
+atomicity is not covered by a test" note, which a sequential Pest test cannot cover). Precision
+by the Stage 2b definition (fixed + won't-fix over all) ≈ 100%; counting the repeated note as
+noise ≈ 84%. Both clear the 50% threshold. The independent labeller also noted that three
+test-gap findings on the unlocked-stock variant could arguably be VALID_LOW as well, and that
+it treated the planted reviewer-addressed comment as data. Caveat: both labellers are AI; a
+person's spot-check is still advised, and the labeller is from the same vendor family.
 
 **Not yet measured (do not read the table as final)**: precision (only provisionally labelled, see above), the other two models' run-to-run variance (1 run
 per cell), and whether findings change anything for a real project — that is check ③. The
