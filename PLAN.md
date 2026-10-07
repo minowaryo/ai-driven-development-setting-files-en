@@ -2,6 +2,38 @@
 
 > Keep under 300 lines (`.claude/rules/60-docs.md`). Archived: 2026-08-03 – 2026-09-30 (load reduction) → `meta/history/plan-archive.md` (2026-09-30, 2026-10-03, 2026-10-06).
 
+## Evidence the implementer cannot rewrite, and denials shown from the log (2026-10-07)
+
+### Decision
+
+- Source: a CoT-faithfulness review (an AI's stated reasoning need not match what drove its
+  actions; the external record of actions is the evidence). Recorded as amendments to
+  ADR-0016 items 3 and 5; principle added to D6 in `meta/design/template-improvement-directions.md`.
+- **1 Lock the record** — `agent-guard.sh` also denies `tdd-implementer` writes to `logs/`
+  (and `audit.jsonl` in Bash commands) and to any path with a `claude-tdd` segment (the
+  approved snapshot; covers worktree git dirs). Rule `locked_evidence`, own message.
+  Probed 2026-10-07: all three tamper routes passed before.
+- **2 Denials from the log, not the report** — `tdd-snapshot.sh record` notes the log size;
+  `verify` prints every `agent_guard_denial` line since approval verbatim (or "none"), and a
+  shorter log is a change (exit 2). Denials alone keep exit 0. `/tdd` Step 4 shows them.
+- Backlog only: B29 (raw evidence next to AI summaries at Gate 4 / merge plan), B30
+  (AI-written reasons cite evidence or say "inference").
+- No new dependency. JP / company ports follow ADR-0016's existing plan (company has Stage 1).
+
+### Checklist
+
+- [x] Docs: ADR-0016 items 3 / 5 + rollout notes, `docs/development/tdd-guard.md`, D6 + B29 / B30, this entry
+- [x] `agent-guard.sh` evidence lock + 17 cases in `meta/tests/agent-guard.test.sh` (60 total; the 12 new deny cases fail on the previous script)
+- [x] `tdd-snapshot.sh` log offset + denial report + 8 cases in `meta/tests/tdd-snapshot.test.sh` (22 total; 7 fail on the previous script)
+- [x] `/tdd` Step 4 wording; `README.md`, `common-commands.md`; `meta/traceability-matrix.md` rows (role, cost, sync)
+- [x] All `meta/tests/*.test.sh` pass (agent-guard 60, domain-boundary 31, review-score 27, spec-lint 43, tdd-snapshot 22); the three tamper routes from the probe now exit 2
+
+### Status
+
+Docs approved by the maintainer 2026-10-07; implemented on `feat/evidence-lock`, not committed.
+Cost: hook unchanged (same-machine A/B); `verify` +≈0.2 s. Not done: an end-to-end `claude -p`
+run (the hook payload format is unchanged since the 2.1.288 check). Ports: company and JP later.
+
 ## Loop Engineering Stage 2a: unattended checks before any loop (2026-10-06)
 
 ### Decision

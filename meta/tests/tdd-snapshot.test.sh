@@ -76,6 +76,28 @@ fresh; rm -rf "$P/docs"
 expect "record without docs/product/"         0 "$(run record)"
 expect "verify without docs/product/"         0 "$(run verify)" "unchanged"
 
+# Blocked attempts come from the log, not from the implementer's report (2026-10-07).
+unset CLAUDE_PROJECT_DIR
+DENIAL='{"ts":"t","event":"agent_guard_denial","session_id":"s","agent_type":"tdd-implementer","tool":"Edit","rule":"locked_path","target":"tests/Feature/OrderTest.php"}'
+fresh; mkdir -p "$P/logs"; printf '%s\n' "${DENIAL/OrderTest/OldTest}" > "$P/logs/audit.jsonl"
+run record >/dev/null
+expect "denials before approval are not reported" 0 "$(run verify)" "No blocked attempts"
+printf '%s\n{"ts":"t","event":"other"}\n' "$DENIAL" >> "$P/logs/audit.jsonl"
+expect "a denial since approval is printed verbatim" 0 "$(run verify)" '"target":"tests/Feature/OrderTest.php"'
+expect "and counted (other events are not)"   0 "$(run verify)" "blocked 1 time(s)"
+if ! grep -qF OldTest "$ROOT/out"; then PASS=$((PASS + 1)); else FAIL=$((FAIL + 1)); echo "FAIL: a pre-approval denial was reported"; fi
+: > "$P/logs/audit.jsonl"
+expect "a log that shrank is a change"        2 "$(run verify)" "shorter than at Gate 4 approval"
+
+fresh; run record >/dev/null
+mkdir -p "$P/logs"; printf '%s\n' "$DENIAL" > "$P/logs/audit.jsonl"
+expect "log created after approval"           0 "$(run verify)" "blocked 1 time(s)"
+
+fresh; run record >/dev/null
+expect "no log at all"                        0 "$(run verify)" "No blocked attempts"
+rm "$P/$(git -C "$P" rev-parse --git-path claude-tdd)/approved/.log-offset"
+expect "snapshot from before this check"      0 "$(run verify)" "skipped"
+
 expect "usage error"                          3 "$(run bogus)" "usage"
 
 echo "tdd-snapshot tests: $PASS passed, $FAIL failed"

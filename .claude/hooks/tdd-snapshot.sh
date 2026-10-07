@@ -9,13 +9,21 @@
 #            difference. The comparison never goes through git, so neither `git add` nor git
 #            filters (.gitattributes clean filters) can hide a change.
 #
+# The denial log (logs/audit.jsonl, written by agent-guard.sh) is read too: record notes its
+# size; verify prints every agent_guard_denial line written since approval, verbatim, so the
+# person sees blocked attempts from the log rather than from the implementer's own report.
+# A log shorter than at approval counts as a change (ADR-0016 item 5, amended 2026-10-07).
+#
 # Run by the main session (not by tdd-implementer). Deterministic: bash + cp + diff, no AI.
 #
 # Exit code (same meaning as the gate contract, meta/design/gate-contract.md):
-#   0 = unchanged since approval, 2 = changed (diff printed), 3 = no snapshot / usage error.
+#   0 = unchanged since approval (denials, if any, are printed but do not change it),
+#   2 = changed (diff printed) or the log shrank, 3 = no snapshot / usage error.
 set -u
 
 LOCKED='tests docs/product'
+LOG="${CLAUDE_PROJECT_DIR:-$PWD}/logs/audit.jsonl"
+log_size() { if [ -f "$LOG" ]; then wc -c < "$LOG" | tr -d ' '; else echo 0; fi; }
 
 gitdir_path=$(git rev-parse --git-path claude-tdd 2>/dev/null) || {
   echo "tdd-snapshot: not inside a git repository" >&2; exit 3; }
@@ -32,6 +40,7 @@ case "${1:-}" in
       n=$((n + $(find "$d" -type f | wc -l)))
     done
     date '+%Y-%m-%dT%H:%M:%S%z' > "$SNAP/.recorded-at"
+    log_size > "$SNAP/.log-offset"
     echo "Saved the approved snapshot of tests/ and docs/product/ ($n files) — tdd-implementer cannot change them; verify runs after Green."
     exit 0
     ;;
@@ -47,11 +56,32 @@ case "${1:-}" in
       fi
     done
     rm -f "$SNAP/.diff"
-    if [ "$changed" -eq 0 ]; then
+
+    log_changed=0
+    if [ -f "$SNAP/.log-offset" ]; then
+      off=$(cat "$SNAP/.log-offset"); now=$(log_size)
+      if [ "$now" -lt "$off" ]; then
+        log_changed=1
+        echo "logs/audit.jsonl is shorter than at Gate 4 approval ($now < $off bytes): the record of this cycle was rewritten."
+      else
+        denials=$(tail -c +$((off + 1)) "$LOG" 2>/dev/null | grep -F '"event":"agent_guard_denial"')
+        if [ -n "$denials" ]; then
+          echo "tdd-implementer was blocked $(printf '%s\n' "$denials" | wc -l | tr -d ' ') time(s) since Gate 4 approval (logs/audit.jsonl, verbatim):"
+          printf '%s\n' "$denials"
+        else
+          echo "No blocked attempts by tdd-implementer since Gate 4 approval (logs/audit.jsonl)."
+        fi
+      fi
+    else
+      echo "Blocked-attempt check skipped: this snapshot predates it (record again at the next Gate 4 approval)."
+    fi
+
+    if [ "$changed" -eq 0 ] && [ "$log_changed" -eq 0 ]; then
       echo "tests/ and docs/product/ are unchanged since Gate 4 approval ($(cat "$SNAP/.recorded-at"))."
       exit 0
     fi
-    echo "tdd-snapshot: tests/ or docs/product/ changed after Gate 4 approval (diff above). A person decides: discard the change, or restart from Red and approve again."
+    [ "$changed" -eq 1 ] && echo "tdd-snapshot: tests/ or docs/product/ changed after Gate 4 approval (diff above)."
+    echo "tdd-snapshot: a person decides: discard the change, or restart from Red and approve again."
     exit 2
     ;;
   *)

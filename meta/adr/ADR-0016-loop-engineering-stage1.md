@@ -157,6 +157,15 @@ lock only binds the implementer.)*
    stdout open holds the call for its full run regardless of the timeout. The lock hook
    therefore must stay fast (bash builtins only, no external commands) and must never leave
    a child process running. *(Amended 2026-10-03.)*
+   The hook also locks the **record of the cycle** for the implementer: the denial log
+   (`logs/`, and `audit.jsonl` anywhere in a Bash command) and the approved snapshot (any path
+   with a `claude-tdd` segment, which also covers a worktree's git dir). Probed 2026-10-07:
+   until then `Edit .git/claude-tdd/approved/tests/…`, `Edit logs/audit.jsonl` and
+   `echo x > logs/audit.jsonl` all passed for the implementer, so it could erase its own
+   denials or move the baseline the snapshot check compares against. Evidence that the
+   checked party can rewrite is not evidence. Rule name `locked_evidence`, with its own
+   message. Same limit as the goal lock: a subprocess can still write; item 5 reports a log
+   that shrank. *(Amended 2026-10-07.)*
 4. **Hook tests** — `meta/tests/` (template-internal, like `review-score.test.sh`).
 5. **Green evidence (approved snapshot)** — when Gate 4 is approved, `/tdd` (main session)
    copies `tests/` and `docs/product/` into `$(git rev-parse --git-path claude-tdd)/approved/`
@@ -172,6 +181,14 @@ lock only binds the implementer.)*
    files hash to the approved value**. Comparing files directly does not go through git
    filters, and it gives the person a readable diff instead of a hash. *(Rewritten
    2026-10-05; supersedes the 2026-10-03 tree-hash version.)*
+   `record` also notes the size of `logs/audit.jsonl`; `verify` prints, verbatim, every
+   `agent_guard_denial` line written since approval — or one line saying there were none.
+   Until then a blocked attempt reached the person only if the implementer's own report
+   mentioned it, and a model's account of what it did is not reliable evidence of what it
+   did (its stated reasoning need not match what actually drove its actions); the log is
+   the external record. Denials do not change the exit code — they were blocked, so the goal
+   did not move — but `/tdd` shows them to the person. A log shorter than at approval is
+   reported as a change (exit 2): the record was rewritten. *(Amended 2026-10-07.)*
 6. **Record corrections** — `ADR-0007` (Probity: no subagent/agent-type support, Pest
    syntax not recognized, ~834 MB of dependencies, its own config unprotected) and
    `ADR-0014` (Laravel Boost now has an MCP-only install path) get dated update notes.
@@ -240,9 +257,9 @@ Approved 2026-10-03; all items implemented 2026-10-05 on `feat/loop-stage1` (hoo
 |---|---|---|
 | 1 SPEC_CONFLICT | Trial | Prompt-level; backed by the ImpossibleBench result |
 | 2 Stop conditions | Trial | Watch for premature escalation on legitimate retries |
-| 3 Test lock hook | Trial | First registered lifecycle hook in this template; locks `tests/` + `docs/product/` for the implementer only; also denies index-changing git commands and `git config`; watch false positives |
+| 3 Test lock hook | Trial | First registered lifecycle hook in this template; locks `tests/` + `docs/product/` for the implementer only; also denies index-changing git commands and `git config`; watch false positives. 2026-10-07: also locks the denial log and the approved snapshot |
 | 4 Hook tests | Trial | — |
-| 5 Green evidence | Trial | Approved snapshot copy + `diff -r` (rewritten 2026-10-05: index- and tree-hash-based checks were both shown forgeable) |
+| 5 Green evidence | Trial | Approved snapshot copy + `diff -r` (rewritten 2026-10-05: index- and tree-hash-based checks were both shown forgeable). 2026-10-07: `verify` also prints denials since approval and reports a shrunk log |
 | 6 ADR-0007 / ADR-0014 notes | Trial | Record-only |
 | 7 `disable-model-invocation` on commands + `skillOverrides` for `code-review` | Trial | Project `/review` wins today (undocumented — re-check on upgrade) |
 | 8 APPLY_TEMPLATE hook merge | Trial | — |

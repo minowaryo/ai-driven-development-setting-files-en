@@ -10,7 +10,10 @@
 #     the file tools or through Bash commands that write (redirects, cp/mv/rm, sed -i, tee,
 #     php file_put_contents, PowerShell Set-Content, ...);
 #   - git commands that change the index, the working tree or the config
-#     (add, commit, stash, checkout, restore, reset, rm, mv, apply, update-index, config).
+#     (add, commit, stash, checkout, restore, reset, rm, mv, apply, update-index, config);
+#   - writing the record of the cycle: logs/ (this denial log) and the approved snapshot
+#     (any path with a claude-tdd segment) — the checked party must not edit the evidence
+#     about itself (ADR-0016 item 3, amended 2026-10-07).
 # Each denial is appended to logs/audit.jsonl (event "agent_guard_denial"; never file contents).
 #
 # Bash builtins only on the allow path: the hook runs on every tool call, and a hook that
@@ -40,6 +43,7 @@ deny() { # deny RULE TARGET MESSAGE
 }
 
 GOAL_MSG='tests/ and docs/product/ hold the tests and the spec approved at Gate 4 (ADR-0016) and are locked for tdd-implementer. Change the implementation instead. If a test and the spec cannot both be satisfied, stop and report SPEC_CONFLICT with the test id and a verbatim quote from the use case.'
+EVIDENCE_MSG='logs/ (the AI activity log) and the approved snapshot (.git/claude-tdd/) are the record of this TDD cycle and are locked for tdd-implementer (ADR-0016). Leave them as they are and work on the implementation.'
 
 # Fields before "tool_input" belong to the hook payload itself; anything after it is the
 # tool's input (which may legitimately contain the text "tdd-implementer").
@@ -89,12 +93,27 @@ locked() {
   [[ $rel == tests || $rel == tests/* || $rel == docs/product || $rel == docs/product/* ]]
 }
 
+# evidence PATH -> 0 when the path is the cycle's record: logs/ of the project, or the
+# approved snapshot (any claude-tdd segment — a worktree's git dir lies outside cwd).
+evidence() {
+  local p rel
+  norm "$1"; p=$REPLY
+  [[ $p == claude-tdd || $p == claude-tdd/* || $p == */claude-tdd || $p == */claude-tdd/* ]] && return 0
+  norm "$cwd"; local c=$REPLY
+  if [[ $p == /* ]]; then
+    if [ -n "$c" ] && [[ $p == "$c"/* ]]; then rel=${p#"$c"/}
+    else [[ $p == */logs/audit.jsonl ]]; return; fi
+  else rel=$p; fi
+  [[ $rel == logs || $rel == logs/* ]]
+}
+
 case $tool_name in
   Write|Edit|MultiEdit|NotebookEdit)
     re_path='"(file_path|notebook_path)"[[:space:]]*:[[:space:]]*"([^"]*)"'
     if [[ $tin =~ $re_path ]]; then
       target=${BASH_REMATCH[2]}
       locked "$target" && deny locked_path "$target" "$GOAL_MSG"
+      evidence "$target" && deny locked_evidence "$target" "$EVIDENCE_MSG"
     else
       deny unparsable "" "could not find the file path in the tool input; refusing by default."
     fi
@@ -113,14 +132,18 @@ case $tool_name in
     fi
 
     re_locked='(^|[^a-z0-9_.-])(tests|docs/product)(/|\\|$|[[:space:]"'"'"'])'
-    if [[ $lc =~ $re_locked ]]; then
+    # The record: audit.jsonl anywhere, a claude-tdd segment, or a top-level logs/ (not
+    # storage/logs/, the application's own log directory).
+    re_evidence='audit\.jsonl|(^|[^a-z0-9_.-])claude-tdd(/|\\|$|[[:space:]"'"'"'])|(^|[[:space:];&|(>"'"'"'=]|\./)logs(/|\\|$|[[:space:]"'"'"';&|)])'
+    if [[ $lc =~ $re_locked || $lc =~ $re_evidence ]]; then
       s=$lc
       for pat in '2>&1' '1>&2' '>&2' '2>/dev/null' '2> /dev/null' '>/dev/null' '> /dev/null' '>nul' '> nul'; do
         s=${s//"$pat"/}
       done
-      re_write='>|(^|[^a-z_])(tee|cp|mv|rm|rmdir|touch|mkdir|ln|truncate|dd|install|rsync|unlink|chmod)([[:space:]]|$)|sed[[:space:]]+(-[a-z]*i|--in-place)|perl[[:space:]]+-[a-z]*i|file_put_contents|fwrite|fopen|copy\(|rename\(|unlink\(|set-content|add-content|out-file|new-item|remove-item|move-item|copy-item'
+      re_write='>|(^|[^a-z_])(tee|cp|mv|rm|rmdir|touch|mkdir|ln|truncate|dd|install|rsync|unlink|chmod)([[:space:]]|$)|sed[[:space:]]+(-[a-z]*i|--in-place)|perl[[:space:]]+-[a-z]*i|file_put_contents|fwrite|fopen|copy\(|rename\(|unlink\(|set-content|add-content|out-file|new-item|remove-item|move-item|copy-item|clear-content'
       if [[ $s =~ $re_write ]]; then
-        deny locked_path "$cmd" "$GOAL_MSG"
+        [[ $lc =~ $re_locked ]] && deny locked_path "$cmd" "$GOAL_MSG"
+        deny locked_evidence "$cmd" "$EVIDENCE_MSG"
       fi
     fi
     ;;
