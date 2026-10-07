@@ -27,8 +27,8 @@ JP = `ai-driven-development-setting-files`, Company = `ai-driven-development-set
 
 | Script | Added (EN) | Last change (EN) | JP | Company |
 |---|---|---|---|---|
-| `agent-guard.sh` | `6c9921b` | `feat/evidence-lock` (2026-10-07) | Not ported (ADR-0016 Stage 4) | Behind EN (evidence lock not ported) |
-| `tdd-snapshot.sh` | `6c9921b` | `feat/evidence-lock` (2026-10-07) | Not ported (ADR-0016 Stage 4) | Behind EN (denial report not ported) |
+| `agent-guard.sh` | `6c9921b` | `c3db263` | Not ported (ADR-0016 Stage 4) | Behind EN (evidence lock not ported) |
+| `tdd-snapshot.sh` | `6c9921b` | `c3db263` | Not ported (ADR-0016 Stage 4) | Behind EN (denial report not ported) |
 | `review-score.sh` | `550a640` | `3b0216a` | Identical | Identical |
 | `domain-boundary-check.sh` | `37457db` | `a5c2029` | Identical | Identical |
 | `spec-lint.sh` | `434adb7` | `eceb033` | Identical | Identical |
