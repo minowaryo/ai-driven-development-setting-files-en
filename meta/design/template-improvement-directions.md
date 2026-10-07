@@ -63,6 +63,13 @@ was told?**" — and that the answer is cheap machinery around the AI, not more 
 - `verification-before-completion` already asks for an actual run. Extend it to durable
   evidence: test/JUnit results, gate outputs, denial logs — files a human or a later step
   can read, not claims in chat.
+- An AI's account of why it acted (its reasoning, its report, a commit body) is not evidence
+  of why it acted: models can be shown to use a hint while their stated reasoning gives a
+  different, plausible path. Explainability is not auditability. What it read, ran and
+  changed is observable from outside; make that the record, and keep the record out of the
+  reach of the agent being checked (done for `tdd-implementer` 2026-10-07, ADR-0016 items
+  3 / 5). Claude Code's own session transcripts already record every tool call — use them
+  (joined by `session_id`) for Stage 2 measurement rather than adding a per-call logging hook.
 
 ### D7. Measure before expanding
 
@@ -136,6 +143,8 @@ was told?**" — and that the answer is cheap machinery around the AI, not more 
 | B26 | `DB::prohibitDestructiveCommands($this->app->isProduction())` in `SETUP.md` Step 4 (blocks `migrate:fresh` / `db:wipe` in production) | D1, D3 | XS | Done 2026-10-06 (also blocks production `migrate:rollback`; undo with a forward migration) |
 | B27 | Larastan opt-in rules (`checkModelProperties`, `checkModelMethodVisibility`, `checkDispatchInTransactionAfterCommit`) where Larastan is installed | D1 | XS | Dropped 2026-10-06: Larastan projects only, low effect |
 | B28 | Frontend greps: Options API, `target="_blank"` without `rel`, `document.querySelector`, missing `<style scoped>` | D1 | S | Dropped 2026-10-06: low risk once `v-html` is in the rules (B21) |
+| B29 | Raw evidence next to the AI's summary at approval points: Gate 4 shows each test's name and its verbatim failure message, and the "fails for the intended reason" claim points at that line; the UC coverage mapping comes from `->group('UC-NNN')` (B11), not from the AI's description; the merge plan keeps `git diff --stat` and the test runner's summary line as printed. Principle: a summary accompanies the evidence, never replaces it | D5, D6 | S | From the CoT-faithfulness review (2026-10-07). The Japanese Gate 4 summary format is set in the maintainer's global `CLAUDE.md` — align that wording by the maintainer's decision |
+| B30 | AI-written reasons are hypotheses: a "why" in a commit body, an implementer's "what I tried" report, or an AI-drafted ADR Rationale cites something checkable (test name, log line, file:line, URL) or is marked as inference. Generalizes SPEC_CONFLICT's verbatim-quote rule. One sentence in `docs/development/ai-workflow.md` (or an ADR-0004 note) | D6 | XS | From the CoT-faithfulness review (2026-10-07); no mechanism — prose only, so keep it short |
 
 Order of attack: B1 → (ADR-0016 Stage 1) → B5 → B7 → B2/B3/B4 → B6/B8 → B9. Amended
 2026-10-03 by the user: group 1 (B14–B16) first; group 2 (B11–B13, B17) belongs to the Loop stages.
@@ -163,7 +172,9 @@ down unless its security value is high). Owner: **T** = this track (loop-indepen
 | P2 | B13 `/tdd` Pint / build | L | Effect: machine-fixable failures stop consuming AI turns | Faster cycles; formatting may add a `style:` commit |
 | P2 | B8 eval cases | L | Groundwork: regression tests for harness behavior | None |
 | P2 | B17 mutation testing / B2 strict PHPUnit | L | Effect on test quality | Longer post-Green step (seconds to minutes); needs Xdebug / PCOV |
+| P2 | B29 raw evidence next to AI summaries at approvals | T | Governance: Gate 4 and the merge plan are approved on what actually ran, not on the AI's account of it; counters the "formal gate" problem (D5) | Gate 4 shows a few more raw lines per test |
 | P3 | B9 boundary backlog procedure | L | Stage 2 experiment task | None until used |
+| P3 | B30 AI-written reasons cite evidence or say "inference" | T | Governance, small: makes post-hoc rationales visible as such | Slightly longer commit bodies / reports |
 | — | B6, B20 | — | Deferred (side effects, new dependencies, per-clone setup) | `.env` read deny would block legitimate setup writes |
 
 Next for this track: B10 (approve its extra findings first), then B23 (approve the extra
