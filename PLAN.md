@@ -57,7 +57,11 @@ run (the hook payload format is unchanged since the 2.1.288 check). Ports: compa
 - [ ] Gate candidate from ①: deterministic "test fixture values hard-coded in app code" check (decide in Stage 2 gate work)
 - [~] ② reviewer seeds (8 + 2 clean + 1 injection) + R0 pipeline: first pass done 2026-10-06 (1 run per seed x 3 models, ≈ $6.7 incl. a pilot). All three models met the recall / clean / injection thresholds; Haiku missed the N+1 seed and had 1 invalid output. Sonnet 5.5 repeated 3x (33 runs): 12/12 judgment recall, clean controls pass, injection 3/3, identical across runs; precision ≈ 84–100% (two independent AI labellers agreed: 0 invalid of 62; a person's spot-check is still advised). Next: ③ shadow replays (maintainer picks ~4 tasks). Results: `meta/history/loop-stage2a-results.md`
 - [x] ③ done 2026-10-07: 4 finished authorization fixes in `ihs-tech-uplift` replayed (no behaviour-preserving migrations existed), 1 run each, ≈ $4.4. All green and close to the human code, no test/spec changes; 2 of 4 left a screen-logic residual the human fixed, which the diff reviewer did not see; guard false positive on a real project. Results: `meta/history/loop-stage2a-results.md`
-- [ ] Aggregated results in `meta/history/`; go / stop decision recorded in ADR-0017
+- [x] Aggregated results in `meta/history/`; go / stop decision recorded in ADR-0017 (2026-10-07: conditional go)
+- [ ] Prerequisite 1: deterministic check for test fixture values hard-coded in app code (gate contract)
+- [ ] Prerequisite 2: narrow the Stage 1 hook rule that denies a command which both rewrites an app file and runs a locked test file
+- [ ] Prerequisite 3: narrow the reviewer input to the cycle's UC section; find a way to catch repeated rules left unchanged on the screen side
+- [ ] Then Stage 2b (human A/B) — ask the maintainer before starting
 
 ### Status
 

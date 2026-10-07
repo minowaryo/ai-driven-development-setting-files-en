@@ -99,6 +99,29 @@ known human answer.
 - Seeds designed by the same assistant that may later be evaluated — mitigated because each run
   starts with no context and the seed files are never in the runs' working trees before grading.
 
+## Outcome (2026-10-07): conditional go
+
+Results: `meta/history/loop-stage2a-results.md` (≈ $19 of usage in total). Decision by the
+maintainer: **go toward Stage 2b, but only after three prerequisites are done** — the frozen
+criteria were met for the reviewer (②) and for cost (③), and not met for "no undetected spec
+bends" and "not clearly worse than a person" (see the summary table in the results file).
+
+Prerequisites (each is its own small change through the normal flow; none is part of 2a):
+
+1. **A deterministic check for test fixture values hard-coded in application code** (the one
+   silent cheat in ① was a special case that only the lab's oracle caught). Defined in
+   `meta/design/gate-contract.md` terms; no AI.
+2. **Narrow the Stage 1 hook rule** that denied a legitimate app-file rewrite because the same
+   command also ran a locked test file (seen on a real project in ③).
+3. **Narrow the reviewer's input** to the cycle's UC section (cost was ≈ 7× the lab's), and add a
+   way to catch "a rule changed here, the screen logic that repeats it was not" — the residual a
+   diff-only reviewer cannot see (2 of 4 replays). Until then the reviewer is a finding-only aid,
+   never a completeness check, and stays out of any loop.
+
+Stage 2b (human A/B) is not started. Stage 3 stays closed until 2b and these prerequisites.
+Not decided here: whether the weaker model (Haiku 4.5) may be used for the implementer (it
+produced the one silent special case) — keep Sonnet-class models for any loop use.
+
 ## Related
 - `meta/adr/ADR-0016-loop-engineering-stage1.md` (roadmap, Stage 1)
 - `meta/design/loop-stage2-experiment-protocol.md`, `loop-stage2a-seeds.md`,
