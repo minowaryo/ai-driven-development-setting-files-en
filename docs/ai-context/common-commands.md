@@ -117,7 +117,8 @@ bash .claude/hooks/spec-lint.sh --requirements
 `/tdd` runs these itself (`docs/development/tdd-guard.md`); run them by hand to check.
 
 ```bash
-# Compare tests/ and docs/product/ with the snapshot saved at Gate 4 approval
+# Compare tests/ and docs/product/ with the snapshot saved at Gate 4 approval,
+# and list tdd-implementer's blocked attempts since then (from logs/audit.jsonl)
 bash .claude/hooks/tdd-snapshot.sh verify
 
 # Save a new snapshot (what Gate 4 approval does)

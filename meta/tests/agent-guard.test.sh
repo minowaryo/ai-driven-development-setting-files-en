@@ -80,6 +80,24 @@ expect "git config filter"                      2 "$(payload $IMPL Bash "$(B 'gi
 expect "git -c ... add"                         2 "$(payload $IMPL Bash "$(B 'git -c core.x=1 add .')")"
 expect "chained: test && git add"               2 "$(payload $IMPL Bash "$(B 'php artisan test && git add .')")"
 
+# --- the record of the cycle: denial log and approved snapshot (ADR-0016, 2026-10-07) ---
+expect "Edit the approved snapshot (relative)"  2 "$(payload $IMPL Edit "$(W '.git/claude-tdd/approved/tests/Feature/FooTest.php')")"
+expect "Write the snapshot (Windows absolute)"  2 "$(payload $IMPL Write "$(W 'C:\\work\\app\\.git\\claude-tdd\\approved\\tests\\x.php')")"
+expect "Write a worktree's snapshot"            2 "$(payload $IMPL Write "$(W 'C:\\work\\main\\.git\\worktrees\\wt\\claude-tdd\\approved\\x')")"
+expect "Edit logs/audit.jsonl"                  2 "$(payload $IMPL Edit "$(W 'logs/audit.jsonl')")"
+expect "Write another file under logs/"         2 "$(payload $IMPL Write "$(W 'C:\\work\\app\\logs\\notes.txt')")"
+expect "Bash truncate the log"                  2 "$(payload $IMPL Bash "$(B 'echo x > logs/audit.jsonl')")"
+expect "Bash sed -i the log (absolute)"         2 "$(payload $IMPL Bash "$(B 'sed -i /denial/d C:/work/app/logs/audit.jsonl')")"
+expect "Bash rm -rf logs"                       2 "$(payload $IMPL Bash "$(B 'rm -rf logs')")"
+expect "Bash rm -rf ./logs"                     2 "$(payload $IMPL Bash "$(B 'rm -rf ./logs')")"
+expect "Bash rm the snapshot"                   2 "$(payload $IMPL Bash "$(B 'rm -rf .git/claude-tdd')")"
+expect "PowerShell Clear-Content the log"       2 "$(payload $IMPL PowerShell "$(B 'Clear-Content logs\\\\audit.jsonl')")"
+expect "Write storage/logs/ (app log)"          0 "$(payload $IMPL Write "$(W 'storage/logs/laravel.log')")"
+expect "Bash rm storage/logs/laravel.log"       0 "$(payload $IMPL Bash "$(B 'rm storage/logs/laravel.log')")"
+expect "Write app/Support/Logs/x.php"           0 "$(payload $IMPL Write "$(W 'app/Support/Logs/x.php')")"
+expect "Bash read the log"                      0 "$(payload $IMPL Bash "$(B 'tail -n 5 logs/audit.jsonl')")"
+expect "main session edits the log"             0 "$(payload '' Edit "$(W 'logs/audit.jsonl')")"
+
 # --- not the implementer: nothing is blocked ---
 expect "main session Write tests/"              0 "$(payload '' Write "$(W 'tests/x.php')")"
 expect "main session git add"                   0 "$(payload '' Bash "$(B 'git add -A')")"
@@ -112,6 +130,11 @@ if [ "$lines" -eq 1 ]; then PASS=$((PASS + 1)); else FAIL=$((FAIL + 1)); echo "F
 msg=$( (cd "$PROJ" && payload $IMPL Write "$(W 'tests/x.php')" | bash "$SCRIPT" 2>&1 >/dev/null) )
 if [[ $msg == *"Gate 4"* && $msg == *SPEC_CONFLICT* ]]; then PASS=$((PASS + 1))
 else FAIL=$((FAIL + 1)); echo "FAIL: deny message lacks Gate 4 / SPEC_CONFLICT pointer: $msg"; fi
+
+rm -rf "$PROJ/logs"
+(cd "$PROJ" && payload $IMPL Edit "$(W 'logs/audit.jsonl')" | bash "$SCRIPT" >/dev/null 2>"$ROOT/err")
+if [[ $(cat "$PROJ/logs/audit.jsonl" 2>/dev/null) == *'"rule":"locked_evidence"'* && $(<"$ROOT/err") == *"record of this TDD cycle"* ]]; then PASS=$((PASS + 1))
+else FAIL=$((FAIL + 1)); echo "FAIL: evidence denial lacks its rule / message: $(cat "$PROJ/logs/audit.jsonl" "$ROOT/err" 2>/dev/null)"; fi
 
 echo "agent-guard tests: $PASS passed, $FAIL failed"
 [ "$FAIL" -eq 0 ]
