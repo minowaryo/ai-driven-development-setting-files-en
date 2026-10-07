@@ -57,6 +57,10 @@ expect "Bash run the tests"                     0 "$(payload $IMPL Bash "$(B 'ph
 expect "Bash pest with redirect to /dev/null"   0 "$(payload $IMPL Bash "$(B 'vendor/bin/pest tests/Unit > /dev/null')")"
 expect "Bash read a test"                       0 "$(payload $IMPL Bash "$(B 'cat tests/Feature/FooTest.php')")"
 expect "Bash git status / diff / log"           0 "$(payload $IMPL Bash "$(B 'git status && git diff && git log -3')")"
+expect "Bash inline PHP with -> then run a test" 0 "$(payload $IMPL Bash "$(B "php -r '\$a->b = 1;' ; php vendor/bin/phpunit tests/Feature/FooTest.php")")"
+expect "Bash inline script with => then run a test" 0 "$(payload $IMPL Bash "$(B "php -r '\$m = [1 => 2];' && php artisan test tests/Feature/FooTest.php")")"
+expect "Bash inline PHP with -> still blocked when it writes a test" 2 "$(payload $IMPL Bash "$(B "php -r '\$a->b = 1; file_put_contents(\\'tests/x.php\\', 1);'")")"
+expect "Bash redirect into tests/ after a PHP arrow" 2 "$(payload $IMPL Bash "$(B "php -r '\$a->b;' ; echo x > tests/a.txt")")"
 expect "Read tests/ (not a write tool)"         0 "$(payload $IMPL Read '{"file_path":"tests/x.php"}')"
 
 # --- Bash writes into locked paths ---

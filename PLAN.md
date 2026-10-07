@@ -59,7 +59,7 @@ run (the hook payload format is unchanged since the 2.1.288 check). Ports: compa
 - [x] ③ done 2026-10-07: 4 finished authorization fixes in `ihs-tech-uplift` replayed (no behaviour-preserving migrations existed), 1 run each, ≈ $4.4. All green and close to the human code, no test/spec changes; 2 of 4 left a screen-logic residual the human fixed, which the diff reviewer did not see; guard false positive on a real project. Results: `meta/history/loop-stage2a-results.md`
 - [x] Aggregated results in `meta/history/`; go / stop decision recorded in ADR-0017 (2026-10-07: conditional go)
 - [ ] Prerequisite 1: deterministic check for test fixture values hard-coded in app code (gate contract)
-- [ ] Prerequisite 2: narrow the Stage 1 hook rule that denies a command which both rewrites an app file and runs a locked test file
+- [x] Prerequisite 2 (branch `fix/guard-php-arrow`): the hook no longer reads PHP `$obj->prop` / `=>` as a redirect (the false positive seen in ③); 4 cases added to the existing agent-guard test, one reproduced against the old hook
 - [ ] Prerequisite 3: narrow the reviewer input to the cycle's UC section; find a way to catch repeated rules left unchanged on the screen side
 - [ ] Then Stage 2b (human A/B) — ask the maintainer before starting
 

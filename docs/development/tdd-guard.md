@@ -74,6 +74,12 @@ It is **not** the application's audit log (`storage/logs/audit.log`,
   `tests/` and `docs/product/`, and a log that got shorter; a subprocess that rewrites both
   a test and its snapshot copy, or deletes only the newest log lines, is not caught. Only
   running the agent outside its own workspace's reach closes that (ADR-0016, Stage 5).
+- A command that mentions a locked path and also looks like a write is denied by reading the
+  command text, so a command can be denied by mistake — for example a script that rewrites an
+  app file and, in the same command, runs a test file. The PHP forms `$obj->prop` and `=>` are
+  not counted as redirects; if a command is still denied wrongly, split it into two (write,
+  then run the tests). The reverse gap — a write written to look like `$v->tests/x` — is left
+  to the snapshot check.
 - A hook that crashes or times out lets the call through. The hook is kept fast (bash
   builtins only) for this reason, and the snapshot check is the backstop.
 - Codex users get the snapshot check (run by `/tdd`'s steps in AGENTS.md workflows) but not
