@@ -246,6 +246,9 @@ lifetime, a locked-paths config file, changes to Gate 4, any orchestrator, insta
   until the maintainer lifted its hold *(amended 2026-10-03)*; the hold was lifted for
   **Stage 1 only** on 2026-10-05 and Stage 1 was ported there (company `219dd51`, not yet
   pushed). Stages 2–5 stay on hold for the company repository.
+  *JP: on 2026-10-07 the maintainer chose to port Stage 1 (with its 2026-10-07 amendments)
+  ahead of Stage 4; JP's ADR-0016 is now a full translation. Stages 2–5 and `meta/design/`
+  stay EN-only.*
 - No separate repository before Stage 5.
 - The design memo stays in `meta/design/` (template-internal; not copied into projects).
 

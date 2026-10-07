@@ -32,7 +32,9 @@
 
 Docs approved by the maintainer 2026-10-07; implemented on `feat/evidence-lock`, not committed.
 Cost: hook unchanged (same-machine A/B); `verify` +≈0.2 s. Not done: an end-to-end `claude -p`
-run (the hook payload format is unchanged since the 2.1.288 check). Ports: company and JP later.
+run (the hook payload format is unchanged since the 2.1.288 check). Merged (`3a88c98`) and pushed.
+JP: ported 2026-10-07 together with all of Stage 1 (maintainer's decision, ahead of Stage 4).
+Company: later.
 
 ## Loop Engineering Stage 2a: unattended checks before any loop (2026-10-06)
 
