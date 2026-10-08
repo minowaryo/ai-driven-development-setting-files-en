@@ -67,6 +67,7 @@ Template's Own Layer        → meta/adr/ (outside the project's own decision-ma
 │   ├── hooks/
 │   │   ├── agent-guard.sh             # PreToolUse hook: tdd-implementer cannot write tests/, docs/product/, logs/ or the snapshot, or stage/commit/configure git (ADR-0016)
 │   │   ├── domain-boundary-check.sh   # Domain Boundary contract check (run in /review Step 0 and prepare-merge; --audit-all for whole-repo audit)
+│   │   ├── fixture-literal-check.sh   # /tdd: after Green, finds application code comparing against a value only the approved tests contain (ADR-0017)
 │   │   ├── review-score.sh            # Scores the branch diff: review level (/review Step 0) + pre-merge tier (prepare-merge)
 │   │   ├── spec-lint.sh               # Structure check of requirements / use cases / mockups, run before Gate 1 / Gate 2
 │   │   └── tdd-snapshot.sh            # /tdd: saves tests/ + docs/product/ at Gate 4 approval, compares after Green and lists blocked attempts from the log (ADR-0016)
@@ -92,7 +93,7 @@ Template's Own Layer        → meta/adr/ (outside the project's own decision-ma
 │   │   └── ADR-0015-git-workflow.md
 │   ├── design/                        # Design memos for the harness's own evolution (e.g. loop_engineering_design_memo.txt) — template-internal (not copied by APPLY_TEMPLATE; removed in SETUP.md)
 │   ├── history/                       # Archive of this template's own PLAN.md entries (created when first needed) — template-internal (not copied by APPLY_TEMPLATE; removed in SETUP.md)
-│   ├── tests/                         # Tests for the template's own scripts (review-score, domain-boundary-check, spec-lint, agent-guard, tdd-snapshot) — template-internal (not copied by APPLY_TEMPLATE; removed in SETUP.md)
+│   ├── tests/                         # Tests for the template's own scripts (review-score, domain-boundary-check, spec-lint, agent-guard, tdd-snapshot, fixture-literal-check) — template-internal (not copied by APPLY_TEMPLATE; removed in SETUP.md)
 │   └── traceability-matrix.md         # Every .claude/hooks/ script: where it runs, cost, ADR, test, sync across EN/JP/company — template-internal (not copied by APPLY_TEMPLATE; removed in SETUP.md)
 │
 └── docs/

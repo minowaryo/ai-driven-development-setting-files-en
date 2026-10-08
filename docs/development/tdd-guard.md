@@ -31,6 +31,7 @@ Nothing is locked for you or for the main session. There is no lock to switch on
 | Every tool call | `.claude/hooks/agent-guard.sh` checks calls made by `tdd-implementer` and blocks writes to `tests/`, `docs/product/`, `logs/audit.jsonl` or the snapshot, and git commands that stage, commit, switch or configure | Nothing at the time. Each blocked attempt is written to `logs/audit.jsonl` |
 | Right after you approve at Gate 4 | `/tdd` copies `tests/` and `docs/product/` into `.git/claude-tdd/approved/` and notes the size of `logs/audit.jsonl` | One line: "Saved the approved snapshot …" |
 | Right after Green | `/tdd` compares the files with that copy, and reads the log lines written since approval | Usually "unchanged" and "no blocked attempts". If something changed, the diff is shown and `/tdd` stops for your decision. Blocked attempts are shown as the raw log lines — from the log, not from the implementer's report, which may leave them out |
+| Right after Green, after that comparison | `/tdd` runs `.claude/hooks/fixture-literal-check.sh`: does application code compare against a value that only the approved tests contain (for example `if ($product->sku === 'SKU-A')`)? | Nothing when clean. If found, the lines are shown as `FIXTURE_LITERAL file:line 'value'` and `/tdd` stops for your decision |
 | The tests and the spec contradict each other | The implementer stops and reports `SPEC_CONFLICT` (test name + a quote from the use case) | A report instead of a forced green; you decide which side is wrong |
 | The implementer is stuck | It stops after 3 attempts, or when the same failure appears twice | A report of what it tried |
 
@@ -80,6 +81,7 @@ It is **not** the application's audit log (`storage/logs/audit.log`,
   not counted as redirects; if a command is still denied wrongly, split it into two (write,
   then run the tests). The reverse gap — a write written to look like `$v->tests/x` — is left
   to the snapshot check.
+- The fixture-literal check reads quoted strings only, in added application lines that compare (`===`, `==`, `!=`, `case`, `match`, `in_array(`, `where(`). It does not see numbers, a value split across a concatenation, or one hidden behind a constant — the reviewer or a person reading the diff covers those (`meta/design/fixture-literal-check.md`).
 - A hook that crashes or times out lets the call through. The hook is kept fast (bash
   builtins only) for this reason, and the snapshot check is the backstop.
 - Codex users get the snapshot check (run by `/tdd`'s steps in AGENTS.md workflows) but not
