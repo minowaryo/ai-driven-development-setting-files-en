@@ -60,6 +60,27 @@ run: cost per review; whether the two residuals are now reported; whether new no
 t1/t2. Success: cost ≤ 40% of before, both residuals reported, no new findings on t1/t2 that a
 person labels invalid.
 
+## Validation result (2026-10-08, ≈ $1.3)
+
+The reviewer (Sonnet 5.5 medium, R0) was re-run on t1–t4 with both changes:
+
+| Task | Cost before → after | Residual reported | Other findings |
+|---|---|---|---|
+| t1 | $0.71 → $0.30 | (none to report) | 1 → 0 |
+| t2 | $0.61 → $0.30 | (none to report) | same 2 as before |
+| t3 | $0.65 → $0.32 | **yes** — `canEdit` in the controller still follows the old rule | the widened delete rule (as before) |
+| t4 | $0.67 → $0.35 | **yes** (HIGH) — the view still gates Edit on the plan-level flag, the new per-row flag is unread | a possible N+1 (as before) |
+
+- Residuals: 2 of 2 now reported, each with a verbatim quote; none were reported before.
+- Noise: no new findings on t1/t2; t1 lost one marginal finding.
+- Cost: ≈ 48% of before — the 40% target is **not** met. The remaining cost is mostly fixed
+  (system prompt, tool definitions, the reviewer reading files around the diff), so further
+  cuts need a smaller model or fewer turns, not a smaller spec.
+- One run per task; the hints were fitted to these same two cases, so the residual result shows
+  the hints are *used* by the reviewer, not that they generalise.
+- **Decision (maintainer, 2026-10-08)**: the cost result (≈ 48%) is accepted; no further
+  cost experiment now. Prerequisite 3 is done at design + lab level.
+
 ## Where it would live
 
 A small script in `.claude/hooks/` (spec slicing + the two hints, bash/awk like the other

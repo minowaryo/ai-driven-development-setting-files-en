@@ -186,3 +186,11 @@ commits are the only reference for "complete".
 | ③ correctness not clearly worse than a person | Mixed: green and close to the human's code, but 2 of 4 left a residual the human fixed |
 
 Total Stage 2a usage ≈ $19 (① $7, ② $7.4, ③ $4.4) plus the orchestrating sessions.
+
+## Prerequisite 3 check (2026-10-08, ≈ $1.3)
+
+Reviewer re-run on the four replays with the spec sliced to the cycle's use cases and two
+scripted residual hints (`meta/design/reviewer-input-and-residuals.md`): cost per review
+$0.61–0.71 → $0.30–0.35 (≈ 48%, target 40% not met); both residuals (t3, t4) now reported with
+quotes, none before; no new findings on t1/t2. One run each; the hints were written from these
+two cases.
