@@ -23,14 +23,15 @@ none costs tokens except the lines it prints.
 
 ## Sync
 
-Byte-identical (ignoring line endings) across the sibling repositories, checked 2026-10-05.
+Byte-identical (ignoring line endings) across the sibling repositories, checked 2026-10-05;
+the first three rows re-checked 2026-10-08.
 JP = `ai-driven-development-setting-files`, Company = `ai-driven-development-setting-files-en-company`.
 
 | Script | Added (EN) | Last change (EN) | JP | Company |
 |---|---|---|---|---|
-| `agent-guard.sh` | `6c9921b` | `c3db263` | Identical (ported 2026-10-07) | Behind EN (evidence lock not ported) |
-| `tdd-snapshot.sh` | `6c9921b` | `c3db263` | Identical (ported 2026-10-07) | Behind EN (denial report not ported) |
-| `fixture-literal-check.sh` | (this branch) | (this branch) | Not ported | Not ported |
+| `agent-guard.sh` | `6c9921b` | `4365586` | Behind EN (PHP-arrow fix not ported) | Identical (ported 2026-10-08, `249ae2d`) |
+| `tdd-snapshot.sh` | `6c9921b` | `c3db263` | Identical (ported 2026-10-07) | Identical (ported 2026-10-08, `249ae2d`) |
+| `fixture-literal-check.sh` | `8dc6e13` | `8dc6e13` | Not ported | Identical (ported 2026-10-08, `249ae2d`) |
 | `review-score.sh` | `550a640` | `3b0216a` | Identical | Identical |
 | `domain-boundary-check.sh` | `37457db` | `a5c2029` | Identical | Identical |
 | `spec-lint.sh` | `434adb7` | `eceb033` | Identical | Identical |

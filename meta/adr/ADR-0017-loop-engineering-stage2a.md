@@ -122,6 +122,14 @@ Stage 2b (human A/B) is not started. Stage 3 stays closed until 2b and these pre
 Not decided here: whether the weaker model (Haiku 4.5) may be used for the implementer (it
 produced the one silent special case) — keep Sonnet-class models for any loop use.
 
+**Follow-up (2026-10-08)**: all three prerequisites are done (2 and 3 recorded in `PLAN.md` and
+`meta/design/reviewer-input-and-residuals.md`). Before 2b, analysis A (results file) found that
+past Green cycles almost never needed a second implementer call, so a retry loop would save
+little; people's time went to go-aheads, starting checks and late judgments. Decision by the
+maintainer: **Stage 2b is skipped**; the next goal is "non-stop after approval, review included,
+stopping only on machine-checked guardrails". Merge stays human; Gate 4 stays human per cycle
+until a machine check is shown with numbers to replace it (details in `PLAN.md`).
+
 ## Related
 - `meta/adr/ADR-0016-loop-engineering-stage1.md` (roadmap, Stage 1)
 - `meta/design/loop-stage2-experiment-protocol.md`, `loop-stage2a-seeds.md`,

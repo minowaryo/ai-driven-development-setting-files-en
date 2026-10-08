@@ -64,13 +64,17 @@ Company: later.
 - [x] Prerequisite 2 (branch `fix/guard-php-arrow`): the hook no longer reads PHP `$obj->prop` / `=>` as a redirect (the false positive seen in ③); 4 cases added to the existing agent-guard test, one reproduced against the old hook
 - [x] Prerequisite 3 (design + lab; built into the template when Stage 3 adopts the reviewer): narrow the reviewer input to the cycle's UC section; find a way to catch repeated rules left unchanged on the screen side
   - Design drafted 2026-10-08: `meta/design/reviewer-input-and-residuals.md` (UC slicing: prompt 99 KB → 6–15 KB; two residual hints fire on the 2 known cases only). Re-run done 2026-10-08: cost ≈ 48% of before (target 40% not met — accepted by the maintainer), both residuals now reported, no new noise on t1/t2
-- [ ] Then Stage 2b (human A/B) — ask the maintainer before starting
+- [x] Company: all of Stage 1 incl. the PHP-arrow fix and the fixture-literal check ported 2026-10-08 (`249ae2d`). JP: PHP-arrow fix and fixture-literal check not ported yet
+- [x] Analysis A (2026-10-08, no model usage): past Green cycles in `ihs-tech-uplift` needed 1 implementer call in 9 of 10, with no "try again" requests; people's time went to go-aheads, starting checks and late spec/UX judgments. Results: `meta/history/loop-stage2a-results.md`
+- [x] Stage 2b (human A/B) — skipped (maintainer, 2026-10-08): analysis A showed a retry loop would save little, and the goal below does not need it
+- [x] Goal agreed (maintainer, 2026-10-08): after approval the work runs without stopping through checks, review, in-spec fixes and a completion report, and stops only where a machine-checked guardrail says a person must decide. Merge stays human (design memo v1). Gate 4 stays human per cycle for now — so the non-stop stretch starts at Gate 4 approval; moving its start to spec approval waits until a machine check is shown, with numbers, to replace Gate 4
+- [ ] Goal definition document (one page): the non-stop stretch, the stop conditions, what the person sees at the end
 
 ### Status
 
-① done 2026-10-06. Next: ② reviewer seeds, then ③ — in a new session (Sonnet 5.5, medium
-effort) from the handoff note `C:\workspace\loop-stage2a-lab\HANDOFF.md`. Usage rule: stop when
-remaining weekly usage would drop below 60% (maintainer, 2026-10-06).
+2a and its prerequisites are done; 2b skipped. Next: the one-page goal definition, then a
+guardrail inventory against its stop conditions. Usage rule: stop at about 50% weekly usage
+(maintainer, 2026-10-08).
 
 ## Harness traceability matrix + ADR-0018 for spec-lint (2026-10-05)
 

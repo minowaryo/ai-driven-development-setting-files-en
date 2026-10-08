@@ -194,3 +194,42 @@ scripted residual hints (`meta/design/reviewer-input-and-residuals.md`): cost pe
 $0.61–0.71 → $0.30–0.35 (≈ 48%, target 40% not met); both residuals (t3, t4) now reported with
 quotes, none before; no new findings on t1/t2. One run each; the hints were written from these
 two cases.
+
+## Analysis A: where people's time went after Green (2026-10-08, no model usage)
+
+Asked before Stage 2b: would an automatic retry loop (Stage 3 as first drawn) save the
+maintainer's time? A read-only script went through the `ihs-tech-uplift` session logs (8 sessions
+with a `tdd-implementer` call, 10 Green cycles; lab script `retro_green.py`, output
+`results/retro-green.json`) and listed what the person wrote after each Green started.
+
+| Measure | Result |
+|---|---|
+| Implementer calls per Green cycle | 1 in 9 of 10 cycles, 2 in 1 |
+| Requests to "try again / fix the failing tests" | none |
+| Person-side log entries after Green (incl. task notifications) | 0–14 per cycle (58 in total) |
+
+What the person's messages were:
+
+1. **Go-aheads** — "proceed", "run it", "commit and push" — the most common kind.
+2. **Starting checks** — `/verify`, `/review` (human-invoked by design, ADR-0009).
+3. **Judgments after seeing the result** — display rules (show a count, show negatives with a
+   minus), behaviour when nothing changed, which roles may see a page, and which review findings
+   to fix. These are spec or UX gaps found late, not implementation errors.
+4. **One prompt-only rule failure** (2026-09-10): the AI fixed a HIGH review finding that changed
+   who may edit what without asking first, against the "user-facing behaviour change needs
+   approval" rule (`.claude/rules/00-global.md`), which only a prompt enforces.
+
+**Reading**: a retry loop would rarely fire — the implementer already gets to green in one call.
+The time goes to go-aheads (which a pipeline can remove), to checks a person has to start (which
+can be chained), and to judgments (which belong before spec approval or at a final review). The
+one guardrail that failed was one that no machine checks.
+
+**Limits**: one project, one maintainer, 10 cycles; message kinds were read by the assistant, not
+coded by a second labeller; time between messages includes idle time, so it is not reported as
+effort.
+
+**Decision (maintainer, 2026-10-08)**: the goal is that once the spec is approved, the work after
+it — including review — runs without stopping, and stops only where a machine-checked guardrail
+says a person must decide. Stage 2b (human A/B) is skipped and an automatic retry loop is not
+the focus. Merge stays human. Gate 4 stays human per cycle until a machine check is shown, with
+numbers, to replace it; until then the non-stop stretch starts at Gate 4 approval.
