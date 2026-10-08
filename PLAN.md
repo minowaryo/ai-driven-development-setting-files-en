@@ -63,6 +63,7 @@ Company: later.
 - [x] Prerequisite 1 (branch `feat/fixture-literal-check`): `.claude/hooks/fixture-literal-check.sh` + its one test, wired into `/tdd` Step 4. Real script on the stored lab data: the 1 known special case caught, 0 false positives on the other 33 runs and the 4 real-project diffs; 21 test cases incl. 2 documented gaps
 - [x] Prerequisite 2 (branch `fix/guard-php-arrow`): the hook no longer reads PHP `$obj->prop` / `=>` as a redirect (the false positive seen in ③); 4 cases added to the existing agent-guard test, one reproduced against the old hook
 - [ ] Prerequisite 3: narrow the reviewer input to the cycle's UC section; find a way to catch repeated rules left unchanged on the screen side
+  - Design drafted 2026-10-08: `meta/design/reviewer-input-and-residuals.md` (UC slicing: prompt 99 KB → 6–15 KB; two residual hints fire on the 2 known cases only). Next: re-run the reviewer on the 4 replays (≈ $1) to measure cost and whether the residuals are reported
 - [ ] Then Stage 2b (human A/B) — ask the maintainer before starting
 
 ### Status
