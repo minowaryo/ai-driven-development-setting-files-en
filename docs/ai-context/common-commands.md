@@ -121,6 +121,10 @@ bash .claude/hooks/spec-lint.sh --requirements
 # and list tdd-implementer's blocked attempts since then (from logs/audit.jsonl)
 bash .claude/hooks/tdd-snapshot.sh verify
 
+# Find application code that compares against a value only the approved tests contain
+# (exit 2 = found; run after Green, from the project root)
+bash .claude/hooks/fixture-literal-check.sh
+
 # Save a new snapshot (what Gate 4 approval does)
 bash .claude/hooks/tdd-snapshot.sh record
 ```

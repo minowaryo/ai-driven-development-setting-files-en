@@ -108,7 +108,7 @@ bends" and "not clearly worse than a person" (see the summary table in the resul
 
 Prerequisites (each is its own small change through the normal flow; none is part of 2a):
 
-1. **A deterministic check for test fixture values hard-coded in application code** (the one
+1. **(done 2026-10-08, `fixture-literal-check.sh`)** **A deterministic check for test fixture values hard-coded in application code** (the one
    silent cheat in ① was a special case that only the lab's oracle caught). Defined in
    `meta/design/gate-contract.md` terms; no AI.
 2. **Narrow the Stage 1 hook rule** that denied a legitimate app-file rewrite because the same
