@@ -89,7 +89,7 @@ Handle errors differently depending on their type. Do not swallow all errors wit
 
 | Type | Example | HTTP Status | Log Level |
 |---|---|---|---|
-| Validation error | FormRequest validation failure | 422 | Not logged (an expected input mistake) |
+| Validation error | FormRequest validation failure | 422 (JSON); a web / Inertia form gets a 302 back with session errors | Not logged (an expected input mistake) |
 | Auth / authz error | Not logged in / insufficient permissions | 401 / 403 | `info` (the attempt is recorded, but it isn't an anomaly) |
 | Business error | Insufficient stock, inconsistent state, etc. | 400 / 409 | `warning` |
 | System error | DB connection lost, external API failure, etc. | 500 | `error` (includes stack trace, but never log PII in production — see `.claude/rules/40-security.md`) |
