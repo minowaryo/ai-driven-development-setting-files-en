@@ -2,7 +2,114 @@
 
 > Template-internal archive of this repository's own `PLAN.md` entries (newest first). Moved verbatim per `.claude/rules/60-docs.md`.
 > Not copied into target projects (`APPLY_TEMPLATE.md` class X; removed in `SETUP.md`).
-> Covers: 2026-08-03 – 2026-09-30 (archived 2026-09-30, 2026-10-03, 2026-10-06).
+> Covers: 2026-08-03 – 2026-10-03 (archived 2026-09-30, 2026-10-03, 2026-10-06, 2026-10-09).
+
+## Loop Engineering roadmap + Stage 1: the implementer cannot move the goal (2026-10-03, simplified 2026-10-05)
+
+### Decision
+
+- Source: `meta/design/loop_engineering_design_memo.txt` (template-internal, class X).
+  Reasoning and decisions: `meta/adr/ADR-0016-loop-engineering-stage1.md` (Trial; Stage 1
+  simplified and re-approved 2026-10-05).
+- Goal: AI may iterate implement → verify → review while TDD discipline and human decisions
+  stay intact. The shape: people fix the goal (spec + approved tests), the AI does the work,
+  machines check. Five stages, each started only on measured results; Gate definitions do not
+  change before Stage 3; no orchestrator or separate repo before Stage 5.
+- **Stage 1 has one job: `tdd-implementer` cannot move the goal.** The lock binds only the
+  implementer during Green; people, the main session and `test-writer` work as today. A
+  legitimate change to tests or spec = a person decides → restart from Red → Gate 4 approval
+  (which takes a fresh snapshot). No relock/abandon commands, no lock lifetime, no config file.
+- Verified on Claude Code 2.1.278 (CLI): `settings.json` PreToolUse hooks receive
+  `agent_type: "tdd-implementer"` (Write and Bash); frontmatter hooks do not run under
+  `claude -p`; deny works; a timed-out hook fails open; `disable-model-invocation` works on
+  command files; the project `/review` wins over the bundled alias (undocumented).
+- Reproduced and rejected as baselines: the real index (`git add -A` after tampering, 10-03)
+  and a git tree hash via a temporary index (clean-filter forgery, 10-05). Stage 1 compares
+  against a plain copy taken at Gate 4 approval — verified to catch both tricks and to give a
+  readable diff.
+- Stage 1 adds no new dependency (Bash + POSIX tools + Git).
+- Company repository: hold lifted for Stage 1 only (2026-10-05); Stage 1 ported there
+  (`219dd51`, not pushed); Stages 2–5 stay on hold. JP: allowed (port in a separate session).
+
+### Stage 1 checklist (ADR-0016 items 1–10)
+
+- [x] 1 SPEC_CONFLICT stop-and-report in `tdd-implementer.md` (+ a sentence that factual gate feedback is part of its task)
+- [x] 2 Stop conditions in `/tdd` (3 Green attempts; same failure twice → human)
+- [x] 3 PreToolUse hook in `.claude/settings.json`: for `agent_type == tdd-implementer` deny Write/Edit and Bash touching `tests/` or `docs/product/`, and git `add/commit/stash/checkout/restore/reset/rm/mv/apply/update-index/config`; drop "`git add` is fine" from `tdd-implementer.md`; bash builtins only, no lingering child process
+- [x] 4 Hook tests in `meta/tests/` (path forms `C:\` / `/c/` / `c:/`, case, `..`, worktree `cwd`, Bash command strings)
+- [x] 5 Approved snapshot: at Gate 4 approval copy `tests/` + `docs/product/` to `$(git rev-parse --git-path claude-tdd)/approved/`; after Green `diff -r`; on any difference show the diff and stop for the person
+- [x] 6 Update notes on ADR-0007 (Probity limits) and ADR-0014 (Laravel Boost MCP-only install)
+- [x] 7 `disable-model-invocation: true` on all `.claude/commands/*.md`; `/tdd` step 6 and `prepare-merge` step 1 read the command file instead of starting it; `"code-review": "user-invocable-only"` in `skillOverrides`; correction note on ADR-0012
+- [x] 8 `APPLY_TEMPLATE.md` class C also merges `hooks` from `.claude/settings.json`
+- [x] 9 Denial log `logs/audit.jsonl` (`GLOBAL_CLAUDE.md` convention; git-ignored; `event: agent_guard_denial`, `session_id`, no file contents); one docs line distinguishing it from the app's `audit` channel
+- [x] 10 Re-verify the hook facts on the Claude Code version actually in use (VS Code extension ran 2.1.283–284)
+
+Done when: hook tests pass in Git Bash; a real `/tdd` run shows a denied implementer write in
+the log and a snapshot diff after a forced tamper; docs updated (`README.md`,
+`common-commands.md`, a `30-testing.md` pointer, a one-page "what is locked, and how to change
+it" note).
+
+### Later-stage drafts (not decided) — `meta/design/`
+
+`gate-contract.md` (one gate, scopes `cycle`/`branch`, exit codes 0–3, evidence JSON, Pest
+`->group('UC-NNN')`; the merge-time check B12 follows it) · `loop-stage2-experiment-protocol.md`
+(2a unattended → 2b human A/B, split approved) · `loop-stage2a-seeds.md` + runner sketch
+(conflict seeds with spec-true oracles; shadow replay via shallow clone; needs PHP 8.2+) ·
+`loop-reviewer-design.md` (minimal R0: deterministic pre-pass + one finder + cite-check; no
+approve power) · `loop-stage3-loop-design.md` (bounded Green loop via SubagentStop; factual
+gate messages; PostToolUse(`Agent`) reports to the parent; Gate 4 profiles deferred) ·
+`loop-stage4-design.md` (Codex: lock tied to a wrapper invocation; shared scripts) ·
+`loop-stage5-design.md` (conditional; WSL2 + sandbox runner outside the agent).
+
+### Status
+
+Stage 1 approved (Trial), simplified and implemented 2026-10-05 on `feat/loop-stage1`
+(worktree `.claude/worktrees/loop-stage1`): `agent-guard.sh` (43 tests), `tdd-snapshot.sh`
+(14 tests), all other `meta/tests` green, end-to-end `claude -p` run on 2.1.288 confirmed four
+denials, the allowed app write, the log lines and the snapshot diff. Next: commit, merge, then
+Stage 2a preparation (needs a PHP 8.2+ project).
+
+## Git workflow: `lite` profile (default) alongside `standard`, one-line switch (2026-09-30)
+
+### Decision
+
+- A profile switch — `Profile: lite` (default) or `standard` in `.claude/rules/70-git.md` —
+  switched by editing that one line (the user asks in plain words; AI edits and commits it,
+  never switches on its own). Only the rows in the §0 table of `docs/development/git-workflow.md` differ; everything else,
+  including every safety rule, is shared.
+- `lite`: AI names and creates the branch without waiting; one commit per `/tdd` cycle;
+  `/review` is asked about only when a sensitive path is touched (size is information);
+  commit → merge → push may run on one approval of a plan that shows commits, files,
+  score, tier, and tests — any failure stops the rest.
+- `standard`: the 2026-09-29 rule set, unchanged.
+- Selection: `standard` for production systems with real data or 2+ parallel developers;
+  otherwise `lite`.
+- `docs/ai-context/common-commands.md` gains "When Git Gets Stuck" (situation → what to ask
+  the AI), for developers with little Git experience.
+- Load cost: the full rules moved to `docs/development/git-workflow.md` (read before Git
+  operations); `.claude/rules/70-git.md` is now an 18-line always-loaded core (profile line +
+  safety rules that hold even if the full file is not read). Auto-loaded context: ~14,100
+  tokens on `main` → ~13,300. Pointers repointed; no other auto-loaded file grew by more than
+  ~150 characters (no new CLAUDE.md "Read when relevant" row — the core already says when).
+- Recorded as update notes on `meta/adr/ADR-0015-git-workflow.md`.
+- Scope: EN template only. JP port and the generalized docs (`~/Downloads/git-workflow-rules*.md`)
+  follow after personal trial use.
+
+### Files touched
+
+`.claude/rules/70-git.md`, `.claude/commands/tdd.md`, `.claude/commands/commit.md`,
+`.claude/skills/prepare-merge/SKILL.md`, `docs/ai-context/common-commands.md`,
+`meta/adr/ADR-0015-git-workflow.md`, `docs/development/git-workflow.md` (new), `CLAUDE.md`,
+`AGENTS.md`, `APPLY_TEMPLATE.md`, `README.md`, `.gitignore`, `.claude/hooks/review-score.sh`
+(comments), `.claude/rules/30-testing.md`, `.claude/rules/50-review.md`, `.claude/rules/60-docs.md`,
+`docs/development/ai-workflow.md`, `docs/development/coding-standards.md`, `PLAN.md`,
+`meta/history/plan-archive.md` (new — first
+archive of this template's own PLAN.md, 2 oldest entries moved verbatim).
+
+### Status
+
+Implemented on `feat/git-lite-profile`; not committed. Next: personal trial, then JP port
+and generalized docs.
 
 ## Per-session load reduction: move read-on-demand content out of auto-loaded files (2026-09-30)
 
