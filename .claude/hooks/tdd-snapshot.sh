@@ -35,9 +35,17 @@ set -u
 LOCKED='tests docs/product'
 WATCH_DIRS='app bootstrap config database lang resources routes'
 WATCH_FILES='composer.json composer.lock package.json package-lock.json'
-# Role predicates that decide permissions in this project (as in domain-boundary-check.sh);
-# add the project's own, e.g. TDD_GREEN_ROLE_PREDICATES='isAdmin|hasRole|isSectionHead'.
-ROLE_PREDICATES="${TDD_GREEN_ROLE_PREDICATES:-is_admin|isAdmin|hasRole|hasAnyRole|hasPermission}"
+# Role predicates that decide permissions: the common names (as in domain-boundary-check.sh)
+# plus the project's own, found automatically — any is*/has* method under app/ whose next few
+# lines mention "role" (e.g. Employee::isSectionHead()). Nothing to configure.
+role_predicates() {
+  { echo 'is_admin isAdmin hasRole hasAnyRole hasPermission'
+    find app -name '*.php' -print0 2>/dev/null | xargs -0 -r awk 'FNR == 1 { look = 0 }
+      match($0, /function[[:space:]]+(is|has)[A-Z][A-Za-z0-9_]*[[:space:]]*\(/) {
+        n = substr($0, RSTART, RLENGTH); sub(/^function[[:space:]]+/, "", n); sub(/[[:space:]]*\($/, "", n); look = 8 }
+      look > 0 { if (tolower($0) ~ /role/) print n; look-- }'
+    } | tr ' ' '\n' | sort -u | grep -v '^$' | paste -sd '|' -
+}
 env_sums() { for f in .env .env.*; do [ -f "$f" ] && [ "$f" != .env.example ] && echo "$(cksum < "$f" | tr -d ' ') $f"; done; return 0; }
 hidden_of() { [ -f "$1" ] && awk '/\$hidden[[:space:]]*=|#\[Hidden/{f=1} f{print} f&&/\]/{exit}' "$1" | grep -oE "'[^']+'|\"[^\"]+\""; return 0; }
 LOG="${CLAUDE_PROJECT_DIR:-$PWD}/logs/audit.jsonl"
@@ -129,6 +137,7 @@ case "${1:-}" in
         [ "$a" = "$b" ] || diff -uN "$a" "$b"
       done | cat
     )
+    ROLE_PREDICATES=$(role_predicates)
     export G AUTHZ='authorize\(|Gate::|->can\(|abort\(403|->('"$ROLE_PREDICATES"')([^A-Za-z0-9_]|$)|->role(->value)?[[:space:]]*(===|!==|==|!=)' \
       DESTR='delete\(|forceDelete\(|truncate\(|DB::statement|DB::unprepared' \
       SEC='v-html|\{!!|whereRaw|DB::raw|selectRaw|orderByRaw|havingRaw|\$guarded[[:space:]]*=[[:space:]]*\[[[:space:]]*\]|#\[Unguarded\]|makeVisible\(' \

@@ -49,8 +49,9 @@ same test count, and a reviewer HIGH routes BLOCKING (S6).
 The 2026-09-10 change stops: replayed on a copy of the project (2026-10-12), its three
 `->isAdmin()` checks in the FormRequest and Controller print `STOP permissions`. A first version
 that looked only for `authorize(` / `Gate::` let it through (both files only LISTED), so the role
-predicates of `domain-boundary-check.sh` were added, extendable per project with
-`TDD_GREEN_ROLE_PREDICATES`. A label or validation tweak does not stop; it shows in the final report.
+predicates of `domain-boundary-check.sh` were added, plus the project's own `is…()` / `has…()`
+methods whose body mentions a role, found automatically (on the real project: `isSectionHead`,
+`isTeamHead`) — no setting for the user to learn. A label or validation tweak does not stop; it shows in the final report.
 
 ## Honest limits
 
