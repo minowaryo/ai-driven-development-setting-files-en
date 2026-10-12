@@ -51,9 +51,10 @@ One completion report, judgment items first, kept short (target: no longer than 
 report):
 
 1. **Needs your decision** — anything that stopped the stretch, and reviewer findings not fixed.
-2. **Screens changed** — one line per screen and role with a screenshot link (taken during the
-   Playwright / verification run, saved, **not read back by the model**); only when a screen
-   changed and an E2E environment exists.
+2. **Screens changed** — one line naming the new and changed screens (git only); new screens
+   are captured per role and the screenshot folder is linked (saved, **not read back by the
+   model**); changed ones on request. Only when a screen changed; screenshots only where
+   Playwright is set up (`e2e-screenshot-report.md`).
 3. **Checks** — test counts, goal check, fixture check, and the blocked-attempt lines from
    `logs/audit.jsonl` as printed.
 4. **Fixed without asking** — one line each.
@@ -75,7 +76,8 @@ the person.
    the UCs the cycle's tests name), with the reviewer's user-facing category as a second signal.
 2. **Reviewer into the template** — R0 + spec slicing + residual hints as a script, run inside
    the stretch as a finder only; needs an ADR-0009 amendment (it is started by a human today).
-3. **Screenshots** in the Playwright / verification step, linked from the report.
+3. **Screenshots** of changed screens, linked from the report — designed and built 2026-10-12 in
+   `prepare-merge` (`e2e-screenshot-report.md`).
 4. **Chaining `/tdd` Steps 4–8** into the stretch, with S5 and S9 limits.
 5. **Guardrail regression suite** — re-run the Stage 2a seeds when the model or Claude Code
    changes (`loop-stage2a-results.md`).

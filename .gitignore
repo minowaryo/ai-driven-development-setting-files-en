@@ -9,6 +9,9 @@ docs/credentials/*
 # never committed; distinct from the application's own audit log (storage/logs/audit.log)
 /logs/
 
+# Screenshots of new / changed screens taken for the merge plan (docs/development/e2e-testing.md)
+tests/e2e/.screenshots/
+
 # Worktrees for parallel AI sessions (see docs/development/git-workflow.md §7)
 .claude/worktrees/
 

@@ -64,6 +64,9 @@ npx playwright test --ui
 
 # Show the report from the most recent failure
 npx playwright show-report
+
+# Screenshots of new / changed screens (prepare-merge runs it for new screens; see e2e-testing.md)
+rm -rf tests/e2e/.screenshots && CAPTURE_SCREENS="Schedules/Index" npx playwright test tests/e2e/screen-capture.spec.ts --reporter=line
 ```
 
 ## Playwright MCP (browser automation tool, optional)

@@ -2,6 +2,36 @@
 
 > Keep under 300 lines (`.claude/rules/60-docs.md`). Archived: 2026-08-03 – 2026-10-03 (Loop Stage 1) → `meta/history/plan-archive.md` (2026-09-30, 2026-10-03, 2026-10-06, 2026-10-09).
 
+## Changed screens and screenshots in the merge plan (2026-10-12)
+
+### Decision
+
+- Gap 3 of `meta/design/nonstop-goal.md`; design `meta/design/e2e-screenshot-report.md`
+  (approved by the maintainer 2026-10-12 after several rounds; weighed by D12).
+- `prepare-merge` step 2 names the screens the branch added or changed with three git commands
+  (merge-base with the local base branch; uncommitted and untracked pages included; paths for
+  every stack listed, so no per-project edit). No component-to-page resolution, no size check.
+- New pages are captured per role automatically where Playwright is set up; changed screens on
+  request. One catalog line per screen (`tests/e2e/screens.ts`: URL + roles); capture spec and
+  `loginAs` created once from the snippet in `e2e-testing.md`. Images go to the git-ignored
+  `tests/e2e/.screenshots/`, named `{uc}_{screen}_{role}.png`, never read back by the model.
+- The merge plan grows by one line; files written by a capture become one `test:` commit,
+  shown under that line (not in the commit table).
+- Not in `/tdd` (screens change in ~2/3 of implementation commits in `ihs-tech-uplift`, so
+  per-cycle capture would start Playwright almost every cycle). Not in `/commit`: its step 1
+  already moves code changes on `main` onto a branch.
+- No new script, no new test file, no new dependency. JP / company: not ported.
+
+### Checklist
+
+- [x] Design memo; `e2e-testing.md` section; `prepare-merge` steps 2 and 5; `.gitignore`;
+  `common-commands.md`; `nonstop-goal.md` item 2 and gap 3
+- [ ] Verified: detection commands in a scratch repo; capture in a real Playwright project [U]
+
+### Status
+
+Implemented on `feat/changed-screens`, not committed.
+
 ## Evidence the implementer cannot rewrite, and denials shown from the log (2026-10-07)
 
 ### Decision
