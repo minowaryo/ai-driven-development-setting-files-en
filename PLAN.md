@@ -20,7 +20,8 @@
 - Not in `/tdd` (screens change in ~2/3 of implementation commits in `ihs-tech-uplift`, so
   per-cycle capture would start Playwright almost every cycle). Not in `/commit`: its step 1
   already moves code changes on `main` onto a branch.
-- No new script, no new test file, no new dependency. JP / company: not ported.
+- No new script, no new test file, no new dependency. JP and `ihs-tech-uplift`: being ported
+  (maintainer, 2026-10-12); company: not yet.
 
 ### Checklist
 
@@ -30,7 +31,9 @@
 
 ### Status
 
-Implemented on `feat/changed-screens`, not committed.
+Merged (`efe6caa`) and pushed; `meta/tests` 208 passed on the merged result. The detection
+commands were checked in a scratch repo; the capture spec and `loginAs` snippets have not run
+yet — the first merge with a new screen in a Playwright project is their first run.
 
 ## Evidence the implementer cannot rewrite, and denials shown from the log (2026-10-07)
 
