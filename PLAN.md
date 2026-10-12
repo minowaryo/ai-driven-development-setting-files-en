@@ -74,6 +74,7 @@ Company: later.
 - [x] `test-writer` gains two lines (approved 2026-10-09, branch `fix/test-writer-302`): the list viewpoint (only when a UC shows a list / calendar / index) and "web forms answer validation errors with a redirect, not 422" + the matching row in `coding-standards.md`. JP / company: not ported
 - [x] Decided 2026-10-12: four spec-time viewpoints in the use-case review criteria (`fb9093b`); URLs from route names (tool-neutral, `15-frontend.md`) + production base path in local/E2E (`overview.md`), no path-counting script (`6eb7395`); criteria for template additions recorded as D12 in `template-improvement-directions.md`
 - [x] Goal definition: `meta/design/nonstop-goal.md` (`bff8b0b`). Next: its gaps in order — S7 by machine first
+- [ ] S7 (approved 2026-10-12, design `meta/design/s7-user-facing-stop.md`): after Green, stop only on permissions / destructive / security / secrets / outside effects / dependencies / integrity; list other user-facing changes for the final review. `tdd-snapshot.sh mark-green` / `verify-green` + cases in its test; wired into `/tdd`. Screenshots: separate session
 
 ### Status
 
