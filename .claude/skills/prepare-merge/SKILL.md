@@ -37,6 +37,21 @@ the rules; this file is only the procedure. The active profile is the `Profile:`
    Read the `>> N violation(s), H heuristic warning(s), P priority file(s).` line (a "No
    Domain Boundary violations" or "nothing to check" line means all zero). Any other exit
    code, or a "skipping" line, is not a stop: note it for the step 5 plan and continue.
+
+   Then name the changed screens (git only — commands in `docs/development/e2e-testing.md`,
+   "Changed screens and screenshots"; read that section only when a page is new and
+   `playwright.config.ts` exists):
+
+   ```bash
+   base=$(git merge-base HEAD "${REVIEW_SCORE_BASE_BRANCH:-main}")
+   git diff --name-status "$base" -- resources/js/Pages resources/js/pages resources/js/Components resources/js/components resources/js/Layouts resources/js/layouts resources/views
+   git ls-files --others --exclude-standard -- resources/js/Pages resources/js/pages resources/views
+   ```
+
+   A new page (`A` or untracked) with Playwright set up → capture it as that section says.
+   Files the capture writes (catalog lines; on first use the spec and helper) are committed as
+   one `test:` commit after the branch's own commits; the step 5 plan shows it on the screens
+   line, not in the commit table. A failed capture is not a stop.
 3. **Tier gate** (§6) — `/review` "has run" only if it ran in this session after the
    branch's last commit, or the user confirms it did; never infer it.
    - `standard`:
@@ -75,6 +90,11 @@ the rules; this file is only the procedure. The active profile is the `Profile:`
    changed files and the test command; one approval then covers the whole sequence.
    When the Domain Boundary check found anything, or failed or skipped, the plan says so in
    plain words (file + what it does, or the error).
+   When a screen changed, add **one** line in plain words — names as the path below the
+   folder without the extension, at most 5 then "and N more"; no per-image rows unless the
+   person asks for screenshots; without Playwright, names only:
+   `Screens: new Schedules/Index (2 screenshots in tests/e2e/.screenshots/), changed Schedules/Edit and 3 more — say "take screenshots" to capture the changed ones.`
+   When the capture wrote files, add under it: `└ 1 line added to tests/e2e/screens.ts for the new screen → committed as "test: add screen catalog entry"`.
 
    ```bash
    git checkout <base>
