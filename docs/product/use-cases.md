@@ -18,6 +18,10 @@ Verify that each use case defines the following:
 - [ ] Are state changes clearly defined?
 - [ ] Are permissions considered?
 - [ ] Are all CRUD operations covered?
+- [ ] For each list, calendar or index: is it stated what each role sees (including records linked through a capability, e.g. "sessions I train")?
+- [ ] Is the behavior defined when there is nothing to show, and when the user submits with no change?
+- [ ] Do bulk or irreversible operations state what the user confirms first (and what they see before confirming)?
+- [ ] Where the same figure appears on more than one screen, is it defined once so the screens agree?
 
 > `bash .claude/hooks/spec-lint.sh` pre-checks the structure (UC ids, Actor / Basic Flow /
 > Error Cases / Permissions present, requirement links, leftover placeholders) — spend the
