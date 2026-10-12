@@ -110,6 +110,25 @@ was told?**" — and that the answer is cheap machinery around the AI, not more 
   counterpart or a tool-agnostic check (git-based). Keep always-loaded context small
   (core/detail split).
 
+### D12. What belongs in the template (2026-10-12)
+
+Main users will likely be on Standard seats, so every addition is weighed against what it costs
+each session. Put a lesson into the template only when all five hold:
+
+1. **It recurs** — any project could hit it, not just one project's setup.
+2. **It is tool-neutral** — the template states the principle; the tool that implements it
+   (Wayfinder, Ziggy, …) is chosen in the project's ADR.
+3. **It is cheap per session** — a few always-loaded lines at most; a check costs 0 tokens.
+4. **No cheaper layer already catches it** — if aligning the environment or an existing test
+   or check would surface it, write that instead of a new mechanism.
+5. **It is cheap to maintain** — one line of prose, or a precise check worth keeping in three
+   repositories.
+
+Example (2026-10-12): hard-coded app paths broke in production under a sub-path (~200 places
+in one project). The principle ("build internal URLs from route names") and environment parity
+("run local and E2E under the production base path") went in as one line each; a script that
+counts hard-coded paths did not (fails 4 and 5).
+
 ## Improvement backlog (outside ADR-0016 Stage 1)
 
 | # | Item | Direction | Size | Note |

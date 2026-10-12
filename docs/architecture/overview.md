@@ -48,6 +48,9 @@
 | staging | Testing and QA | [staging URL] |
 | production | Production | [production URL] |
 
+If production serves the app under a path (e.g. `https://host/app/`), run local and E2E under the
+same path, so a hand-written URL breaks in development instead of in production.
+
 ## Related Documents
 
 - Detailed design: `docs/architecture/data-model.md`

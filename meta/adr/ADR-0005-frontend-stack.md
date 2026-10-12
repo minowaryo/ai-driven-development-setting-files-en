@@ -56,7 +56,8 @@ The selection is carried out as a required step of Gate 0 (`SETUP.md`'s Gate 0 S
 
 1. **Select**: decide the frontend technology based on the selection criteria above, and record it with the `/adr` command as
    `docs/adr/ADR-XXXX-frontend-stack-selection.md`
-   (if you choose anything other than the default recommendation — Vue 3 + Inertia.js + Pinia — or are torn between candidates, document the reasoning and the rejected options)
+   (if you choose anything other than the default recommendation — Vue 3 + Inertia.js + Pinia — or are torn between candidates, document the reasoning and the rejected options).
+   Also record how the frontend builds internal URLs from route names (e.g. Wayfinder or Ziggy), which `.claude/rules/15-frontend.md` refers to
 2. **Reflect into the rule file**: rewrite `.claude/rules/15-frontend.md` to match the selected stack
    (if Vue 3 + Inertia.js + Pinia was selected, the default content can be used as-is)
 3. **Reflect into ai-context**: reflect the selection in the tech-stack table of `docs/ai-context/project-summary.md`

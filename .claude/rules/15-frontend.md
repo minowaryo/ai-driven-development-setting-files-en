@@ -59,6 +59,7 @@
 
 ### Links & navigation
 - Always use `<Link>` / `router.visit()` for **internal navigation** (using a raw `<a>` tag directly is prohibited)
+- Build internal URLs from the server's route names (with the helper chosen in the frontend ADR — e.g. Wayfinder or Ziggy); never hand-write an app path such as `'/orders/' + id`
 - `<a>` tags are fine for **external URLs, `mailto:`, and file downloads**
   - Always add `rel="noopener noreferrer"` whenever you set `target="_blank"`
 
