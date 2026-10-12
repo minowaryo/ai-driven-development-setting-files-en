@@ -76,3 +76,5 @@ Recently changed files (or specified files)
 2. **Issues** (severity: HIGH / MEDIUM / LOW)
 3. **Recommended fixes**
 4. **Tests to add**
+
+When fixes are applied later in the same `/tdd` cycle, run `bash .claude/hooks/tdd-snapshot.sh verify-green` before reporting them done and stop on any `STOP` line (`/tdd` Step 7).

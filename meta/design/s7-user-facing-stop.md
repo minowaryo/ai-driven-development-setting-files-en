@@ -30,7 +30,7 @@ After the fix round and after Refactor, compare against it and sort each changed
 
 | Class | What | Default detection (deterministic) | Action |
 |---|---|---|---|
-| **Stop** — permissions | Who may do what | changed `app/Policies/**`, `app/Http/Middleware/**`, `routes/**`; added lines with `authorize(`, `Gate::`, `->can(`, `abort(403` anywhere in `app/` | Exit 2, one line per file; the person decides |
+| **Stop** — permissions | Who may do what | changed `app/Policies/**`, `app/Http/Middleware/**`, `routes/**`; added lines with `authorize(`, `Gate::`, `->can(`, `abort(403`, a role predicate (`->isAdmin(`, `->hasRole(` …) or a `->role ===` comparison anywhere in the watched files | Exit 2, one line per file; the person decides |
 | **Stop** — destructive | Data loss or schema | changed `database/migrations/**`; added lines with `delete(`, `forceDelete(`, `truncate(`, `DB::statement` | Exit 2 |
 | **Stop** — security | Exposure | changed `config/auth.php`, `config/session.php`, `bootstrap/app.php` (CSRF exclusions and middleware live there since Laravel 11); added `v-html`, `{!!`, `whereRaw` / `DB::raw`, `$guarded = []`, `#[Unguarded]`, `makeVisible(`; a removed line in a `$hidden` list | Exit 2 |
 | **Stop** — secrets | Credentials in the code | a changed `.env*` file other than `.env.example`; added lines that look like a key or password assignment (`(api_?key\|secret\|token\|password)\s*[=:]\s*['"][^'"]{8,}`) | Exit 2 |
@@ -46,8 +46,11 @@ removed transaction or lock corrupts data silently. None of them shows up as a f
 Serious functional bugs are covered by the other stops: the full suite must still pass with the
 same test count, and a reviewer HIGH routes BLOCKING (S6).
 
-The 2026-09-10 change would have stopped: it changed who may edit (`authorize` / Policy logic).
-A label or validation tweak would not stop; it shows in the final report.
+The 2026-09-10 change stops: replayed on a copy of the project (2026-10-12), its three
+`->isAdmin()` checks in the FormRequest and Controller print `STOP permissions`. A first version
+that looked only for `authorize(` / `Gate::` let it through (both files only LISTED), so the role
+predicates of `domain-boundary-check.sh` were added, extendable per project with
+`TDD_GREEN_ROLE_PREDICATES`. A label or validation tweak does not stop; it shows in the final report.
 
 ## Honest limits
 
@@ -64,7 +67,7 @@ A label or validation tweak would not stop; it shows in the final report.
 
 Inside `/tdd` only (the Green copy is the reference; outside `/tdd` there is none). The merge
 plan already asks about sensitive paths (`review-score.sh`). Deterministic, bash + git, 0 tokens,
-≈ 1 s; two subcommands of `tdd-snapshot.sh` (`mark-green`, `verify-green`) with cases added to
+≈ 2.6 s each on a real project (206 application files, Git Bash on Windows); two subcommands of `tdd-snapshot.sh` (`mark-green`, `verify-green`) with cases added to
 its existing test file — no new script, no new test file. Most cycles: no stop, one extra list
 in the report.
 

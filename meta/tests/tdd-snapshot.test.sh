@@ -98,6 +98,62 @@ expect "no log at all"                        0 "$(run verify)" "No blocked atte
 rm "$P/$(git -C "$P" rev-parse --git-path claude-tdd)/approved/.log-offset"
 expect "snapshot from before this check"      0 "$(run verify)" "skipped"
 
+# After Green (S7): stop only on risky changes; list the rest (2026-10-12).
+green() { # a project with a little application code, marked after Green
+  fresh
+  mkdir -p "$P/app/Services" "$P/app/Models" "$P/app/Policies" "$P/app/Http/Requests" "$P/resources/js/Pages" "$P/database/migrations" "$P/routes"
+  printf '<?php\nclass OrderService {\n  public function place($o) {\n    return DB::transaction(fn () => $o->save());\n  }\n}\n' > "$P/app/Services/OrderService.php"
+  printf '<?php\nclass User {\n  protected $hidden = [\n    '"'"'password'"'"',\n    '"'"'remember_token'"'"',\n  ];\n}\n' > "$P/app/Models/User.php"
+  printf '<?php\nclass OrderPolicy {}\n' > "$P/app/Policies/OrderPolicy.php"
+  printf '<?php\nclass StoreOrderRequest {}\n' > "$P/app/Http/Requests/StoreOrderRequest.php"
+  printf '<template><p>{{ order.name }}</p></template>\n' > "$P/resources/js/Pages/Order.vue"
+  printf '{"require": {}}\n' > "$P/composer.json"
+  printf 'APP_KEY=one\n' > "$P/.env"
+  printf 'resources/js/wayfinder/\n.env\n' > "$P/.gitignore"
+  (cd "$P" && bash "$SCRIPT" mark-green >/dev/null 2>&1)
+}
+fresh
+expect "verify-green without a mark"          3 "$(run verify-green)" "mark-green"
+green
+expect "mark-green, nothing changed"          0 "$(run verify-green)" "No application file changed"
+printf '<?php\nclass OrderService {\n  public function place($o) {\n    return DB::transaction(fn () => $o->save());\n  }\n  private function total() { return 1; }\n}\n' > "$P/app/Services/OrderService.php"
+expect "a Service change is only reported"    0 "$(run verify-green)" "ALSO app/Services/OrderService.php"
+green; printf '<template><p>{{ order.title }}</p></template>\n' > "$P/resources/js/Pages/Order.vue"
+expect "a screen change is listed"            0 "$(run verify-green)" "LISTED resources/js/Pages/Order.vue"
+green; printf '<?php\nclass StoreOrderRequest {\n  public function rules() { return ['"'"'password'"'"' => '"'"'required|string|min:8'"'"']; }\n}\n' > "$P/app/Http/Requests/StoreOrderRequest.php"
+expect "a validation rule is listed, not a secret" 0 "$(run verify-green)" "LISTED app/Http/Requests/StoreOrderRequest.php"
+green; printf '<?php\nclass OrderPolicy { public function view() { return true; } }\n' > "$P/app/Policies/OrderPolicy.php"
+expect "a Policy change stops"                2 "$(run verify-green)" "STOP permissions app/Policies/OrderPolicy.php"
+green; printf '<?php\nclass StoreOrderRequest {\n  public function authorize() { return Gate::allows(1); }\n}\n' > "$P/app/Http/Requests/StoreOrderRequest.php"
+expect "an authorization line stops"          2 "$(run verify-green)" "STOP permissions app/Http/Requests/StoreOrderRequest.php:3"
+green; printf '<?php\nclass StoreOrderRequest {\n  public function rules() {\n    if (! $this->user()->isAdmin()) { return []; }\n  }\n}\n' > "$P/app/Http/Requests/StoreOrderRequest.php"
+expect "a role check stops (2026-09-10 case)" 2 "$(run verify-green)" "STOP permissions app/Http/Requests/StoreOrderRequest.php:4"
+green; printf '<?php\nclass StoreOrderRequest {\n  public function rules() {\n    if (! $this->user()->isSectionHead()) { return []; }\n  }\n}\n' > "$P/app/Http/Requests/StoreOrderRequest.php"
+expect "a project predicate is only listed by default" 0 "$(run verify-green)" "LISTED app/Http/Requests/StoreOrderRequest.php"
+expect "and stops once the project names it"  2 "$(cd "$P" && TDD_GREEN_ROLE_PREDICATES='isAdmin|isSectionHead' bash "$SCRIPT" verify-green >"$ROOT/out" 2>&1; echo $?)" "STOP permissions"
+green; printf '<?php\n// drop\n' > "$P/database/migrations/2026_01_01_drop.php"
+expect "a new migration stops"                2 "$(run verify-green)" "STOP destructive database/migrations/2026_01_01_drop.php"
+green; printf '<?php\nclass OrderService {\n  public function place($o) {\n    return $o->save();\n  }\n}\n' > "$P/app/Services/OrderService.php"
+expect "a removed transaction stops"          2 "$(run verify-green)" "STOP integrity app/Services/OrderService.php"
+green; printf '<template><p v-html="order.note"></p></template>\n' > "$P/resources/js/Pages/Order.vue"
+expect "v-html stops"                         2 "$(run verify-green)" "STOP security resources/js/Pages/Order.vue:1"
+green; printf '<?php\nclass User {\n  protected $hidden = [\n    '"'"'remember_token'"'"',\n  ];\n}\n' > "$P/app/Models/User.php"
+expect "a hidden attribute removed stops"     2 "$(run verify-green)" "removed from the hidden attributes: 'password'"
+green; printf '<?php\nclass OrderService {\n  public function place($o) {\n    $apiKey = "sk-live-1234567890";\n    return DB::transaction(fn () => $o->save());\n  }\n}\n' > "$P/app/Services/OrderService.php"
+expect "a key assignment stops, value hidden" 2 "$(run verify-green)" "value not shown"
+if ! grep -qF 1234567890 "$ROOT/out"; then PASS=$((PASS + 1)); else FAIL=$((FAIL + 1)); echo "FAIL: verify-green printed a secret value"; fi
+green; printf 'APP_KEY=two\n' > "$P/.env"
+expect "a changed .env stops, content hidden" 2 "$(run verify-green)" "STOP secrets .env"
+green; printf '<?php\nclass OrderService {\n  public function place($o) {\n    Mail::to($o->user)->send(new Placed($o));\n    return DB::transaction(fn () => $o->save());\n  }\n}\n' > "$P/app/Services/OrderService.php"
+expect "sending mail stops"                   2 "$(run verify-green)" "STOP outside-effects app/Services/OrderService.php:4"
+green; printf '{"require": {"vendor/new": "^1.0"}}\n' > "$P/composer.json"
+expect "a dependency change stops"            2 "$(run verify-green)" "STOP dependencies composer.json"
+green; mkdir -p "$P/resources/js/wayfinder"; printf 'export const x = 1\n' > "$P/resources/js/wayfinder/index.ts"
+expect "files git ignores are skipped"        0 "$(run verify-green)" "No application file changed"
+green; printf '<?php\nclass OrderPolicy { public function view() { return true; } }\n' > "$P/app/Policies/OrderPolicy.php"
+(cd "$P" && bash "$SCRIPT" mark-green >/dev/null 2>&1)
+expect "a new mark replaces the old one"      0 "$(run verify-green)" "No application file changed"
+
 expect "usage error"                          3 "$(run bogus)" "usage"
 
 echo "tdd-snapshot tests: $PASS passed, $FAIL failed"
