@@ -68,17 +68,18 @@ Company: later.
 - [x] Analysis A (2026-10-08, no model usage): past Green cycles in `ihs-tech-uplift` needed 1 implementer call in 9 of 10, with no "try again" requests; people's time went to go-aheads, starting checks and late spec/UX judgments. Results: `meta/history/loop-stage2a-results.md`
 - [x] Stage 2b (human A/B) — skipped (maintainer, 2026-10-08): analysis A showed a retry loop would save little, and the goal below does not need it
 - [x] Goal agreed (maintainer, 2026-10-08): after approval the work runs without stopping through checks, review, in-spec fixes and a completion report, and stops only where a machine-checked guardrail says a person must decide. Merge stays human (design memo v1). Gate 4 stays human per cycle for now — so the non-stop stretch starts at Gate 4 approval; moving its start to spec approval waits until a machine check is shown, with numbers, to replace Gate 4
-- [ ] Goal definition document (one page): the non-stop stretch, the stop conditions, what the person sees at the end
+- [x] Goal definition document (one page): the non-stop stretch, the stop conditions, what the person sees at the end
   - Idea (maintainer, 2026-10-08): when a screen changed, the completion report links screenshots of it (especially when Playwright ran) — saved and linked, not read back by the model, so no extra tokens
 - [x] Bugs that escaped tests classified, and a viewpoint trial for test-writer (2026-10-09, ≈ $8.7): `meta/history/test-viewpoints-results.md`. Only the list viewpoint paid off — 3/3 vs 0/3 on repeat runs, mean Red cost +10% (within run-to-run spread), report +14%
 - [x] `test-writer` gains two lines (approved 2026-10-09, branch `fix/test-writer-302`): the list viewpoint (only when a UC shows a list / calendar / index) and "web forms answer validation errors with a redirect, not 422" + the matching row in `coding-standards.md`. JP / company: not ported
-- [ ] Decide later: frontend-path static check; spec-time viewpoints. Main users will likely be on Standard seats — keep per-cycle tokens and Gate 4 reading flat
+- [x] Decided 2026-10-12: four spec-time viewpoints in the use-case review criteria (`fb9093b`); URLs from route names (tool-neutral, `15-frontend.md`) + production base path in local/E2E (`overview.md`), no path-counting script (`6eb7395`); criteria for template additions recorded as D12 in `template-improvement-directions.md`
+- [x] Goal definition: `meta/design/nonstop-goal.md` (`bff8b0b`). Next: its gaps in order — S7 by machine first
 
 ### Status
 
-2a and its prerequisites are done; 2b skipped. Next: the one-page goal definition, then a
-guardrail inventory against its stop conditions. Usage rule: stop at about 50% weekly usage
-(maintainer, 2026-10-08).
+2a and its prerequisites are done; 2b skipped; goal defined (`meta/design/nonstop-goal.md`).
+Next: the gaps listed there, starting with S7 (user-facing change outside the spec) by machine.
+Usage rule: stop at about 50% weekly usage (maintainer, 2026-10-08).
 
 ## Harness traceability matrix + ADR-0018 for spec-lint (2026-10-05)
 
