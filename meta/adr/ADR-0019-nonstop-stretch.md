@@ -44,6 +44,13 @@ Still to come under this ADR (gaps 3–6 of `nonstop-goal.md`): screenshots in t
 (separate session), chaining the remaining `/tdd` steps, limits for attempts and budget, a
 guardrail regression suite, and a pilot on a real project.
 
+**2026-10-13 — chaining and limits (gap 4, `meta/design/stretch-chaining-limits.md`).**
+`/tdd` no longer waits between steps from Gate 4 approval to one completion report (Step 8,
+judgment items first; in `lite` it carries the commit and merge plan). S5 and S9 are now
+machine checks in `agent-guard.sh`: per Gate 4 approval, a third `tdd-implementer` run and
+implementer writes / commands past 60 are refused (about twice the observed maximum of 2 runs
+and 34 calls). Time and tokens are not limited — a hook cannot see them. 0 tokens, no setting.
+
 ## Rationale
 
 - Removing go-aheads saves more of the person's time than retries would (analysis A).

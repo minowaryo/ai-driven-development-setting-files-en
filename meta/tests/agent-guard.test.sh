@@ -140,5 +140,58 @@ rm -rf "$PROJ/logs"
 if [[ $(cat "$PROJ/logs/audit.jsonl" 2>/dev/null) == *'"rule":"locked_evidence"'* && $(<"$ROOT/err") == *"record of this TDD cycle"* ]]; then PASS=$((PASS + 1))
 else FAIL=$((FAIL + 1)); echo "FAIL: evidence denial lacks its rule / message: $(cat "$PROJ/logs/audit.jsonl" "$ROOT/err" 2>/dev/null)"; fi
 
+# --- S5 / S9: limits per Gate 4 approval (ADR-0019) ---
+# A real repository; the approved snapshot comes from tdd-snapshot.sh record, as at Gate 4.
+CYC="$ROOT/cyc"
+mkdir -p "$CYC/app"
+git -C "$CYC" init -q
+record() { (cd "$CYC" && bash "$REPO/.claude/hooks/tdd-snapshot.sh" record >/dev/null); }
+A() { printf '{"description":"d","prompt":"%s","subagent_type":"%s"}' "${2:-make the tests pass}" "$1"; }
+START="$(payload '' Agent "$(A $IMPL)" "$CYC")"
+
+expect "S5: no snapshot — 1st start"            0 "$START"
+expect "S5: no snapshot — 2nd start"            0 "$START"
+expect "S5: no snapshot — 3rd start not limited" 0 "$START"
+record
+expect "S5: 1st start after approval"           0 "$START"
+expect "S5: 2nd start (Task tool name)"         0 "$(payload '' Task "$(A $IMPL)" "$CYC")"
+rm -rf "$PROJ/logs"
+expect "S5: 3rd start is denied"                2 "$START"
+if [[ $(cat "$PROJ/logs/audit.jsonl" 2>/dev/null) == *'"agent_type":"main"'*'"rule":"implementer_runs"'* && $(<"$ROOT/err") == *"show its reports to the user"* ]]; then PASS=$((PASS + 1))
+else FAIL=$((FAIL + 1)); echo "FAIL: S5 denial lacks its log line / message: $(cat "$PROJ/logs/audit.jsonl" "$ROOT/err" 2>/dev/null)"; fi
+expect "S5: test-writer start not limited"      0 "$(payload '' Agent "$(A test-writer)" "$CYC")"
+expect "S5: prompt merely naming the implementer" 0 "$(payload '' Agent "$(A general-purpose 'then run tdd-implementer')" "$CYC")"
+record
+expect "S5: a new approval allows a start again" 0 "$START"
+
+# S9: count the implementer's writes and commands from a subdirectory; reads are not counted.
+record
+bad=0
+for i in $(seq 1 30); do
+  for p in "$(payload $IMPL Write "$(W 'app/x.php')" "$CYC/app")" \
+           "$(payload $IMPL Bash "$(B 'php artisan test')" "$CYC/app")" \
+           "$(payload $IMPL Read '{"file_path":"app/x.php"}' "$CYC/app")"; do
+    (cd "$PROJ" && printf '%s' "$p" | bash "$SCRIPT" >/dev/null 2>&1) || bad=$((bad + 1))
+  done
+done
+if [ "$bad" -eq 0 ]; then PASS=$((PASS + 1)); else FAIL=$((FAIL + 1)); echo "FAIL: S9: $bad of the first 60 counted calls denied"; fi
+expect "S9: call 61 is denied"                  2 "$(payload $IMPL Edit "$(W 'app/x.php')" "$CYC/app")"
+if [[ $(<"$ROOT/err") == *"report what is done"* ]]; then PASS=$((PASS + 1))
+else FAIL=$((FAIL + 1)); echo "FAIL: S9 denial message: $(<"$ROOT/err")"; fi
+expect "S9: main session not counted"           0 "$(payload '' Bash "$(B 'php artisan test')" "$CYC/app")"
+expect "S9: test-writer not counted"            0 "$(payload test-writer Write "$(W 'tests/x.php')" "$CYC/app")"
+record
+expect "S9: a new approval resets the budget"   0 "$(payload $IMPL Edit "$(W 'app/x.php')" "$CYC/app")"
+
+# A worktree: .git is a file naming the git dir that holds the snapshot.
+WT="$ROOT/wt"
+mkdir -p "$WT" "$CYC/.git/worktrees/wt/claude-tdd/approved"
+printf 'gitdir: %s\n' "$CYC/.git/worktrees/wt" > "$WT/.git"
+date > "$CYC/.git/worktrees/wt/claude-tdd/approved/.recorded-at"
+WTSTART="$(payload '' Agent "$(A $IMPL)" "$WT")"
+expect "S5 in a worktree: 1st start"            0 "$WTSTART"
+expect "S5 in a worktree: 2nd start"            0 "$WTSTART"
+expect "S5 in a worktree: 3rd start denied"     2 "$WTSTART"
+
 echo "agent-guard tests: $PASS passed, $FAIL failed"
 [ "$FAIL" -eq 0 ]

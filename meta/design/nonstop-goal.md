@@ -35,11 +35,11 @@ The stretch stops and asks a person when any of these fires. "Machine" means a s
 | S2 | Application code compares against a value only the tests contain | `fixture-literal-check.sh` exit 2 | Machine |
 | S3 | A check could not run (no snapshot, tool error) | exit 3 of any check | Machine |
 | S4 | The implementer reports `SPEC_CONFLICT` | its report; `/tdd` Step 3 | Prompt |
-| S5 | Attempt limit: 3 Green attempts, or the same failure twice | `/tdd` Step 3 | Prompt |
+| S5 | Attempt limit: a third implementer run, 3 Green attempts, or the same failure twice | `agent-guard.sh` (runs); `/tdd` Step 3 (attempts) | Machine for runs (2026-10-13); prompt for attempts |
 | S6 | Reviewer finding routed BLOCKING (spec conflict, security, user-facing change, suspect instruction, or HIGH) | reviewer R0 route script | Lab only |
 | S7 | A user-facing behaviour change the approved spec does not cover | `00-global.md` rule | **Prompt — failed once (2026-09-10)** |
 | S8 | A sensitive path changed (migration, auth, config, security) | `review-score.sh` sensitive paths | Machine, but only at merge |
-| S9 | Budget: time or tokens for the stretch exceeded | — | **Not built** |
+| S9 | Budget: the implementer's writes and commands for the stretch exceeded (stand-in for time and tokens) | `agent-guard.sh` | Machine (2026-10-13) |
 
 Not a stop: reviewer findings that are inside the approved spec and change nothing a user sees
 (a missing test for specified behaviour, an N+1, a Domain Boundary slip). The AI fixes them in
@@ -78,7 +78,8 @@ the person.
    the stretch as a finder only; needs an ADR-0009 amendment (it is started by a human today).
 3. **Screenshots** of changed screens, linked from the report — designed and built 2026-10-12 in
    `prepare-merge` (`e2e-screenshot-report.md`).
-4. **Chaining `/tdd` Steps 4–8** into the stretch, with S5 and S9 limits.
+4. **Chaining `/tdd` Steps 4–8** into the stretch, with S5 and S9 limits — built 2026-10-13
+   (`stretch-chaining-limits.md`).
 5. **Guardrail regression suite** — re-run the Stage 2a seeds when the model or Claude Code
    changes (`loop-stage2a-results.md`).
 6. **Pilot** on a real project, measured against analysis A (messages per cycle, cost, escapes).

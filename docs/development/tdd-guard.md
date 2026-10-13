@@ -38,6 +38,7 @@ Nothing is locked for you or for the main session. There is no lock to switch on
 | After Refactor, or after any fix made after Green (e.g. a review finding) | `/tdd` compares with that copy (`verify-green`). Changes that touch permissions (Policies, routes, middleware, `authorize`, `Gate::`, role checks), destructive operations (migrations, `delete(`, `truncate(`), security (`v-html`, raw SQL, mass assignment, hidden attributes, auth/session config), secrets (`.env`, key assignments), outside effects (mail, HTTP, notifications, schedules, jobs), dependencies (`composer` / `npm` files) or integrity (a removed transaction or lock) | `STOP …` lines and `/tdd` stops for your decision. Other changed screens, wording, validation and controllers are `LISTED` in the final summary for you to look at; nothing else is asked |
 | The tests and the spec contradict each other | The implementer stops and reports `SPEC_CONFLICT` (test name + a quote from the use case) | A report instead of a forced green; you decide which side is wrong |
 | The implementer is stuck | It stops after 3 attempts, or when the same failure appears twice | A report of what it tried |
+| The implementer keeps going | `agent-guard.sh` counts, per Gate 4 approval: implementer runs (a third start is refused) and the implementer's file writes and commands (refused after 60). A new approval starts both counts again; outside a `/tdd` cycle nothing is counted (ADR-0019) | `/tdd` stops with a report of what is done and what is left; the refusal is in the blocked-attempt lines |
 
 ## How to change a test or the spec legitimately
 
@@ -89,6 +90,9 @@ It is **not** the application's audit log (`storage/logs/audit.log`,
   to the snapshot check.
 - The fixture-literal check reads quoted strings only, in added application lines that compare (`===`, `==`, `!=`, `case`, `match`, `in_array(`, `where(`). It does not see numbers, a value split across a concatenation, or one hidden behind a constant — the reviewer or a person reading the diff covers those (`meta/design/fixture-literal-check.md`).
 - The check after Green reads paths and added / removed lines, so a permission or destructive change written without those words (a hand-rolled role comparison under another name, a mass update) is only `LISTED` or not seen; the reviewer and your final look cover it (`meta/design/s7-user-facing-stop.md`). Role checks are recognised by their common names (`isAdmin`, `hasRole`, …) and by the project's own `is…()` / `has…()` methods whose body mentions a role — found automatically, nothing to configure. Files git ignores are skipped.
+- The run and call limits (2 and 60, about twice what real cycles used) stand in for time and
+  tokens, which a hook cannot see; the cycle reviewer has no counter
+  (`meta/design/stretch-chaining-limits.md`).
 - A hook that crashes or times out lets the call through. The hook is kept fast (bash
   builtins only) for this reason, and the snapshot check is the backstop.
 - Codex users get the snapshot check (run by `/tdd`'s steps in AGENTS.md workflows) but not
