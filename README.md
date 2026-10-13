@@ -70,7 +70,7 @@ Template's Own Layer        → meta/adr/ (outside the project's own decision-ma
 │   │   ├── fixture-literal-check.sh   # /tdd: after Green, finds application code comparing against a value only the approved tests contain (ADR-0017)
 │   │   ├── review-score.sh            # Scores the branch diff: review level (/review Step 0) + pre-merge tier (prepare-merge)
 │   │   ├── spec-lint.sh               # Structure check of requirements / use cases / mockups, run before Gate 1 / Gate 2
-│   │   └── tdd-snapshot.sh            # /tdd: saves tests/ + docs/product/ at Gate 4 approval, compares after Green and lists blocked attempts from the log (ADR-0016)
+│   │   └── tdd-snapshot.sh            # /tdd: saves tests/ + docs/product/ at Gate 4 approval, compares after Green and lists blocked attempts from the log (ADR-0016); after Green, stops on risky application changes (S7)
 │   └── settings.json                  # Project permissions (git push asks, force push denied — docs/development/git-workflow.md §4), the agent-guard hook, /code-review human-only
 │
 ├── meta/

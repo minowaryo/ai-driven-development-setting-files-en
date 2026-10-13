@@ -262,7 +262,7 @@ Approved 2026-10-03; all items implemented 2026-10-05 on `feat/loop-stage1` (hoo
 | 2 Stop conditions | Trial | Watch for premature escalation on legitimate retries |
 | 3 Test lock hook | Trial | First registered lifecycle hook in this template; locks `tests/` + `docs/product/` for the implementer only; also denies index-changing git commands and `git config`; watch false positives. 2026-10-07: also locks the denial log and the approved snapshot |
 | 4 Hook tests | Trial | — |
-| 5 Green evidence | Trial | Approved snapshot copy + `diff -r` (rewritten 2026-10-05: index- and tree-hash-based checks were both shown forgeable). 2026-10-07: `verify` also prints denials since approval and reports a shrunk log |
+| 5 Green evidence | Trial | Approved snapshot copy + `diff -r` (rewritten 2026-10-05: index- and tree-hash-based checks were both shown forgeable). 2026-10-07: `verify` also prints denials since approval and reports a shrunk log. 2026-10-12 (non-stop goal, gap S7): `mark-green` / `verify-green` copy the application files after Green and stop on permission, destructive, security, secret, outside-effect, dependency and integrity changes made after it, listing the rest (`meta/design/s7-user-facing-stop.md`) |
 | 6 ADR-0007 / ADR-0014 notes | Trial | Record-only |
 | 7 `disable-model-invocation` on commands + `skillOverrides` for `code-review` | Trial | Project `/review` wins today (undocumented — re-check on upgrade) |
 | 8 APPLY_TEMPLATE hook merge | Trial | — |

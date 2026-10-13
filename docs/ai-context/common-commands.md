@@ -130,6 +130,11 @@ bash .claude/hooks/fixture-literal-check.sh
 
 # Save a new snapshot (what Gate 4 approval does)
 bash .claude/hooks/tdd-snapshot.sh record
+
+# After Green: record the application files, then later report what changed
+# (exit 2 = a risky change needs a person; LISTED lines go into the final summary)
+bash .claude/hooks/tdd-snapshot.sh mark-green
+bash .claude/hooks/tdd-snapshot.sh verify-green
 ```
 
 ## Database
