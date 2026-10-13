@@ -4,6 +4,7 @@
 Accepted
 
 > Updated 2026-09-29: the score also drives the pre-merge check tiers (`MERGE_CHECK=` line) — see ADR-0015.
+> Updated 2026-10-12: ADR-0019 adds a findings-only **cycle review** that `/tdd` runs by itself after Green (a read-only sub-agent, one pass per cycle, skipped for small changes). It is part of a person-started `/tdd`, not a background review; `/review` itself remains person-started as decided here.
 
 ## Date
 2026-08-14

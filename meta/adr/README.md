@@ -28,6 +28,7 @@ from `ADR-0001`.
 | ADR-0016 | Loop Engineering roadmap, and Stage 1 — mechanical TDD enforcement (Trial) |
 | ADR-0017 | Loop Engineering Stage 2a — unattended checks before any loop (Trial) |
 | ADR-0018 | Structural pre-check of the spec documents — `spec-lint` (Trial) |
+| ADR-0019 | The non-stop stretch — Loop Engineering Stage 3, redefined (Trial) |
 
 ## Harness-design ADR patterns to copy from
 
