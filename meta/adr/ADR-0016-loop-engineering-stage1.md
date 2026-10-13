@@ -70,7 +70,7 @@ loop. **TDD itself (Red → Green → Refactor) is not negotiable at any stage.*
 |---|---|---|
 | 1 — this ADR | Mechanical TDD discipline inside the template (below) | Hook and its tests pass; blocked attempts are logged |
 | 2 | Deterministic `gate.sh` + evidence JSON; read-only reviewer that reads the evidence; experiment in two parts — 2a unattended checks (seeded conflicts, shadow replays, reviewer seeds), then 2b a 2-week human A/B on a real Laravel project only if 2a is promising | Zero undetected test/spec weakening; no rise in escaped defects |
-| 3 | Bounded Green loop (Stop hook running the gate); structured review result; Gate 4 `lite`/`standard` profiles | Human time per task −30% or more; zero undetected weakening; cost within budget |
+| 3 | Bounded Green loop (Stop hook running the gate); structured review result; Gate 4 `lite`/`standard` profiles. *Redefined 2026-10-12 as the non-stop stretch — ADR-0019* | Human time per task −30% or more; zero undetected weakening; cost within budget |
 | 4 | JP/company ports; Codex parity; traceability AC/Evidence columns | Same behavior in all three repos and under Codex |
 | 5 (conditional) | Autonomous loop run from outside the agent (sandboxed, budgeted); a separate repository only if needed | Started only if Stage 3 succeeds and a real gap remains |
 

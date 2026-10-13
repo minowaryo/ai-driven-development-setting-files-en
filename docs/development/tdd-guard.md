@@ -17,6 +17,7 @@ may change application code to meet that goal, but not the goal itself.
 | The main session (the AI you talk to) | On your instruction | Drafts / fixes with your approval | Yes |
 | `test-writer` (Red) | Writes them | Reads only | No |
 | **`tdd-implementer` (Green)** | **Blocked** | **Blocked** | Writes it |
+| `cycle-reviewer` (after Green) | Reads only | Reads only | Reads only — it reports findings, `/tdd` decides |
 
 The record of the cycle — `logs/audit.jsonl` and the approved snapshot in `.git/claude-tdd/` —
 is also blocked for `tdd-implementer`: the party being checked must not be able to edit the
@@ -33,6 +34,7 @@ Nothing is locked for you or for the main session. There is no lock to switch on
 | Right after Green | `/tdd` compares the files with that copy, and reads the log lines written since approval | Usually "unchanged" and "no blocked attempts". If something changed, the diff is shown and `/tdd` stops for your decision. Blocked attempts are shown as the raw log lines — from the log, not from the implementer's report, which may leave them out |
 | Right after Green, after that comparison | `/tdd` runs `.claude/hooks/fixture-literal-check.sh`: does application code compare against a value that only the approved tests contain (for example `if ($product->sku === 'SKU-A')`)? | Nothing when clean. If found, the lines are shown as `FIXTURE_LITERAL file:line 'value'` and `/tdd` stops for your decision |
 | When both checks pass | `/tdd` copies the application files into `.git/claude-tdd/green/` (`tdd-snapshot.sh mark-green`) | One line: "Saved the application files after Green …" |
+| After the Green confirmation | `/tdd` asks the `cycle-reviewer` sub-agent to review the change (skipped for small changes; ADR-0019) | Findings that need a judgment (spec conflict, security, user-facing change, suspect instruction, any HIGH) stop `/tdd` for your decision; small DEFECT / Domain Boundary findings are fixed once and reported; test gaps are reported |
 | After Refactor, or after any fix made after Green (e.g. a review finding) | `/tdd` compares with that copy (`verify-green`). Changes that touch permissions (Policies, routes, middleware, `authorize`, `Gate::`, role checks), destructive operations (migrations, `delete(`, `truncate(`), security (`v-html`, raw SQL, mass assignment, hidden attributes, auth/session config), secrets (`.env`, key assignments), outside effects (mail, HTTP, notifications, schedules, jobs), dependencies (`composer` / `npm` files) or integrity (a removed transaction or lock) | `STOP …` lines and `/tdd` stops for your decision. Other changed screens, wording, validation and controllers are `LISTED` in the final summary for you to look at; nothing else is asked |
 | The tests and the spec contradict each other | The implementer stops and reports `SPEC_CONFLICT` (test name + a quote from the use case) | A report instead of a forced green; you decide which side is wrong |
 | The implementer is stuck | It stops after 3 attempts, or when the same failure appears twice | A report of what it tried |

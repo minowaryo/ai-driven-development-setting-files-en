@@ -48,7 +48,8 @@ Template's Own Layer        → meta/adr/ (outside the project's own decision-ma
 │   │   └── 70-git.md                  # Git core, always loaded: profile line + safety rules (full rules: docs/development/git-workflow.md)
 │   ├── agents/
 │   │   ├── test-writer.md             # TDD Red-phase-only sub-agent
-│   │   └── tdd-implementer.md         # TDD Green-phase-only sub-agent
+│   │   ├── tdd-implementer.md         # TDD Green-phase-only sub-agent
+│   │   └── cycle-reviewer.md          # Findings-only review of one /tdd cycle after Green, read-only (ADR-0019)
 │   ├── commands/
 │   │   ├── review.md                  # /review command
 │   │   ├── adr.md                     # /adr command
