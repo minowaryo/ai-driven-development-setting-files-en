@@ -66,7 +66,7 @@ Template's Own Layer        → meta/adr/ (outside the project's own decision-ma
 │   │   ├── grill-me/                  # Trial (meta/adr/ADR-0013) — one-question-at-a-time requirements interview
 │   │   └── prepare-merge/             # Trial (meta/adr/ADR-0015) — pre-merge check + --no-ff merge on instruction
 │   ├── hooks/
-│   │   ├── agent-guard.sh             # PreToolUse hook: tdd-implementer cannot write tests/, docs/product/, logs/ or the snapshot, or stage/commit/configure git (ADR-0016)
+│   │   ├── agent-guard.sh             # PreToolUse hook: tdd-implementer cannot write tests/, docs/product/, logs/ or the snapshot, or stage/commit/configure git (ADR-0016); run and call limits per Gate 4 approval (ADR-0019)
 │   │   ├── domain-boundary-check.sh   # Domain Boundary contract check (run in /review Step 0 and prepare-merge; --audit-all for whole-repo audit)
 │   │   ├── fixture-literal-check.sh   # /tdd: after Green, finds application code comparing against a value only the approved tests contain (ADR-0017)
 │   │   ├── review-score.sh            # Scores the branch diff: review level (/review Step 0) + pre-merge tier (prepare-merge)
