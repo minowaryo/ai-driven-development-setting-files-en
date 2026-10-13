@@ -13,6 +13,26 @@
     /----------------\
 ```
 
+## Test-Run Budget and Slow Tests
+
+How often tests run during `/tdd` and at merge is set in `.claude/rules/30-testing.md` ("Test-Run Budget") and `meta/adr/ADR-0020`. In short: sub-agents run only their target files, the main session runs the full suite once per cycle (and again only after a later code change), and the merged result is re-tested only when it differs from the tested branch tip.
+
+A test that needs several seconds of real-data setup (e.g. importing a real source file) carries the `slow` group:
+
+```php
+use PHPUnit\Framework\Attributes\Group;
+
+#[Group('slow')]
+public function test_real_file_import_creates_expected_records(): void { ... }
+
+// Pest
+test('real file import creates expected records', function () { ... })->group('slow');
+```
+
+Make it faster first, then tag what is still slow:
+- Run an expensive import once per test and assert everything from that run, instead of repeating it in every test.
+- Never run DDL (`Schema::create`) in `setUp` on MySQL — it commits the `RefreshDatabase` transaction and forces a full re-migration before the next test. Use `$table->temporary()` for fixture tables (drop with `DROP TEMPORARY TABLE IF EXISTS`; a plain `DROP TABLE` also commits).
+
 ## Test Framework
 
 - **PestPHP** (recommended) or PHPUnit

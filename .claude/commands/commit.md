@@ -35,7 +35,13 @@ approval. Read `docs/development/git-workflow.md` first (the rules; the active p
    before the approval.
 7. **Commit** — for each group in order: `git add <files>` then `git commit` with the
    approved message and the `Co-Authored-By:` trailer. Never push, amend, or rebase (§4 Authority).
-8. **Report** the short SHAs and subjects. If the branch looks done, suggest `prepare-merge`.
+8. **Report** — always end with this table (phase report, `.claude/rules/30-testing.md`), also when a
+   commit failed (say where it stopped). If the branch looks done, suggest `prepare-merge`.
+
+   | # | SHA | Subject | Files | Tests on this tree |
+   |---|---|---|---|---|
+
+   "Tests on this tree" is the run from step 5 (e.g. `466 passed`), or "not run — docs only".
 
 ## Constraints
 

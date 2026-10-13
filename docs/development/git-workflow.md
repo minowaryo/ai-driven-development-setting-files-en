@@ -79,7 +79,7 @@ applies to both profiles, except the rows in this table:
 ## §5 Merge
 
 - Merge with `git merge --no-ff`: the branch's commits stay as they are, grouped by one merge commit (`git log --first-parent main` reads as a feature list; `git revert -m 1 <merge>` undoes a feature)
-- Tests run once, on the merged result, before the merge commit is made
+- Tests run once, on the merged result, before the merge commit is made — **except** when both hold (`meta/adr/ADR-0020`): the base has not moved since the branch was cut (`git merge-base --is-ancestor <base> <branch>`, so the merged tree equals the branch tip), and the full suite passed in this session on exactly the committed tree (nothing changed after that run). The `Tests:` trailer then records that run, e.g. `Tests: php artisan test (128 passed on branch tip; base unchanged)`. When unsure, run them
 - Merge commit message — git's default subject, a short why, and trailers:
 
 ```

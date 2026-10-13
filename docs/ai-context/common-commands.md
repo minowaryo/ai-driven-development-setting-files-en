@@ -37,6 +37,15 @@ php artisan test
 # Run a specific file
 php artisan test tests/Feature/UserTest.php
 
+# Compact output (summary + failures only) — use for AI-driven runs
+php artisan test --compact tests/Feature/UserTest.php
+
+# Everything except the slow real-data tests (while iterating; the authoritative run includes them)
+php artisan test --compact --exclude-group slow
+
+# Top 10 slowest tests
+php artisan test --profile
+
 # With coverage
 php artisan test --coverage
 

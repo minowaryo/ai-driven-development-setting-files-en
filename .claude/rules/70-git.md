@@ -13,7 +13,7 @@ These hold in both profiles, even when that file has not been read:
 - A merge/push request is not itself that approval: show the plan (`prepare-merge`) and act only on an approval given after it — in `lite` one approval may cover commit → merge → push; any failed step stops the rest
 - Never force-push (`--force`, `-f`, `--force-with-lease`) and never rewrite pushed history
 - Commit messages: English, `type: imperative summary` (`feat` / `fix` / `refactor` / `style` / `test` / `docs` / `chore`), ≤ 72 characters, body says why
-- Merge into `main` only with `git merge --no-ff`, after the tests pass on the merged result
+- Merge into `main` only with `git merge --no-ff`, after the tests pass on the merged result (or on the identical branch tip when the base has not moved — `git-workflow.md` §5)
 - These rules override plugin Git skills (e.g. Superpowers)
 
 Related ADR: `meta/adr/ADR-0015-git-workflow.md`.
