@@ -30,7 +30,7 @@ JP = `ai-driven-development-setting-files`, Company = `ai-driven-development-set
 | Script | Added (EN) | Last change (EN) | JP | Company |
 |---|---|---|---|---|
 | `agent-guard.sh` | `6c9921b` | `4365586` | Behind EN (PHP-arrow fix not ported) | Identical (ported 2026-10-08, `249ae2d`) |
-| `tdd-snapshot.sh` | `6c9921b` | branch `feat/s7-after-green` | Behind EN (S7 not ported) | Behind EN (S7 not ported) |
+| `tdd-snapshot.sh` | `6c9921b` | `4c9766b` | Behind EN (S7 not ported) | Behind EN (S7 not ported) |
 | `fixture-literal-check.sh` | `8dc6e13` | `8dc6e13` | Not ported | Identical (ported 2026-10-08, `249ae2d`) |
 | `review-score.sh` | `550a640` | `3b0216a` | Identical | Identical |
 | `domain-boundary-check.sh` | `37457db` | `a5c2029` | Identical | Identical |
