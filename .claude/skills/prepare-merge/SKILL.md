@@ -1,6 +1,6 @@
 ---
 name: prepare-merge
-description: Prepare and (only on explicit instruction) perform the merge of a finished feature branch into main — runs the pre-merge check, enforces the /review requirement for its tier, drafts the merge commit message, and merges with --no-ff after running tests on the merged result. Use when a branch is done or the user asks to merge, finish, or integrate a branch (e.g. "merge this", "finish this branch", "マージして", "ブランチを取り込む", "作業完了したのでmainに入れて"). Supersedes Superpowers' finishing-a-development-branch in this project. Status: Trial (see meta/adr/ADR-0015).
+description: Prepare and (only on explicit instruction) perform the merge of a finished feature branch into main — runs the pre-merge check, enforces the /review requirement for its tier, drafts the merge commit message, and merges with --no-ff after running tests on the merged result (unless it equals an already-tested branch tip), ending with a result report. Use when a branch is done or the user asks to merge, finish, or integrate a branch (e.g. "merge this", "finish this branch", "マージして", "ブランチを取り込む", "作業完了したのでmainに入れて"). Supersedes Superpowers' finishing-a-development-branch in this project. Status: Trial (see meta/adr/ADR-0015).
 ---
 
 # Prepare Merge
@@ -100,12 +100,19 @@ the rules; this file is only the procedure. The active profile is the `Profile:`
    git checkout <base>
    git fetch && git merge --ff-only origin/<base>   # skip if there is no remote
    git merge --no-ff --no-commit <branch>
-   <test command>                                   # e.g. php artisan test
+   <test command>                                   # e.g. php artisan test --compact; see below
    git commit -F - <<'EOF'                          # only if the tests passed
    <merge message>
    EOF
    git branch -d <branch>
    ```
+
+   The plan says whether `<test command>` will run (`docs/development/git-workflow.md` §5,
+   `meta/adr/ADR-0020`). It is skipped only when, **after** the `--ff-only` update,
+   `git merge-base --is-ancestor <base> <branch>` succeeds (the base has not moved, so the merged
+   tree equals the branch tip) **and** the full suite passed in this session on exactly the
+   committed tree. Say which run that was; the `Tests:` trailer records it. Otherwise, or when
+   unsure, it runs.
 
 6. **Merge on instruction** — run the sequence. Stop and report, without reconciling on
    your own, if: the `--ff-only` update fails (local `<base>` has diverged from the
@@ -117,3 +124,15 @@ the rules; this file is only the procedure. The active profile is the `Profile:`
 7. **After the merge** — the local branch is deleted as listed. Push `<base>` and delete the
    remote branch only on explicit instruction (§4 Authority); a `lite` combined-run approval
    counts as that instruction for the push it listed.
+8. **Phase report** — always end with this table (`.claude/rules/30-testing.md`, "Phase report"),
+   also when a step failed — then say which step stopped it and what was not run:
+
+   | Item | Result |
+   |---|---|
+   | Commits | Short SHAs and subjects created in this run, or "—" |
+   | Merge | Merge commit SHA into `<base>`, or where it stopped |
+   | Tests on merged result | e.g. `466 passed`, or "skipped — base unchanged; 466 passed on branch tip <sha>" |
+   | Review | normal / enhanced / skipped |
+   | Domain Boundary | findings, or "none" |
+   | Branch | local branch deleted / kept |
+   | Push | pushed to `origin/<base>` / not pushed |

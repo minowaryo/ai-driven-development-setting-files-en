@@ -2,6 +2,28 @@
 
 > Keep under 300 lines (`.claude/rules/60-docs.md`). Archived: 2026-08-03 – 2026-10-03 (Loop Stage 1) → `meta/history/plan-archive.md` (2026-09-30, 2026-10-03, 2026-10-06, 2026-10-09).
 
+## Test-run budget and phase reports, from `ihs-tech-uplift` (2026-10-13)
+
+### Decision
+
+- `meta/adr/ADR-0020` (Trial), measured and adopted in `ihs-tech-uplift` (its ADR-0034, merge `25e29d8`);
+  maintainer decision 2026-10-13. Order: EN → JP → EN-company.
+- Sub-agents run only their target files; the main session runs the full suite once per `/tdd` cycle
+  (Step 4) and again only after a later code change (cycle-review fixes, Refactor); `--compact` output.
+- `prepare-merge` skips the merged-result test run when the base has not moved and the full suite
+  passed on the committed tree (`git-workflow.md` §5, `70-git.md`).
+- `slow` test group and two speed rules in `testing-strategy.md`; `/tdd`, `/commit`, `prepare-merge`
+  always end with a fixed result table (chat only), incl. cycle review and "Changed after Green".
+- Not adopted: `schema:dump`, `--parallel`, report files. No script changes, so
+  `meta/traceability-matrix.md` is unchanged.
+- Written in a worktree from `main` (`a587ced`) while `feat/stretch-limits` had uncommitted work in
+  the main checkout; in `tdd.md` the new text is a separate paragraph to keep clear of that branch's
+  Step 3/4 edits.
+
+### Status
+
+In progress. Trial: the next real `/tdd` cycle in `ihs-tech-uplift`.
+
 ## Changed screens and screenshots in the merge plan (2026-10-12)
 
 ### Decision

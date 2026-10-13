@@ -14,6 +14,7 @@ Related rule: `.claude/rules/30-testing.md`
 - Scope is limited to Feature Tests / Unit Tests under `tests/` (E2E Tests are out of scope — `/generate-e2e-test` handles those separately once implementation is complete)
 - **Do not edit implementation code** under `app/` or `resources/js/` (reading it to understand the existing implementation is fine)
 - Run the tests you write and confirm they fail "as intended" before reporting completion — confirm the failure is due to missing implementation, not confused with a failure for another reason such as a syntax error
+- Run only the test files you created or edited, with compact output (`php artisan test --compact <path>`). Never run the full suite. Re-run only after you changed a file; when asked to add tests to one file, run just that file (Test-Run Budget, `.claude/rules/30-testing.md`)
 - Web form routes answer a validation error with a redirect (302) and session errors, not 422, even when the use case lists 422 — assert with `assertSessionHasErrors` unless the route returns JSON
 - Base test case names and coverage scope on the UC titles and flows in `docs/product/use-cases.md`
 - When a use case in scope shows a list, calendar or index: for each role, test that it shows exactly what the spec lets that role see — including records linked to the user through a capability flag (e.g. sessions where the user is the trainer) — and nothing outside its scope. Take the expected result from the spec, never from the code
@@ -31,5 +32,6 @@ The completion report is presented to a human as **review material for Gate 4 (t
 
 1. List of created test files
 2. Why each test fails (missing implementation vs. a mismatch with expected values)
-3. Execution results (failure logs)
+3. Execution results: the summary line and one failure excerpt per distinct failure reason (not every passing line)
 4. How much of the happy path / error cases / authorization from `docs/product/use-cases.md` the test cases cover
+5. Test runs you made: count, which files, approximate time

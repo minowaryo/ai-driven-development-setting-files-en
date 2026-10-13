@@ -66,6 +66,41 @@ Claude Code / Codex tend to write the implementation first and bolt tests on aft
 3. After Refactor completes, run **`/review`** before merging when the pre-merge check calls for it (`docs/development/git-workflow.md` §6 Pre-Merge Check)
    - The review-score auto-computed as Step 0 of `/review` (see `meta/adr/ADR-0009-review-escalation-mechanism.md`) automatically selects the normal or enhanced review level
 
+### Test-Run Budget — canonical reference
+
+> Single source for how often tests run (`meta/adr/ADR-0020`). `.claude/commands/tdd.md`, both TDD sub-agents, `docs/development/git-workflow.md` §5 and `prepare-merge` link here.
+
+| Phase | Who runs | What |
+|---|---|---|
+| Red | `test-writer` | Only the test files it created or edited |
+| Gate 4 evidence | Main session | Those same files, once |
+| Green (iterating) | `tdd-implementer` | Only the target test files — never the full suite |
+| Green confirmation (`/tdd` Step 4) | Main session | The full suite, once — the cycle's authoritative run |
+| After Green (cycle-review fixes, Refactor) | Main session | Target files while editing; the full suite once after the change — only if code changed |
+| Merge | `prepare-merge` | The merge result, only when it differs from the tree already tested (`git-workflow.md` §5) |
+
+- Do not re-run a tree whose result is already known in this session. Re-run only after something changed.
+- AI-driven runs use compact output (`php artisan test --compact …`) and read only the summary line and the failure blocks; never paste passing-test lines into the conversation.
+- A test that needs several seconds of real-data setup carries the `slow` group (`#[Group('slow')]` in PHPUnit, `->group('slow')` in Pest). Make it faster first (expensive setup once per test; on MySQL, no DDL in `setUp` — use `$table->temporary()`). While iterating, a wider check may use `--exclude-group slow`; the authoritative run always includes it.
+- Every phase report lists the runs made (count and approximate time).
+
+### Phase report — canonical reference
+
+`/tdd`, `/commit` and `prepare-merge` always end with a short result table in the conversation — whether or not a bug was found, and also when they stop early (Gate 4 rejected, `SPEC_CONFLICT`, attempt limit, a stop from a check or the cycle review, a failed merge). Rows that do not apply say "—"; nothing is saved to a file (`meta/adr/ADR-0020`). The `/tdd` table:
+
+| Item | Result |
+|---|---|
+| Target | UC or fix |
+| Red | N tests in which files; each fails for the intended reason (yes / no) |
+| Gate 4 | Approved / revised (what changed) |
+| Green | Target tests N/N; full suite N passed, F failed |
+| Goal check | Snapshot unchanged; fixture-literal clean; blocked attempts N |
+| Cycle review | Skipped (small change) / findings fixed / findings left / unavailable |
+| Changed after Green | `LISTED` lines from `verify-green`, or "—" |
+| Bugs and findings | Each finding, or "none" |
+| Test runs | e.g. target files ×3 (~25 s each), full suite ×1 (~3 min) |
+| Next | e.g. `run` skill recommended; commit pending approval |
+
 ## Test Quality Heuristics (Trial — see `meta/adr/ADR-0013`)
 
 Beyond the Red → Green → Refactor cycle itself, watch for tests that pass without
@@ -130,6 +165,12 @@ php artisan test
 
 # Run a specific file only
 php artisan test tests/Feature/UserTest.php
+
+# AI-driven runs: compact output (summary + failures)
+php artisan test --compact tests/Feature/UserTest.php
+
+# Everything except the slow group (while iterating only)
+php artisan test --compact --exclude-group slow
 
 # Check coverage
 php artisan test --coverage
