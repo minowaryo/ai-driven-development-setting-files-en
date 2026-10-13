@@ -109,7 +109,8 @@ Company: later.
 - [x] Goal definition: `meta/design/nonstop-goal.md` (`bff8b0b`). Next: its gaps in order — S7 by machine first
 - [x] S7 (approved 2026-10-12, design `meta/design/s7-user-facing-stop.md`): after Green, stop only on permissions / destructive / security / secrets / outside effects / dependencies / integrity; list other user-facing changes for the final review. `tdd-snapshot.sh mark-green` / `verify-green` (role predicates found automatically) + 21 cases in its test; wired into `/tdd`. The 2026-09-10 change replayed: stops. Merged `619cb9b`
 - [x] Cycle review (gap 2, ADR-0019, design `meta/design/cycle-reviewer.md`): read-only `cycle-reviewer` sub-agent run by `/tdd` after Green, skipped for small changes, no setting; stops on SECURITY / suspect instruction / MEDIUM+ spec conflict or user-facing change / any HIGH; fixes DEFECT / DOMAIN_BOUNDARY once. Lab: both screen-side residuals found again, $0.25–0.49 per review. Merged `abcf5c2`
-- [ ] Next gaps (`nonstop-goal.md`): chain the remaining `/tdd` steps with attempt and budget limits (S5, S9); guardrail regression suite; pilot on a real project. JP / company ports of S7 and the cycle review: on hold
+- [x] Chaining + S5 / S9 (approved 2026-10-13, design `meta/design/stretch-chaining-limits.md`, branch `feat/stretch-limits`): `/tdd` runs from Gate 4 approval to one six-part completion report without waiting (in `standard`, the Red + Green commit is the one planned pause); `agent-guard.sh` refuses a third implementer run and implementer writes / commands past 60 per approval (matcher gains `Agent|Task`); 19 cases in its test (83 total). Limits to be tuned from pilot data. End-to-end in the lab (2.1.288, ≈ $0.12): both refusals fire, are logged and shown by `verify`
+- [ ] Next gaps (`nonstop-goal.md`): guardrail regression suite; pilot on a real project. JP / company ports of S7, the cycle review and S5 / S9: on hold
 
 ### Status
 
