@@ -51,6 +51,13 @@ machine checks in `agent-guard.sh`: per Gate 4 approval, a third `tdd-implemente
 implementer writes / commands past 60 are refused (about twice the observed maximum of 2 runs
 and 34 calls). Time and tokens are not limited — a hook cannot see them. 0 tokens, no setting.
 
+**2026-10-15 — guardrail regression suite (gap 5, `meta/design/guardrail-regression-suite.md`).**
+A hook that stops matching after a Claude Code update fails open without a sign. Always on, at
+0 tokens: `tdd-snapshot.sh verify` warns when `agent-guard.sh` counted no implementer call since
+approval. On demand, no schedule (maintainer, 2026-10-15): a lab script re-checks the hook
+wiring (Level 1, ≈ $0.4) and the implementer's and cycle review's behaviour on a model (Level 2,
+≈ $2.1). First runs on 2.1.296: both pass. Results: `meta/history/guardrail-regression.md`.
+
 ## Rationale
 
 - Removing go-aheads saves more of the person's time than retries would (analysis A).
