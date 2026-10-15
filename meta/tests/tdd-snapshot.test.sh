@@ -95,6 +95,10 @@ expect "log created after approval"           0 "$(run verify)" "blocked 1 time(
 
 fresh; run record >/dev/null
 expect "no log at all"                        0 "$(run verify)" "No blocked attempts"
+expect "no implementer call counted: warning, still exit 0" 0 "$(run verify)" "WARNING: agent-guard.sh counted no"
+printf '3\n' > "$P/$(git -C "$P" rev-parse --git-path claude-tdd)/approved/.implementer-calls"
+run verify >/dev/null
+if ! grep -qF WARNING "$ROOT/out"; then PASS=$((PASS + 1)); else FAIL=$((FAIL + 1)); echo "FAIL: warned although implementer calls were counted"; fi
 rm "$P/$(git -C "$P" rev-parse --git-path claude-tdd)/approved/.log-offset"
 expect "snapshot from before this check"      0 "$(run verify)" "skipped"
 

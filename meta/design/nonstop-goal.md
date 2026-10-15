@@ -81,7 +81,7 @@ the person.
 4. **Chaining `/tdd` Steps 4–8** into the stretch, with S5 and S9 limits — built 2026-10-13
    (`stretch-chaining-limits.md`).
 5. **Guardrail regression suite** — re-run the Stage 2a seeds when the model or Claude Code
-   changes (`loop-stage2a-results.md`).
+   changes (`loop-stage2a-results.md`) — built 2026-10-15 (`guardrail-regression-suite.md`).
 6. **Pilot** on a real project, measured against analysis A (messages per cycle, cost, escapes).
 
 ## Related
