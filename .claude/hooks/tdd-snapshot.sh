@@ -101,6 +101,12 @@ case "${1:-}" in
     else
       echo "Blocked-attempt check skipped: this snapshot predates it (record again at the next Gate 4 approval)."
     fi
+    # agent-guard.sh counts every implementer write / command (S9). None after Green means the
+    # implementer did not run, or the hook no longer sees its calls (it would then fail open).
+    calls=0; [ -f "$SNAP/.implementer-calls" ] && read -r calls < "$SNAP/.implementer-calls"
+    if [ "${calls:-0}" -eq 0 ] 2>/dev/null; then
+      echo "WARNING: agent-guard.sh counted no tdd-implementer writes or commands since Gate 4 approval — either the implementer did not run, or the hook no longer sees its calls (e.g. after a Claude Code update; docs/development/tdd-guard.md)."
+    fi
 
     if [ "$changed" -eq 0 ] && [ "$log_changed" -eq 0 ]; then
       echo "tests/ and docs/product/ are unchanged since Gate 4 approval ($(cat "$SNAP/.recorded-at"))."

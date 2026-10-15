@@ -93,6 +93,11 @@ It is **not** the application's audit log (`storage/logs/audit.log`,
 - The run and call limits (2 and 60, about twice what real cycles used) stand in for time and
   tokens, which a hook cannot see; the cycle reviewer has no counter
   (`meta/design/stretch-chaining-limits.md`).
+- The hook depends on what Claude Code tells it about each call. If an update changes that, the
+  hook lets everything through without a sign. `verify` therefore warns when it counted no
+  implementer call since approval ("WARNING: agent-guard.sh counted no …"): either the
+  implementer did not run, or the hook no longer sees it — tell the template maintainer, who can
+  re-check the hook on that version (`meta/design/guardrail-regression-suite.md`).
 - A hook that crashes or times out lets the call through. The hook is kept fast (bash
   builtins only) for this reason, and the snapshot check is the backstop.
 - Codex users get the snapshot check (run by `/tdd`'s steps in AGENTS.md workflows) but not
