@@ -31,6 +31,11 @@ Adopt the following AI-driven development policy.
 > split during Gate 0-3 differs from the diagram above — see
 > `meta/adr/ADR-0011-existing-codebase-adoption.md` and `docs/development/ai-workflow.md`'s
 > Role Breakdown.
+>
+> Updated 2026-10-19: in real use outside `/tdd`, the AI stopped to ask before safe local work
+> (a doc fix, mocked browser checks). Such work inside an agreed task now proceeds without
+> asking; approval stays for user-facing behavior changes, shared environments, new
+> dependencies and Git operations — `.claude/rules/00-global.md`, "Work That Needs No Approval".
 
 ```
 requirements.md (defined by humans)
