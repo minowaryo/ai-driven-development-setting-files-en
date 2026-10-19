@@ -60,7 +60,7 @@ Laravel + MySQL web application
 - `docs/original-docs/` is read-only — never edit, delete, or create files in it, except its own `README.md`
 - Test case names must be derived from use-cases.md UC titles
 - Follow Red → Gate 4 approval → Green → Refactor for new features, not just bug fixes (`.claude/rules/30-testing.md`)
-- Do not ask before local work inside an agreed task (reading, builds, tests, checks against mocks, the task's doc updates) — run it and report; ask before user-facing behavior changes, shared environments, new dependencies, and commits / merges / pushes (`.claude/rules/00-global.md`, "Work That Needs No Approval")
+- Do not ask before local work inside an agreed task (reading, builds, tests, checks against mocks, the task's doc updates) — run it and report; ask before user-facing behavior changes, shared environments, and commits / merges / pushes (`.claude/rules/00-global.md`, "Work That Needs No Approval")
 
 ## Output expectations
 

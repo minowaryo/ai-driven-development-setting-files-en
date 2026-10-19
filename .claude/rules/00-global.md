@@ -95,8 +95,8 @@ another person sees — run it and report the result:
 - Documentation updates that belong to the task (e.g. `module-map.md` for a new file)
 
 Ask only before: a user-facing behavior change (the section above), an operation on a shared
-environment (a test or production server, a shared database, an external service), adding a
-dependency, and commits / merges / pushes (`.claude/rules/70-git.md`). When a check finds a
+environment (a test or production server, a shared database, an external service), and
+commits / merges / pushes (`.claude/rules/70-git.md`). When a check finds a
 defect, report it; fixing it follows the section above.
 
 ---
