@@ -15,7 +15,7 @@ the human is deciding on.
 | Role | Tasks |
 |---|---|
 | **Humans only** | Business understanding, requirements definition, use-case approval, ADR creation, final review and merge, approving commits and pushes |
-| **AI primary** | Code generation, test generation, code review assistance, refactoring suggestions, proposing commit splits and merge messages (`docs/development/git-workflow.md`) |
+| **AI primary** | Code generation, test generation, code review assistance, refactoring suggestions, proposing commit splits and merge messages (`docs/development/git-workflow.md`); local checks inside an agreed task without asking (`.claude/rules/00-global.md`, "Work That Needs No Approval") |
 | **AI support** | Design consultation, document drafting, bug root cause investigation |
 
 ### Existing-Codebase Adoption

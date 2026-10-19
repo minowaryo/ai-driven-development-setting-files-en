@@ -2,6 +2,23 @@
 
 > Keep under 300 lines (`.claude/rules/60-docs.md`). Archived: 2026-08-03 – 2026-10-03 (Loop Stage 1) → `meta/history/plan-archive.md` (2026-09-30, 2026-10-03, 2026-10-06, 2026-10-09).
 
+## Local work needs no approval (2026-10-19)
+
+### Decision
+
+- Source: two reports from real use of the template at `87e0954` (frontend work, outside
+  `/tdd`): the AI stopped to ask before a doc fix and before mocked browser checks. The non-stop
+  stretch only covers `/tdd`, so these go-aheads remained (maintainer: "stops did not drop").
+- `00-global.md` gains "Work That Needs No Approval": inside an agreed task, reading, builds,
+  tests, mocked checks and the task's doc updates run without asking; approval stays for
+  user-facing behavior changes, shared environments, new dependencies and Git operations
+  (maintainer, 2026-10-19). Pointers: `AGENTS.md`, `ai-workflow.md`, ADR-0004 note.
+- 0 tokens, nothing new to learn. JP: not yet; company: not for now.
+
+### Status
+
+Implemented on `feat/no-ask-local-work`.
+
 ## Test-run budget and phase reports, from `ihs-tech-uplift` (2026-10-13)
 
 ### Decision
