@@ -11,13 +11,13 @@
   stretch only covers `/tdd`, so these go-aheads remained (maintainer: "stops did not drop").
 - `00-global.md` gains "Work That Needs No Approval": inside an agreed task, reading, builds,
   tests, mocked checks and the task's doc updates run without asking; approval stays for
-  user-facing behavior changes, shared environments, new dependencies and Git operations
-  (maintainer, 2026-10-19). Pointers: `AGENTS.md`, `ai-workflow.md`, ADR-0004 note.
+  user-facing behavior changes, shared environments and Git operations (maintainer,
+  2026-10-19; "new dependencies" dropped as redundant — a new library already needs an ADR). Pointers: `AGENTS.md`, `ai-workflow.md`, ADR-0004 note.
 - 0 tokens, nothing new to learn. JP: not yet; company: not for now.
 
 ### Status
 
-Implemented on `feat/no-ask-local-work`.
+Merged `c09aa9c` and pushed; the redundant dependency item removed on `fix/drop-dependency-ask`.
 
 ## Test-run budget and phase reports, from `ihs-tech-uplift` (2026-10-13)
 
