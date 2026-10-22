@@ -2,6 +2,18 @@
 
 > Keep under 300 lines (`.claude/rules/60-docs.md`). Archived: 2026-08-03 – 2026-10-03 (Loop Stage 1) → `meta/history/plan-archive.md` (2026-09-30, 2026-10-03, 2026-10-06, 2026-10-09).
 
+## Codex parity — handoff for a new session (2026-10-22)
+
+### Decision
+
+- Maintainer: Codex support is done in this repo, in a separate session. The handoff is
+  `meta/design/codex-parity-handoff.md` (goal, current gaps, changes since
+  `meta/design/loop-stage4-design.md`, suggested first steps, working constraints).
+
+### Status
+
+Not started. Next: the first steps in the handoff note.
+
 ## AI authority register, from the company repo (2026-10-22)
 
 ### Decision
