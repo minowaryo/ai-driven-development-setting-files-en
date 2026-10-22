@@ -36,8 +36,8 @@ The stretch stops and asks a person when any of these fires. "Machine" means a s
 | S3 | A check could not run (no snapshot, tool error) | exit 3 of any check | Machine |
 | S4 | The implementer reports `SPEC_CONFLICT` | its report; `/tdd` Step 3 | Prompt |
 | S5 | Attempt limit: a third implementer run, 3 Green attempts, or the same failure twice | `agent-guard.sh` (runs); `/tdd` Step 3 (attempts) | Machine for runs (2026-10-13); prompt for attempts |
-| S6 | Reviewer finding routed BLOCKING (spec conflict, security, user-facing change, suspect instruction, or HIGH) | reviewer R0 route script | Lab only |
-| S7 | A user-facing behaviour change the approved spec does not cover | `00-global.md` rule | **Prompt — failed once (2026-09-10)** |
+| S6 | Cycle-review finding that needs a judgment (security, suspect instruction, spec conflict or user-facing change at MEDIUM+, or any HIGH) | `cycle-reviewer` findings, routed by `/tdd` Step 7 | Prompt — the main session applies the route from written rules (2026-10-13, ADR-0019) |
+| S7 | A user-facing behaviour change the approved spec does not cover | `tdd-snapshot.sh mark-green` / `verify-green`; the cycle review's `USER_FACING_CHANGE` as a second signal | Machine for permission, destructive, security, secret, outside-effect, dependency and integrity changes after Green (2026-10-12); other user-facing changes are listed for the final review. Was prompt only and failed once (2026-09-10) |
 | S8 | A sensitive path changed (migration, auth, config, security) | `review-score.sh` sensitive paths | Machine, but only at merge |
 | S9 | Budget: the implementer's writes and commands for the stretch exceeded (stand-in for time and tokens) | `agent-guard.sh` | Machine (2026-10-13) |
 
@@ -71,11 +71,12 @@ the person.
 
 ## Gaps, in order
 
-1. **S7 by machine** — a deterministic trigger for user-facing change outside the spec (design
-   needed: changed paths such as views, lang files, validation rules and Policies, set against
-   the UCs the cycle's tests name), with the reviewer's user-facing category as a second signal.
-2. **Reviewer into the template** — R0 + spec slicing + residual hints as a script, run inside
-   the stretch as a finder only; needs an ADR-0009 amendment (it is started by a human today).
+1. **S7 by machine** — a deterministic trigger for user-facing change outside the spec, with the
+   reviewer's user-facing category as a second signal — built 2026-10-12
+   (`s7-user-facing-stop.md`, ADR-0019 item 2).
+2. **Reviewer into the template** — run inside the stretch as a finder only — built 2026-10-13
+   as the `cycle-reviewer` sub-agent, not a script (`cycle-reviewer.md`, ADR-0019 item 3); its
+   route is applied by the main session from written rules.
 3. **Screenshots** of changed screens, linked from the report — designed and built 2026-10-12 in
    `prepare-merge` (`e2e-screenshot-report.md`).
 4. **Chaining `/tdd` Steps 4–8** into the stretch, with S5 and S9 limits — built 2026-10-13
