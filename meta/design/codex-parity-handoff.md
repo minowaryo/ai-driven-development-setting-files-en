@@ -32,15 +32,24 @@ Scope: EN repo only. JP and company follow later, by separate decision.
 
 ## What changed since the draft (not yet in it or in `AGENTS.md`)
 
-| Change | Claude side | Codex side today |
+| Change | Claude side | Codex side (after 2026-10-22) |
 |---|---|---|
-| Non-stop `/tdd` to one Step 8 completion report (ADR-0019) | `.claude/commands/tdd.md` | Not described in `AGENTS.md` |
-| S7 — stop on risky changes after Green (`mark-green` / `verify-green`) | `tdd.md` Steps 4 and 7 | Not described |
-| Cycle review (`cycle-reviewer` sub-agent, findings-only) | `.claude/agents/cycle-reviewer.md` | No Codex equivalent |
-| S5 / S9 run and call limits | `agent-guard.sh` | Not enforced (no hook) |
-| Test-run budget and phase reports (ADR-0020) | `30-testing.md` | Not described |
-| Changed screens in the merge plan | `prepare-merge` skill | Not described |
+| Non-stop `/tdd` to one Step 8 completion report (ADR-0019) | `.claude/commands/tdd.md` | `AGENTS.md` "TDD cycle" follows `tdd.md` Steps 0-8 |
+| S7 — stop on risky changes after Green (`mark-green` / `verify-green`) | `tdd.md` Steps 4 and 7 | Runs (the session runs the script) |
+| Cycle review (`cycle-reviewer` sub-agent, findings-only) | `.claude/agents/cycle-reviewer.md` | None; the report asks for `/review` before merging |
+| S5 / S9 run and call limits | `agent-guard.sh` | Prompt-level: 3 attempts / same failure twice |
+| Test-run budget and phase reports (ADR-0020) | `30-testing.md` | Applies as written |
+| Changed screens in the merge plan | `prepare-merge` skill | Read and followed from `tdd.md` Step 8 |
 | AI authority register | `docs/development/ai-authority.md` | `AGENTS.md` task table points to it (2026-10-22) |
+
+## Outcome (2026-10-22)
+
+- Codex docs re-read for codex-cli 0.163.0: PreToolUse still has no agent identity; see the
+  note at the top of `loop-stage4-design.md`. The local CLI (0.116.0) was not upgraded and no
+  fixture was re-run — the text-only step needs neither.
+- Maintainer chose option (a): `AGENTS.md` "TDD cycle". Updated: `tdd-guard.md` "Limits",
+  `ai-authority.md` Known Gaps + change log, ADR-0016 Stage 4 note.
+- Not done: the wrapper (option (b)), JP and company ports.
 
 ## Suggested first steps
 

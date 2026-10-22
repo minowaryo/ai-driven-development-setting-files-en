@@ -60,8 +60,35 @@ Laravel + MySQL web application
 - Do not edit unrelated files
 - `docs/original-docs/` is read-only — never edit, delete, or create files in it, except its own `README.md`
 - Test case names must be derived from use-cases.md UC titles
-- Follow Red → Gate 4 approval → Green → Refactor for new features, not just bug fixes (`.claude/rules/30-testing.md`)
+- Follow Red → Gate 4 approval → Green → Refactor for new features, not just bug fixes (`.claude/rules/30-testing.md`; steps in "TDD cycle" below)
 - Do not ask before local work inside an agreed task (reading, builds, tests, checks against mocks, the task's doc updates) — run it and report; ask before user-facing behavior changes, shared environments, and commits / merges / pushes (`.claude/rules/00-global.md`, "Work That Needs No Approval")
+
+## TDD cycle
+
+Codex has no `/tdd` command. When asked to run a TDD cycle for a use case, read
+`.claude/commands/tdd.md` and `.claude/rules/30-testing.md` and follow its Steps 0-8, with these
+differences — Codex runs without the sub-agents and the `agent-guard.sh` hook that Claude Code has:
+
+- **One session plays each role in turn.** Step 1 follows `.claude/agents/test-writer.md`;
+  Step 3 follows `.claude/agents/tdd-implementer.md`. Stop at Gate 4 (Step 2) and wait for the
+  person's approval, then run `bash .claude/hooks/tdd-snapshot.sh record` and show its line.
+- **Nothing blocks your writes.** From Gate 4 approval to the Step 8 report, do not write to
+  `tests/`, `docs/product/`, `logs/audit.jsonl` or `.git/claude-tdd/`, and run no git command
+  that changes the index, working tree, history or config. If a test or the spec looks wrong,
+  stop and report `SPEC_CONFLICT` as `tdd-implementer.md` describes. The Step 4 and Step 7
+  checks are the only machine stops here, so never skip them.
+- **Attempt limit**: no counter runs. Stop after 3 Green attempts, or when the same failure
+  appears twice, and report; this replaces Step 3's run and call limits.
+- **Step 4 output**: `verify` prints a `WARNING: agent-guard.sh counted no …` line and finds no
+  blocked attempts, because the hook does not run under Codex. Show them as printed and add
+  "agent-guard.sh does not run under Codex".
+- **Cycle review**: there is no `cycle-reviewer`; do not review your own change in its place.
+  Say "Cycle review unavailable — please run `/review` before merging" and continue. Codex's
+  built-in `/review` is not the project review (`docs/development/review-guidelines.md`).
+- **Commands and skills** named in the steps (`/commit`, `prepare-merge`, `/generate-e2e-test`):
+  read their files under `.claude/` and follow their steps, as `tdd.md` says. Where it suggests
+  the `run` skill, suggest starting the app and trying the change instead.
+- The Test-Run Budget, Step 7 (`verify-green`) and the Step 8 completion report apply as written.
 
 ## Output expectations
 

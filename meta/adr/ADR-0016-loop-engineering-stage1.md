@@ -333,6 +333,11 @@ stages need to justify themselves.
   `docs/development/git-workflow.md`) still apply to plain requests.
 - Codex users keep prompt-level protection until Stage 4 (Codex hooks / permission
   profiles); the `git diff` check applies to both.
+  *Stage 4 note (2026-10-22): the maintainer chose the text-only step — `AGENTS.md` "TDD
+  cycle" has a Codex session follow `/tdd`'s steps (stop at Gate 4, record the snapshot, run
+  `verify`, `fixture-literal-check.sh` and `verify-green`), with the lock and the limits stated
+  as rules. The codex-cli 0.163 docs still give PreToolUse no agent identity, so the hook stays
+  Claude-only; the wrapper in `meta/design/loop-stage4-design.md` is not built.*
 - JP keeps an on-hold draft ADR that takes the next free number when resumed; this ADR's
   number must be reconciled when porting.
 
