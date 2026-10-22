@@ -17,7 +17,7 @@
 
 ### Status
 
-On `docs/codex-parity-agents-md`, not committed. Updated: `AGENTS.md`, `tdd-guard.md`,
+Merged to `main` and pushed (`9c98f2b`, 2026-10-22). Updated: `AGENTS.md`, `tdd-guard.md`,
 `ai-authority.md`, ADR-0016 note, `loop-stage4-design.md`, the handoff note.
 
 ## AI authority register, from the company repo (2026-10-22)
