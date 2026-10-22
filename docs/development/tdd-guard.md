@@ -100,5 +100,8 @@ It is **not** the application's audit log (`storage/logs/audit.log`,
   re-check the hook on that version (`meta/design/guardrail-regression-suite.md`).
 - A hook that crashes or times out lets the call through. The hook is kept fast (bash
   builtins only) for this reason, and the snapshot check is the backstop.
-- Codex users get the snapshot check (run by `/tdd`'s steps in AGENTS.md workflows) but not
-  the hook yet — Codex hooks cannot tell which agent is writing (ADR-0016, Stage 4).
+- Under Codex, `AGENTS.md` ("TDD cycle") has the session follow `/tdd`'s steps, so the
+  snapshot, fixture-literal and `verify-green` checks run — but only because the prompt says so.
+  The hook does not run: Codex hooks cannot tell which agent is writing (re-checked on the
+  codex-cli 0.163 docs, 2026-10-22). The lock, the git limits and the run and call limits are
+  prompt-level there, and there is no cycle reviewer (ADR-0016, Stage 4).

@@ -6,6 +6,12 @@
 > repository's hold was lifted for Stage 1 only on 2026-10-05 — Stage 1 is ported there
 > (company `219dd51`); Stages 2–5 stay on hold for it.**
 
+> **2026-10-22 (docs re-read for codex-cli 0.163.0; not re-run locally):** hooks are now on by
+> default; PreToolUse still carries no agent identity; project hooks need trust per hash
+> (`/hooks`), so every hook change asks each user to trust it again; permission profiles are
+> still Beta and the unelevated Windows sandbox still refuses split read/write carveouts.
+> Maintainer decision: `AGENTS.md` text only ("TDD cycle"); the wrapper below is not built.
+
 ## Facts that drive the design
 
 - **Hooks** (docs): PreToolUse fires for Bash, `apply_patch` (patch text in

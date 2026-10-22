@@ -10,9 +10,15 @@
   `meta/design/codex-parity-handoff.md` (goal, current gaps, changes since
   `meta/design/loop-stage4-design.md`, suggested first steps, working constraints).
 
+- Maintainer (2026-10-22): text only for now — option (a) in the handoff. `AGENTS.md` gains
+  "TDD cycle": a Codex session follows `.claude/commands/tdd.md` Steps 0-8 without sub-agents
+  or the hook (stops at Gate 4, runs the snapshot / fixture-literal / `verify-green` checks,
+  3-attempt limit, no cycle review). The wrapper (option (b)) is not built.
+
 ### Status
 
-Not started. Next: the first steps in the handoff note.
+On `docs/codex-parity-agents-md`, not committed. Updated: `AGENTS.md`, `tdd-guard.md`,
+`ai-authority.md`, ADR-0016 note, `loop-stage4-design.md`, the handoff note.
 
 ## AI authority register, from the company repo (2026-10-22)
 

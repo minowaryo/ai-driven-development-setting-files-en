@@ -91,7 +91,7 @@ Recorded 2026-10-22 when this register was created; each needs a decision before
 |---|---|---|
 | E2E test content is decided and written by the AI, with no person approving it (`/tdd` Step 6, `/generate-e2e-test`) | `.claude/commands/tdd.md`, `.claude/commands/generate-e2e-test.md` | Kept for now by maintainer decision (2026-10-22). The company repo already changed this: `/tdd` only suggests the command and the person reviews the draft |
 | "Work That Needs No Approval" does not exclude specs under `docs/product/` and ADRs, which a person decides | `.claude/rules/00-global.md` | The company repo excludes them |
-| In Codex sessions (`AGENTS.md`) the "Machine stop" rows are only partly enforced: the `agent-guard.sh` hook does not run, only the snapshot checks that `/tdd` runs | `docs/development/tdd-guard.md`, ADR-0016 Stage 4 | Codex parity work: `meta/design/codex-parity-handoff.md` |
+| In Codex sessions (`AGENTS.md`) the "Machine stop" rows are only partly enforced: the `agent-guard.sh` hook does not run (lock, git limits, run and call limits are prompt-level), and there is no cycle review; the snapshot, fixture-literal and `verify-green` checks run because `AGENTS.md` "TDD cycle" tells the session to run them | `AGENTS.md`, `docs/development/tdd-guard.md`, ADR-0016 Stage 4 | 2026-10-22: maintainer chose the `AGENTS.md`-only step; the wrapper that would make the lock mechanical (`meta/design/loop-stage4-design.md`) is not built |
 
 ## Change Log
 
@@ -101,3 +101,4 @@ the Source column and their dated notes.
 | Date | Change | Direction | Decided in |
 |---|---|---|---|
 | 2026-10-22 | Register created (ported from the company repo) | — | ADR-0004 note |
+| 2026-10-22 | Codex sessions follow `/tdd`'s steps via `AGENTS.md` "TDD cycle" (stop at Gate 4, run the snapshot checks); no rows change | Narrowing (Codex only) | ADR-0016 Stage 4 note |
