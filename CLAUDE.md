@@ -34,6 +34,7 @@ at project kickoff — it is not part of the steady-state per-session reading li
 | Code implementation (feature development) | `docs/product/use-cases.md` + `docs/architecture/data-model.md` + `docs/product/mockups/` |
 | UI implementation / mock-based development | `docs/product/ui-guidelines.md` + `docs/product/mockups/` |
 | Frontend component changes | `.claude/rules/15-frontend.md` (implementation rules for the selected frontend stack — see `meta/adr/ADR-0005-frontend-stack.md`) |
+| Changing what the AI may do without asking, or an approval / stop point | `docs/development/ai-authority.md` |
 | Auth / authorization changes | `docs/architecture/authz-authn.md` + `docs/product/org-permission-philosophy.md` (business-side permission philosophy) |
 | DB schema changes | `docs/architecture/data-model.md` + `docs/adr/` |
 | Architecture / core design changes | `docs/adr/` |
