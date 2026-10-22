@@ -10,6 +10,9 @@ onto a project with existing code, see "Existing-Codebase Adoption" below — th
 shape (AI drafts/generates, human decides/approves) is the same; what differs is *what*
 the human is deciding on.
 
+Action by action — what the AI does on its own, proposes, never does, or is stopped from —
+and the history of those changes: `docs/development/ai-authority.md`.
+
 ### New Project (Greenfield)
 
 | Role | Tasks |

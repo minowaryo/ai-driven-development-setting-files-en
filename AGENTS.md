@@ -21,6 +21,7 @@ Laravel + MySQL web application
 | Code implementation | `docs/product/use-cases.md` + `docs/architecture/data-model.md` + `docs/product/mockups/` |
 | UI implementation / mock-based dev | `docs/product/ui-guidelines.md` + `docs/product/mockups/` |
 | Frontend changes | `.claude/rules/15-frontend.md` (rules for whichever stack was selected via `meta/adr/ADR-0005-frontend-stack.md`) |
+| Changing what the AI may do without asking | `docs/development/ai-authority.md` |
 | Auth changes | `docs/architecture/authz-authn.md` |
 | DB changes | `docs/architecture/data-model.md` + `docs/adr/` |
 | Test changes | `docs/development/testing-strategy.md` + `docs/product/use-cases.md` + `docs/architecture/data-model.md` |

@@ -36,6 +36,12 @@ Adopt the following AI-driven development policy.
 > (a doc fix, mocked browser checks). Such work inside an agreed task now proceeds without
 > asking; approval stays for user-facing behavior changes, shared environments and Git
 > operations (a new library already needs an ADR, which only a person creates) — `.claude/rules/00-global.md`, "Work That Needs No Approval".
+>
+> Updated 2026-10-22: the AI's authority is now kept action by action in one register,
+> `docs/development/ai-authority.md` (ported from the company repo), with the standing division
+> of roles — a person decides what to build and the test content; the AI writes and runs the
+> test code and the implementation — and the known gaps against it. Any change that widens the
+> AI's authority needs the maintainer's explicit approval and a dated note here.
 
 ```
 requirements.md (defined by humans)

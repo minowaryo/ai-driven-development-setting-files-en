@@ -2,6 +2,37 @@
 
 > Keep under 300 lines (`.claude/rules/60-docs.md`). Archived: 2026-08-03 – 2026-10-03 (Loop Stage 1) → `meta/history/plan-archive.md` (2026-09-30, 2026-10-03, 2026-10-06, 2026-10-09).
 
+## Codex parity — handoff for a new session (2026-10-22)
+
+### Decision
+
+- Maintainer: Codex support is done in this repo, in a separate session. The handoff is
+  `meta/design/codex-parity-handoff.md` (goal, current gaps, changes since
+  `meta/design/loop-stage4-design.md`, suggested first steps, working constraints).
+
+### Status
+
+Not started. Next: the first steps in the handoff note.
+
+## AI authority register, from the company repo (2026-10-22)
+
+### Decision
+
+- Maintainer (2026-10-22): the division of roles is a standing definition for every template —
+  a person decides what to build and the **test content** (incl. its review); the AI writes and
+  runs the test code and the implementation. Permission changes are to be made with care.
+- New `docs/development/ai-authority.md` (as in the company repo, adapted to this repo's rules):
+  Principles, an action-by-action register, the rule that widening needs the maintainer's
+  approval, and Known Gaps. Gaps noted, not fixed: `/tdd` Step 6 writes E2E tests that no person
+  approved (kept by maintainer decision; the company repo now only suggests the command), local
+  work does not exclude specs and ADRs, and Codex sessions lack the `agent-guard.sh` stops.
+- Pointers: `CLAUDE.md` and `AGENTS.md` task tables, `.claude/rules/60-docs.md`,
+  `docs/development/ai-workflow.md`, ADR-0004 note, `README.md`.
+
+### Status
+
+On `feat/ai-authority-register`, committed; not merged.
+
 ## Local work needs no approval (2026-10-19)
 
 ### Decision

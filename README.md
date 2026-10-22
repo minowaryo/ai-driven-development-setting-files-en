@@ -135,7 +135,8 @@ Template's Own Layer        → meta/adr/ (outside the project's own decision-ma
     │   ├── git-troubleshooting.md     # When Git gets stuck — what to ask the AI (for people)
     │   ├── plan-archiving.md          # PLAN.md archive procedure (read when PLAN.md nears 300 lines)
     │   ├── tdd-guard.md               # What is locked for tdd-implementer during /tdd, and how to change a test or the spec legitimately
-    │   └── ai-workflow.md
+    │   ├── ai-workflow.md
+    │   └── ai-authority.md            # Register of what the AI may do on its own, propose, or never do, with a change log
     ├── security/
     │   └── secrets-handling.md
     ├── credentials/                   # Dev-only credential locations (git-ignored except its README — never commit real secrets)
