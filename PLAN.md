@@ -1,6 +1,6 @@
 # PLAN.md
 
-> Keep under 300 lines (`.claude/rules/60-docs.md`). Archived: 2026-08-03 – 2026-10-03 (Loop Stage 1) → `meta/history/plan-archive.md` (2026-09-30, 2026-10-03, 2026-10-06, 2026-10-09).
+> Keep under 300 lines (`.claude/rules/60-docs.md`). Archived: 2026-08-03 – 2026-10-03 (Loop Stage 1) → `meta/history/plan-archive.md` (2026-09-30, 2026-10-03, 2026-10-06, 2026-10-09, 2026-10-24).
 
 ## Frontend unit tests and a parallel-session stop in `/tdd`, from `ihs-tech-uplift` Batch U (2026-10-24)
 
@@ -255,74 +255,3 @@ Usage rule: stop at about 50% weekly usage (maintainer, 2026-10-08).
 Merged and pushed in EN, JP and company (EN `c0e5222`…`57c09a1`, JP `1375fff`, company
 `b2665e5`). Next for this track: B10, then B23 — each after the user approves its extra
 findings / merge question.
-
-## Deterministic checks, group 1: strict Eloquent in tests, spec-lint, doc consistency (2026-10-03)
-
-### Decision
-
-- From a whole-cycle survey (`meta/design/template-improvement-directions.md`, B11–B20):
-  group 1 (B14–B16) adds no dependency and does not overlap ADR-0016; group 2 (B11–B13,
-  B17) went to the Loop session.
-- **1 Strict modes in tests** — `10-laravel.md`: `Model::shouldBeStrict(! $this->app->isProduction())`
-  in `AppServiceProvider::boot()` (not `isLocal()`, false under `APP_ENV=testing`);
-  `30-testing.md`: `Http::preventStrayRequests()` in `tests/TestCase.php`. `SETUP.md` Step 4
-  adds both once. Existing codebases: a Backlog item, on only by human decision.
-- **2 `.claude/hooks/spec-lint.sh`** — read-only bash + awk, exit 0 / 1 findings / 2 usage.
-  UC heading `### UC-NNN: title` and F-ID format/uniqueness; each UC has Actor, Basic Flow,
-  Error Cases, Permissions with content; `Related requirement` resolves; unused F-IDs;
-  leftover placeholders outside the Approval Record; mockups vs UC IDs; warn-only words in
-  the four high-precision smell categories (EN + short JA list). Skips requirements checks
-  when `requirements.md` is a pointer. The AI runs it before Gate 1 / Gate 2 / the Gate 0-3
-  sign-off (`SETUP.md` Steps 2, 2B; `/onboard-existing-codebase`); it informs, never decides.
-  Tests: `meta/tests/spec-lint.test.sh`. Gate definitions unchanged.
-- **3 Doc consistency** — PHPStan only where Larastan is installed (Vue starter kit: level 7;
-  adding it = ADR + baseline); raw SQL stated once in `20-mysql.md` (bindings + why-comment;
-  `DB::statement`/`unprepared` need an ADR), pointed to from `10-laravel` / `40-security`;
-  one author self-check in `review-guidelines.md` (`review-checklist.md` points to it);
-  UC IDs `UC-006` in docs, `UC006`/`uc006` in file names; `phpunit.xml` defaults to in-memory
-  SQLite (verified, 13.x) → `SETUP.md` Step 4 sets a MySQL test DB; `ValidateCsrfToken`;
-  `20-mysql.md` utf8mb4 example; Pint "required in CI" → before merge.
-
-### Files touched
-
-`.claude/hooks/spec-lint.sh`, `meta/tests/spec-lint.test.sh` (new); `.claude/rules/{10,20,30,40}-*.md`;
-`SETUP.md`; `.claude/commands/{onboard-existing-codebase,generate-mock}.md`;
-`docs/development/{ai-workflow,coding-standards,review-checklist,review-guidelines,e2e-testing}.md`;
-`docs/product/{use-cases,ui-guidelines}.md`, `uat-results/README.md`; `docs/development/testing-strategy.md`;
-`docs/ai-context/common-commands.md`; `CLAUDE.md`, `AGENTS.md` (one row each); `README.md`; `meta/design/template-improvement-directions.md`; `PLAN.md`.
-
-### Status
-
-Merged into `main` from `feat/deterministic-checks` (`--no-ff`); spec-lint tests 40/40, review-score 27/27.
-Unverified: `SETUP.md` Step 4 snippets not run in a real Laravel app — check on the first project.
-
-## Domain Boundary check: accuracy + own tests, then run it at prepare-merge (2026-10-03)
-
-### Decision
-
-- Part 1 (merged, `84f26bc`): fixture-found misses and false positives fixed inside
-  `.claude/hooks/domain-boundary-check.sh`, pinned by `meta/tests/domain-boundary-check.test.sh`
-  (31 cases); details and remaining gaps in the 2026-10-03 note on `meta/adr/ADR-0010`.
-- Part 2: the check only ran from `/review`, which `lite` rarely asks for on an ordinary
-  Controller change — so it usually never ran before a merge. `prepare-merge` now runs it in
-  step 2 next to `review-score.sh`, every merge, both profiles (deterministic, ~1s).
-- Findings never change the tier and never make `/review` mandatory (pattern matches, not
-  verdicts — ADR-0010). Violations or a priority file, with no `/review` since the last
-  commit → ask once in plain words: fix first, run `/review`, or merge as is. After a
-  `/review`, they are only listed in the plan. Heuristic-only warnings are listed, not asked.
-- The count goes into the `Merge-Check:` trailer (`boundary N`, only when non-zero), so
-  `git log --first-parent` shows whether the boundary holds over time.
-- A script error or "skipping" output does not stop the merge; it is shown in the plan.
-- Not touched (another branch edits it): the self-check list in `review-guidelines.md`.
-
-### Checklist
-
-- [x] Part 1 merged and pushed
-- [x] Part 2 docs: `git-workflow.md` §5/§6, ADR-0010 + ADR-0015 notes, pointers in `10-laravel.md`, `README.md`
-- [x] Part 2 procedure: `.claude/skills/prepare-merge/SKILL.md` steps 2-5
-- [x] Verify: scratch repos — violating Controller (`>> 2 violation(s) ... 1 priority file(s)`, exit 1 → ask), clean one (exit 0 → silent); this repo (`nothing to check`, exit 0)
-
-### Status
-
-Part 2 implemented on branch `feat/boundary-check-at-merge` (worktree `.claude/worktrees/boundary-check-at-merge`); not committed.
-Later, separately: a PostToolUse hook (needs an ADR-0014 / ADR-0010 revision).
