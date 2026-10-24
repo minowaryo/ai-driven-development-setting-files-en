@@ -111,6 +111,9 @@ Prerequisites (each is its own small change through the normal flow; none is par
 1. **(done 2026-10-08, `fixture-literal-check.sh`)** **A deterministic check for test fixture values hard-coded in application code** (the one
    silent cheat in ① was a special case that only the lab's oracle caught). Defined in
    `meta/design/gate-contract.md` terms; no AI.
+   *(Amended 2026-10-24: it read test literals from `*.php` files only, so values in frontend
+   unit tests under `tests/<lang>/` were never compared — found in `ihs-tech-uplift` Batch U.
+   It now reads `*.php *.js *.ts *.jsx *.tsx *.vue` test files; 2 cases added to its test.)*
 2. **Narrow the Stage 1 hook rule** that denied a legitimate app-file rewrite because the same
    command also ran a locked test file (seen on a real project in ③).
 3. **Narrow the reviewer's input** to the cycle's UC section (cost was ≈ 7× the lab's), and add a

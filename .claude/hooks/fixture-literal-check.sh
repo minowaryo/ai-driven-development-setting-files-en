@@ -28,13 +28,17 @@ git rev-parse --verify -q HEAD >/dev/null || {
   echo "fixture-literal-check: the repository has no commit to compare against" >&2; exit 3; }
 
 APP='app routes config database resources'
+# Test files of any language the project tests in (PHP, and frontend unit tests under tests/<lang>/).
+TEST_GLOBS=('*.php' '*.js' '*.ts' '*.jsx' '*.tsx' '*.vue')
 T=$(mktemp -d) || exit 3
 trap 'rm -rf "$T"' EXIT
 
 # Quoted strings of 3-60 characters, one per line, quotes removed.
 lits() { tr -d '\r' | grep -oE "'[^']{3,60}'|\"[^\"]{3,60}\"" | sed -e "s/^.//" -e "s/.\$//" | sort -u; }
 
-find "$SNAP/tests" -type f -name '*.php' -exec cat {} + 2>/dev/null | lits > "$T/test.lits"
+find_args=(); inc_args=()
+for g in "${TEST_GLOBS[@]}"; do find_args+=(${find_args[0]+-o} -name "$g"); inc_args+=("--include=$g"); done
+find "$SNAP/tests" -type f \( "${find_args[@]}" \) -exec cat {} + 2>/dev/null | lits > "$T/test.lits"
 [ -s "$T/test.lits" ] || exit 0
 if [ -d "$SNAP/docs/product" ]; then find "$SNAP/docs/product" -type f -name '*.md' -exec cat {} + 2>/dev/null | tr -d '\r' > "$T/spec.txt"; else : > "$T/spec.txt"; fi
 # shellcheck disable=SC2086
@@ -69,7 +73,7 @@ while IFS=$'\t' read -r file line lit; do
   grep -qxF -- "$lit" "$T/test.lits" || continue
   grep -qF -- "$lit" "$T/spec.txt" && continue
   grep -qxF -- "$lit" "$T/base.lits" && continue
-  tf=$(grep -rlF --include='*.php' -- "$lit" "$SNAP/tests" 2>/dev/null | head -1)
+  tf=$(grep -rlF "${inc_args[@]}" -- "$lit" "$SNAP/tests" 2>/dev/null | head -1)
   tf=${tf#"$SNAP"/}
   [ "$hits" -eq 0 ] && echo "Application code compares against a value that appears in the approved tests, not in the approved spec and not in the earlier code:"
   hits=$((hits + 1))
