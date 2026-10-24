@@ -95,7 +95,8 @@ See `.claude/rules/30-testing.md` for the sub-agent setup, when to run each skil
 ## Quality Gates
 
 AI-generated code must satisfy:
-1. `php artisan test` passes
+1. `php artisan test` passes (and the frontend unit test command, if the project has one —
+   `docs/ai-context/common-commands.md`)
 2. `./vendor/bin/pint --test` passes
 3. `./vendor/bin/phpstan analyse` passes — where Larastan is installed (the Laravel Vue
    starter kit ships it at level 7; the bare `laravel/laravel` skeleton does not). Adding it

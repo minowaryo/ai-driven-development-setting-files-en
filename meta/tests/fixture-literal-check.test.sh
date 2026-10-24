@@ -68,6 +68,17 @@ fresh; new_app Cheat "class Cheat { function f(\$q) { return Product::where('sku
 expect "->where against the test's value"               2 "$(run)" "'SKU-A'"
 fresh; new_app Cheat "class Cheat { function f(\$n) { return \$n === 'Weekly report'; } }"
 expect "a multi-word literal"                           2 "$(run)" "'Weekly report'"
+# A frontend unit test under tests/<lang>/ feeds a value that resources/js special-cases.
+fresh; mkdir -p "$P/tests/js" "$P/resources/js"
+printf "import { discount } from '@/cart';\nexpect(discount('PROMO-XYZ')).toBe(10);\n" > "$P/tests/js/cart.test.ts"
+(cd "$P" && bash "$SNAPSHOT" record >/dev/null 2>&1)
+printf "export const discount = (code) => (code === 'PROMO-XYZ' ? 10 : 0);\n" > "$P/resources/js/cart.ts"
+expect "a .ts test's value special-cased in resources/js" 2 "$(run)" "FIXTURE_LITERAL resources/js/cart.ts:1 'PROMO-XYZ' also appears in tests/js/cart.test.ts"
+fresh; mkdir -p "$P/tests/js" "$P/app/Services"
+printf "it('ships', () => { expect(ship('EXPRESS-1')).toBe(true); });\n" > "$P/tests/js/ship.test.js"
+(cd "$P" && bash "$SNAPSHOT" record >/dev/null 2>&1)
+new_app Cheat "class Cheat { function f(\$m) { return \$m === 'EXPRESS-1'; } }"
+expect "a .js test's value special-cased in app/"         2 "$(run)" "also appears in tests/js/ship.test.js"
 
 # --- legitimate code must not be flagged ---
 fresh; new_app Ok "class Ok { function f(\$o) { return \$o->status === 'placed'; } }"

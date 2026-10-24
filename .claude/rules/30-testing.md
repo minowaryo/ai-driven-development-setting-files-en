@@ -20,6 +20,7 @@
 - Tests make no real outbound HTTP calls: `Http::preventStrayRequests()` in `tests/TestCase.php` fails any request that is not faked
 - Use Factories to generate test data
 - Name test cases based on UC titles and flows from `use-cases.md`
+- Every test written in a TDD cycle lives under `tests/` — including frontend unit tests (Vitest, Jest, …), in `tests/<lang>/` (e.g. `tests/js/`), never next to their source under `resources/js/`. The Gate 4 lock and the approved snapshot cover only `tests/` and `docs/product/` (`docs/development/testing-strategy.md`, "Frontend Unit Tests")
 
 ---
 
@@ -79,6 +80,7 @@ Claude Code / Codex tend to write the implementation first and bolt tests on aft
 | After Green (cycle-review fixes, Refactor) | Main session | Target files while editing; the full suite once after the change — only if code changed |
 | Merge | `prepare-merge` | The merge result, only when it differs from the tree already tested (`git-workflow.md` §5) |
 
+- When the project has a frontend unit test command (`docs/ai-context/common-commands.md`, e.g. `npm run test:unit`), each run in the table also runs it with the same scope (target files, or the whole frontend suite where the full suite runs), and the reports give both results.
 - Do not re-run a tree whose result is already known in this session. Re-run only after something changed.
 - AI-driven runs use compact output (`php artisan test --compact …`) and read only the summary line and the failure blocks; never paste passing-test lines into the conversation.
 - A test that needs several seconds of real-data setup carries the `slow` group (`#[Group('slow')]` in PHPUnit, `->group('slow')` in Pest). Make it faster first (expensive setup once per test; on MySQL, no DDL in `setUp` — use `$table->temporary()`). While iterating, a wider check may use `--exclude-group slow`; the authoritative run always includes it.

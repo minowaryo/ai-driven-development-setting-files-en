@@ -48,6 +48,8 @@ Git rows assume the `lite` profile (`.claude/rules/70-git.md`); `standard` diffe
 | TDD | Tests or spec changed after approval; code matching a test-only value | Machine stop (`tdd-snapshot.sh verify`, `fixture-literal-check.sh`) | `docs/development/tdd-guard.md` |
 | TDD | After Green, a change touching permissions, destructive operations, security, secrets, outside effects, dependencies or integrity | Machine stop (`tdd-snapshot.sh verify-green`) | `docs/development/tdd-guard.md` |
 | TDD | Tests and spec contradict; attempt limit reached | The AI stops and reports (`SPEC_CONFLICT`); a person decides | `.claude/agents/tdd-implementer.md` |
+| TDD | Branch, `HEAD` or files other than the new tests changed between Step 0 and Gate 4 approval (e.g. another session in the same folder) | The AI stops before saving the snapshot; a person decides | `.claude/commands/tdd.md` |
+| TDD | Start, stop or restart a system service (database, queue worker, web server) from `test-writer` / `tdd-implementer` | Never — the agent stops and reports the down service; a person fixes the environment | `.claude/agents/test-writer.md`, `.claude/agents/tdd-implementer.md` |
 | TDD | Go from Gate 4 approval to the Step 8 completion report without waiting between steps | Act, then report — stops wherever a row here says stop | `.claude/commands/tdd.md`, ADR-0019 |
 | TDD | Review the cycle after Green (`cycle-reviewer`, read-only) | Act, then report (skipped for small changes) | `.claude/agents/cycle-reviewer.md` |
 | TDD | Fix the cycle review's DEFECT / Domain Boundary findings in application code, once | Act, then report ("Fixed without asking"); never `tests/` or `docs/product/`; test gaps are only reported | `.claude/commands/tdd.md` |
@@ -102,3 +104,4 @@ the Source column and their dated notes.
 |---|---|---|---|
 | 2026-10-22 | Register created (ported from the company repo) | — | ADR-0004 note |
 | 2026-10-22 | Codex sessions follow `/tdd`'s steps via `AGENTS.md` "TDD cycle" (stop at Gate 4, run the snapshot checks); no rows change | Narrowing (Codex only) | ADR-0016 Stage 4 note |
+| 2026-10-24 | `/tdd` stops before saving the snapshot when the working tree changed since Step 0; the TDD sub-agents never start or stop system services (both from `ihs-tech-uplift` Batch U) | Narrowing | Working-tree stop: ADR-0016 item 5 note (2026-10-24); service rule: this row (no ADR) |

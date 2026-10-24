@@ -112,7 +112,9 @@ the rules; this file is only the procedure. The active profile is the `Profile:`
    `git merge-base --is-ancestor <base> <branch>` succeeds (the base has not moved, so the merged
    tree equals the branch tip) **and** the full suite passed in this session on exactly the
    committed tree. Say which run that was; the `Tests:` trailer records it. Otherwise, or when
-   unsure, it runs.
+   unsure, it runs. When the project has a frontend unit test command
+   (`docs/ai-context/common-commands.md`, e.g. `npm run test:unit`), `<test command>` is both
+   commands, under the same skip rule, and the `Tests:` trailer gives both results.
 
 6. **Merge on instruction** — run the sequence. Stop and report, without reconciling on
    your own, if: the `--ff-only` update fails (local `<base>` has diverged from the

@@ -37,7 +37,7 @@ or a person reads against the spec, not a fixture leak. [U] whether a narrow num
 
 | Input | Source |
 |---|---|
-| Test literals | the test files in the approved snapshot (`$(git rev-parse --git-path claude-tdd)/approved/tests/`) — no list is hand-maintained |
+| Test literals | the test files in the approved snapshot (`$(git rev-parse --git-path claude-tdd)/approved/tests/`) — no list is hand-maintained. `*.php *.js *.ts *.jsx *.tsx *.vue` *(amended 2026-10-24; `*.php` only before, which missed frontend unit tests under `tests/<lang>/`)* |
 | Spec words | `docs/product/use-cases.md` from the same snapshot |
 | Added lines | `git diff <base>` filtered to the application paths; `<base>` defaults to the commit recorded at Gate 4 (the cycle start) |
 | Existing vocabulary | application files at `<base>` (`git grep`) |

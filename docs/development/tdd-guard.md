@@ -30,7 +30,7 @@ Nothing is locked for you or for the main session. There is no lock to switch on
 | When | What happens | What you see |
 |---|---|---|
 | Every tool call | `.claude/hooks/agent-guard.sh` checks calls made by `tdd-implementer` and blocks writes to `tests/`, `docs/product/`, `logs/audit.jsonl` or the snapshot, and git commands that stage, commit, switch or configure | Nothing at the time. Each blocked attempt is written to `logs/audit.jsonl` |
-| Right after you approve at Gate 4 | `/tdd` copies `tests/` and `docs/product/` into `.git/claude-tdd/approved/` and notes the size of `logs/audit.jsonl` | One line: "Saved the approved snapshot …" |
+| Right after you approve at Gate 4 | `/tdd` first compares the working tree with what it noted before Red (branch, `HEAD`, changed files); then it copies `tests/` and `docs/product/` into `.git/claude-tdd/approved/` and notes the size of `logs/audit.jsonl` | One line: "Saved the approved snapshot …". If the branch, `HEAD` or a file other than the new tests changed meanwhile — usually another session working in the same folder — `/tdd` shows it and waits for you before saving |
 | Right after Green | `/tdd` compares the files with that copy, and reads the log lines written since approval | Usually "unchanged" and "no blocked attempts". If something changed, the diff is shown and `/tdd` stops for your decision. Blocked attempts are shown as the raw log lines — from the log, not from the implementer's report, which may leave them out |
 | Right after Green, after that comparison | `/tdd` runs `.claude/hooks/fixture-literal-check.sh`: does application code compare against a value that only the approved tests contain (for example `if ($product->sku === 'SKU-A')`)? | Nothing when clean. If found, the lines are shown as `FIXTURE_LITERAL file:line 'value'` and `/tdd` stops for your decision |
 | When both checks pass | `/tdd` copies the application files into `.git/claude-tdd/green/` (`tdd-snapshot.sh mark-green`) | One line: "Saved the application files after Green …" |
@@ -82,6 +82,9 @@ It is **not** the application's audit log (`storage/logs/audit.log`,
   `tests/` and `docs/product/`, and a log that got shorter; a subprocess that rewrites both
   a test and its snapshot copy, or deletes only the newest log lines, is not caught. Only
   running the agent outside its own workspace's reach closes that (ADR-0016, Stage 5).
+- Only tests under `tests/` are locked and snapshotted. A frontend unit test kept next to its
+  source (e.g. `resources/js/cart.test.ts`) is neither, so `/tdd` writes them under
+  `tests/<lang>/` (`docs/development/testing-strategy.md`, "Frontend Unit Tests").
 - A command that mentions a locked path and also looks like a write is denied by reading the
   command text, so a command can be denied by mistake — for example a script that rewrites an
   app file and, in the same command, runs a test file. The PHP forms `$obj->prop` and `=>` are

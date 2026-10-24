@@ -24,7 +24,7 @@ Check these yourself before merging:
 - [ ] Is it linked to requirements in `docs/product/use-cases.md`?
 - [ ] Is there a Feature Test?
 - [ ] Did you follow TDD (Red → Green → Refactor) — did the test exist before the implementation?
-- [ ] Does `php artisan test` pass?
+- [ ] Does `php artisan test` pass? And the frontend unit test command, if the project has one (`docs/ai-context/common-commands.md`, e.g. `npm run test:unit`)?
 - [ ] If a critical flow changed, did you add a Playwright E2E test and does `npx playwright test` pass?
 - [ ] Is code style clean after running `./vendor/bin/pint`?
 - [ ] Does `./vendor/bin/phpstan analyse` pass (where Larastan is installed — see Quality Gates in `docs/development/ai-workflow.md`)?
