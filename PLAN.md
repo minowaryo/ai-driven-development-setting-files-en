@@ -27,13 +27,20 @@
 - **5 Services** — `test-writer` / `tdd-implementer` never start or stop system services; they
   report a down service instead.
 - 4 and 5 are narrowing rows in `ai-authority.md` (register + change log). No new script, test
-  file or dependency. JP / company: not ported yet.
+  file or dependency.
+- JP: not needed (maintainer, 2026-10-24).
+- Company: all five apply (checked 2026-10-24) — its `fixture-literal-check.sh` and test,
+  `agent-guard.sh` and `tdd-snapshot.sh` are identical to EN before this change, its `/tdd`
+  Steps 0-2 and Test-Run Budget name only `php artisan test`, and its frontend stack is still a
+  placeholder. Port in its own session or worktree: on 2026-10-24 the company checkout had an
+  uncommitted `PLAN.md` change and an untracked `.playwright-mcp/` (another session's work).
+  Check its ADR numbers and `ai-authority.md` change log when porting.
 
 ### Status
 
-Committed on `fix/ihs-batch-u-handover` (maintainer approved 2026-10-24); merge and push
-requested. `meta/tests` pass (agent-guard 83, domain-boundary 31, fixture-literal-check 23,
-review-score 27, spec-lint 43, tdd-snapshot 45).
+Merged into `main` (`1dd956b`) and pushed; `meta/tests` 252 passed on the merged result
+(agent-guard 83, domain-boundary 31, fixture-literal-check 23, review-score 27, spec-lint 43,
+tdd-snapshot 45). Next: the company port (not started).
 
 ## Codex parity — handoff for a new session (2026-10-22)
 

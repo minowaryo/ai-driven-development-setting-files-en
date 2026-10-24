@@ -29,8 +29,8 @@ JP = `ai-driven-development-setting-files`, Company = `ai-driven-development-set
 
 | Script | Added (EN) | Last change (EN) | JP | Company |
 |---|---|---|---|---|
-| `agent-guard.sh` | `6c9921b` | `783ff32` | Identical (ported 2026-10-13, JP `0fb2785`) | Behind EN (S5 / S9 not ported) |
-| `tdd-snapshot.sh` | `6c9921b` | `4c9766b` | Behind EN (S7 not ported) | Behind EN (S7 not ported) |
+| `agent-guard.sh` | `6c9921b` | `783ff32` | Identical (ported 2026-10-13, JP `0fb2785`) | Identical (checked 2026-10-24) |
+| `tdd-snapshot.sh` | `6c9921b` | `4c9766b` | Behind EN (S7 not ported) | Identical (checked 2026-10-24) |
 | `fixture-literal-check.sh` | `8dc6e13` | `5b858ca` | Not ported | Behind EN (frontend test files, 2026-10-24, not ported) |
 | `review-score.sh` | `550a640` | `3b0216a` | Identical | Identical |
 | `domain-boundary-check.sh` | `37457db` | `a5c2029` | Identical | Identical |
