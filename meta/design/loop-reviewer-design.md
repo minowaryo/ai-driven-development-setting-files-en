@@ -47,6 +47,12 @@ numbers demand it:
 If extra runs are added, merge by union, never by majority vote (voting discards the
 single-pass judgment findings H6 measures; arXiv 2509.01494). Cross-model errors correlate
 (arXiv 2506.07962); its main benefit is avoiding self-preference (arXiv 2404.13076).
+Evidence for R3 (2026-10-24): when two models are both wrong they pick the same wrong answer
+~60% of the time vs ~33% by chance (2506.07962). Cross-model gains are mixed: Greptile
+(vendor, 2026-07) reports ~60% vs ~52% recall on the other model's code; a single-author
+preprint (arXiv 2610.01471) finds a top cross-model reviewer no better than a fresh-context
+same-model one, with gains from mixing confounded by reviewer strength. Keep R3 gated on the
+Stage 2a numbers above.
 
 ## Inputs
 
