@@ -71,7 +71,8 @@ differences — Codex runs without the sub-agents and the `agent-guard.sh` hook 
 
 - **One session plays each role in turn.** Step 1 follows `.claude/agents/test-writer.md`;
   Step 3 follows `.claude/agents/tdd-implementer.md`. Stop at Gate 4 (Step 2) and wait for the
-  person's approval, then run `bash .claude/hooks/tdd-snapshot.sh record` and show its line.
+  person's approval, then — after Step 2's working-tree check against the Step 0 baseline — run
+  `bash .claude/hooks/tdd-snapshot.sh record` and show its line.
 - **Nothing blocks your writes.** From Gate 4 approval to the Step 8 report, do not write to
   `tests/`, `docs/product/`, `logs/audit.jsonl` or `.git/claude-tdd/`, and run no git command
   that changes the index, working tree, history or config. If a test or the spec looks wrong,

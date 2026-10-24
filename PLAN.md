@@ -2,6 +2,39 @@
 
 > Keep under 300 lines (`.claude/rules/60-docs.md`). Archived: 2026-08-03 – 2026-10-03 (Loop Stage 1) → `meta/history/plan-archive.md` (2026-09-30, 2026-10-03, 2026-10-06, 2026-10-09).
 
+## Frontend unit tests and a parallel-session stop in `/tdd`, from `ihs-tech-uplift` Batch U (2026-10-24)
+
+### Decision
+
+- Source: a handover from `ihs-tech-uplift` Batch U (2026-10-23), 5 findings; all checked
+  against this repo's files before porting (maintainer approved the plan 2026-10-24).
+- **1 Location** — frontend unit tests (any runner, any stack) live under `tests/<lang>/`, never
+  next to their source in `resources/js/`: the lock and the snapshot already cover all of
+  `tests/`, so no hook change. `test-writer`, `/tdd` Step 1, `30-testing.md`,
+  `testing-strategy.md` ("Frontend Unit Tests"), `module-map.md`, `common-commands.md`, `tdd-guard.md` Limits.
+- **2 Runs** — where the project has a frontend unit test command, every run of the Test-Run
+  Budget, the merge-result run and the self-check also run it; reports give both results.
+  `/tdd`, `30-testing.md`, both sub-agents, `prepare-merge`, `git-workflow.md` §5,
+  `review-guidelines.md`, `ai-workflow.md`; ADR-0020 note.
+- **3 Fixture-literal check** — test literals read from `*.php *.js *.ts *.jsx *.tsx *.vue`, in
+  both the literal list and the cited test file (the handover's `--include='*.php'`); 2 cases
+  added to its test, both fail on the old script. ADR-0017 and design-note amendments.
+- **4 Parallel sessions** — refined from the handover (a single `git status` would stop on the
+  `lite` profile's legitimate uncommitted work): `/tdd` notes branch, `HEAD` and
+  `git status --porcelain` at Step 0, and before `record` stops if anything changed besides the
+  files `test-writer` reported. Backstop for `git-workflow.md` §7, not a substitute. ADR-0016
+  item 5 note; `AGENTS.md`, `tdd-guard.md`.
+- **5 Services** — `test-writer` / `tdd-implementer` never start or stop system services; they
+  report a down service instead.
+- 4 and 5 are narrowing rows in `ai-authority.md` (register + change log). No new script, test
+  file or dependency. JP / company: not ported yet.
+
+### Status
+
+Committed on `fix/ihs-batch-u-handover` (maintainer approved 2026-10-24); merge and push
+requested. `meta/tests` pass (agent-guard 83, domain-boundary 31, fixture-literal-check 23,
+review-score 27, spec-lint 43, tdd-snapshot 45).
+
 ## Codex parity — handoff for a new session (2026-10-22)
 
 ### Decision

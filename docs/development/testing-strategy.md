@@ -40,6 +40,15 @@ Make it faster first, then tag what is still slow:
 - Unit Test: Logic tests for individual classes
 - E2E Test: **Playwright** (see `meta/adr/ADR-0006-e2e-testing-playwright.md`). Critical flows only
 
+## Frontend Unit Tests (optional)
+
+Applies when the project adds a JS/TS unit test runner (Vitest, Jest, …), whatever frontend stack `meta/adr/ADR-0005-frontend-stack.md` selected:
+
+- Tests written in `/tdd` live under `tests/<lang>/` (e.g. `tests/js/cart.test.ts`), not next to their source under `resources/js/` — the Gate 4 lock (`.claude/hooks/agent-guard.sh`) and the approved snapshot (`.claude/hooks/tdd-snapshot.sh`) cover only `tests/` and `docs/product/`
+- Import the code under test through the project's module alias (e.g. `import { discount } from '@/cart'`)
+- Point the runner at that folder — e.g. Vitest `test.include: ['tests/js/**/*.test.{js,ts}']`, Jest `roots: ['<rootDir>/tests/js']` / `testMatch`
+- Record the run command in `docs/ai-context/common-commands.md` (e.g. `npm run test:unit`); `/tdd`, both TDD sub-agents and `prepare-merge` then run it at the same points as `php artisan test` (Test-Run Budget, `.claude/rules/30-testing.md`)
+
 ## TDD (Red-Green-Refactor)
 
 - Explicitly instruct the Red → Green → Refactor cycle for ordinary feature development, not just bug fixes (see `.claude/rules/30-testing.md` for the detailed steps and example prompts)

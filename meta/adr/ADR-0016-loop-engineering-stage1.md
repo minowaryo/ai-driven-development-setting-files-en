@@ -189,6 +189,16 @@ lock only binds the implementer.)*
    the external record. Denials do not change the exit code — they were blocked, so the goal
    did not move — but `/tdd` shows them to the person. A log shorter than at approval is
    reported as a change (exit 2): the record was rewritten. *(Amended 2026-10-07.)*
+   Before `record`, `/tdd` compares the working tree with a baseline it notes at Step 0
+   (branch, `HEAD`, `git status --porcelain`) and stops if anything changed besides the files
+   `test-writer` reported. Seen in `ihs-tech-uplift` (Batch U, 2026-10-23): between Red and
+   Green another session in the same directory edited 17 files and `tests/TestCase.php`,
+   committed, merged to `main` and left the tree on `main`; `verify` caught the `tests/`
+   change, but the snapshot had already been recorded against a tree that session was
+   rewriting. The check is a backstop for the one-worktree-per-session rule
+   (`docs/development/git-workflow.md` §7), not a replacement. Frontend unit tests are covered
+   by the same lock and snapshot when they live under `tests/<lang>/`, which `test-writer` and
+   `.claude/rules/30-testing.md` now require. *(Amended 2026-10-24.)*
 6. **Record corrections** — `ADR-0007` (Probity: no subagent/agent-type support, Pest
    syntax not recognized, ~834 MB of dependencies, its own config unprotected) and
    `ADR-0014` (Laravel Boost now has an MCP-only install path) get dated update notes.

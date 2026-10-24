@@ -37,6 +37,11 @@ On a real project (Laravel + MySQL, 466 tests), one `/tdd` cycle for a small UC 
    - After Green, the full suite runs again only when code changed (cycle-review fixes, Refactor).
    - While iterating, a wider check may use `--exclude-group slow`; the authoritative run includes it.
    - AI-driven runs use `--compact` and read only the summary line and failure blocks.
+   - *(Amended 2026-10-24.)* When the project has a frontend unit test command (e.g.
+     `npm run test:unit`), every run above — and the merge-result run and the author self-check
+     — also runs it with the same scope, and the reports give both results. Until then only
+     `php artisan test` was named, so `ihs-tech-uplift` (Batch U) found its frontend unit tests
+     silently skipped by the Gate 4 evidence, the Step 4 run and the merge.
 2. **Merge-result test run** (`docs/development/git-workflow.md` §5, `prepare-merge`): skipped when
    both hold — the base has not moved since the branch was cut (`git merge-base --is-ancestor <base> <branch>`,
    so the `--no-ff` merge tree equals the branch tip), and the full suite passed in this session on

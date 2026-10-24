@@ -53,6 +53,20 @@ php artisan test --coverage
 php artisan test --parallel
 ```
 
+## Frontend Unit Tests (optional)
+
+> Only when the project added a JS/TS unit test runner (Vitest, Jest, …) — replace the example with
+> the project's real command. Tests live under `tests/<lang>/`; see `docs/development/testing-strategy.md`.
+> `/tdd`, both TDD sub-agents and `prepare-merge` run this command alongside `php artisan test`.
+
+```bash
+# Run all frontend unit tests (example)
+npm run test:unit
+
+# Run one file (example)
+npm run test:unit -- tests/js/cart.test.ts
+```
+
 ## E2E Tests (Playwright)
 
 > See `docs/development/e2e-testing.md` for details.

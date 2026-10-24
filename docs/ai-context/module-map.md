@@ -43,6 +43,7 @@
 |---|---|
 | `tests/Feature/` | Integration tests (highest priority) |
 | `tests/Unit/` | Unit tests (business logic) |
+| `tests/<lang>/` (e.g. `tests/js/`) | Frontend unit tests, when the project has a JS/TS test runner (optional; `docs/development/testing-strategy.md`) |
 
 ## Docs
 

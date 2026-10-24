@@ -92,6 +92,7 @@ Review: enhanced
 Tests: php artisan test (128 passed)
 ```
 
+- When the project has a frontend unit test command (`docs/ai-context/common-commands.md`), it runs with the PHP suite under the same rule, and `Tests:` lists both, e.g. `Tests: php artisan test (128 passed); npm run test:unit (42 passed)`
 - `Review:` is `normal` / `enhanced` / `skipped`; in `standard`, `skipped` only for `light` / `recommended`. For `light`, the why line is optional
 - `Merge-Check:` ends with `; boundary N` when the Domain Boundary check (§6) reported N violations, e.g. `Merge-Check: light (score 6; boundary 2)`
 
@@ -126,6 +127,7 @@ Only when running two or more AI sessions at once:
 - Sessions do not edit the same files (split by UC or layer); each worktree needs its own `composer install` / `npm install` / `.env`
 - Integrate into `main` one branch at a time, each through §5
 - No automatic per-task sub-agent review loop — review stays the single pre-merge `/review` (§6)
+- Backstop, not a substitute: `/tdd` Step 2 compares the working tree with its Step 0 baseline before recording the approved snapshot and stops when another session has changed the branch, `HEAD` or other files
 
 ## §8 Precedence over Plugin Skills
 
