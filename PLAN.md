@@ -35,12 +35,16 @@
   placeholder. Port in its own session or worktree: on 2026-10-24 the company checkout had an
   uncommitted `PLAN.md` change and an untracked `.playwright-mcp/` (another session's work).
   Check its ADR numbers and `ai-authority.md` change log when porting.
+  Ported 2026-10-24 (company `03bd480`, `d57dc9e`, merge `47592be`, pushed) in a worktree; no
+  `AGENTS.md`, ADR-0017 or `meta/design/` there, so the fixture-literal note went into its
+  ADR-0016 header. The uncommitted `PLAN.md` change was stashed and restored around the
+  fast-forward of its local `main`, untouched.
 
 ### Status
 
 Merged into `main` (`1dd956b`) and pushed; `meta/tests` 252 passed on the merged result
 (agent-guard 83, domain-boundary 31, fixture-literal-check 23, review-score 27, spec-lint 43,
-tdd-snapshot 45). Next: the company port (not started).
+tdd-snapshot 45). Company port merged and pushed (`47592be`); nothing left.
 
 ## Codex parity — handoff for a new session (2026-10-22)
 
