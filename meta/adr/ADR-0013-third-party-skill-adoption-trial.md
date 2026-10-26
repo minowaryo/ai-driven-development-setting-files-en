@@ -15,8 +15,9 @@ A user-provided comparison evaluated the "Superpowers" Claude Code plugin
 force-injects roughly 1,300 tokens wrapped in `<EXTREMELY_IMPORTANT>` tags on every
 session, and its TDD skill does not mechanically enforce a Red → approve → Green
 boundary (issues #384, #2372) — both risk fighting this repo's own CLAUDE.md rules and
-Gate 4's human-approval requirement (see `ADR-0014` for the decision not to install
-Superpowers itself).
+Gate 4's human-approval requirement (see `ADR-0014` for the decision on Superpowers
+itself — not adopted by the template; since 2026-10-26, under evaluation with use left
+to each developer).
 
 That evaluation surfaced four ideas genuinely missing from this harness that are worth
 capturing without installing anything:
@@ -68,9 +69,10 @@ non-enforcement risks (`ADR-0014`) while still closing four real gaps. All four 
 small, text-only additions — no new dependency, no plugin marketplace, no scripts.
 
 ### Rejected Alternatives
-- **Install the Superpowers plugin and cherry-pick nothing**: rejected — see
-  `ADR-0014`; the session-injection and TDD non-enforcement risks apply to the whole
-  plugin, not just the parts we'd want.
+- **Install the Superpowers plugin as part of the template and cherry-pick nothing**:
+  rejected — see `ADR-0014`; the session-injection and TDD non-enforcement risks apply
+  to the whole plugin, not just the parts we'd want. (A developer may still install it
+  individually; `ADR-0014` covers that.)
 - **Stage the four items one at a time with an observation period between each**:
   considered, but judged unnecessary overhead for changes of this size — three of the
   four (`systematic-debugging`, `verification-before-completion`, the test-quality
@@ -100,6 +102,6 @@ small, text-only additions — no new dependency, no plugin marketplace, no scri
 
 ## Related
 - ADR-0012-skills-vs-commands
-- ADR-0014 (Superpowers wholesale rejection and other deferred third-party tools)
+- ADR-0014 (Superpowers — under evaluation, individual opt-in — and other deferred third-party tools)
 - `.claude/rules/30-testing.md`
 - `.claude/rules/00-global.md`

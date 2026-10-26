@@ -1,9 +1,16 @@
-# ADR-0014: Third-Party Integrations Considered and Deferred (Laravel Boost, cc-sdd, hookify, Superpowers) — Not Adopted
+# ADR-0014: Third-Party Integrations Considered and Deferred (Laravel Boost, cc-sdd, hookify) — Not Adopted; Superpowers Under Evaluation
 
 ## Status
 Accepted (per the "Variant for Recording a Deferral" convention in
 `.claude/commands/adr.md` — what's approved is the decision not to adopt each item
-now, not the adoption of any of them)
+now, not the adoption of any of them). Superpowers is the exception: reopened as
+**under evaluation**, with use left to each developer (see the 2026-10-26 note).
+
+> Updated 2026-10-26: **Superpowers** — the verdict changes from "Rejected" to
+> **"Under evaluation — individual opt-in"**. The comparison against this harness is not
+> finished, and the plugin is already installed in some developer environments
+> (`ADR-0015`). The template still does not install, enable, or depend on it; whether to
+> use it is each developer's own choice. See "Individual Use of Superpowers" below.
 
 > Updated 2026-10-05 (ADR-0016 research): **Laravel Boost** — the reason for deferral has
 > partly gone. Since v2.10 (2026-09-23) `php artisan boost:install --mcp --no-interaction`
@@ -33,7 +40,7 @@ convention in `.claude/commands/adr.md`.
 | **Laravel Boost** (`laravel/boost`) | Deferred, not rejected | A project actually wants live DB-schema/query/browser-log MCP tools and version-pinned Laravel/Inertia/Pest doc search. If adopted, register **only** the MCP server manually (`claude mcp add -s local -t stdio laravel-boost php artisan boost:mcp`) — never run `php artisan boost:install`'s guideline-file generation against a live copy of this template, since it overwrites `CLAUDE.md`/`AGENTS.md`/`.mcp.json`/`boost.json` |
 | **cc-sdd** (`gotalab/cc-sdd`) | Rejected | Only if this harness's own Gate 0-3 pipeline is ever restructured and a Kiro-style spec format becomes useful for cross-tool portability (Codex/Cursor/Gemini CLI/etc.) — no such need identified now |
 | **hookify** (official Anthropic plugin) | Deferred / watch | A future, separately-scoped trial shows a cheap warn-level real Claude Code hook adds defense-in-depth value alongside `domain-boundary-check.sh` — this would *extend* `ADR-0010`'s script-invoked approach, not reverse it |
-| **Superpowers** (`obra/superpowers`, wholesale plugin) | Rejected | Only if its SessionStart force-injection (issues #1480, #1456, #2377) and non-enforced TDD (issues #384, #2372) are fixed upstream in a way that stops conflicting with this repo's CLAUDE.md/Gate 4 rules |
+| **Superpowers** (`obra/superpowers`, wholesale plugin) | Under evaluation — individual opt-in (was Rejected until 2026-10-26) | When the comparison concludes: decide whether the template recommends it, keeps it optional, or rejects it. Inputs: whether its SessionStart force-injection (issues #1480, #1456, #2377) and non-enforced TDD (issues #384, #2372) actually conflict with CLAUDE.md / Gate 4 in day-to-day use |
 
 ## Rationale
 
@@ -50,15 +57,40 @@ convention in `.claude/commands/adr.md`.
   reasoned choice (script invoked by `/review`, not a registered lifecycle hook) —
   reversing or extending that deserves its own focused evaluation, not a rider on
   this one.
-- **Superpowers**: see the two verified GitHub-issue-backed risks above. Some of its
-  underlying ideas were still worth capturing — done in-house under `ADR-0013`
-  instead of installing the plugin.
+- **Superpowers**: the two GitHub-issue-backed risks above are still real, so the
+  template does not adopt it. But the original "Rejected" was decided from the issue
+  reports, not from use alongside this harness; it is now under evaluation instead.
+  Some of its ideas were already captured in-house under `ADR-0013`, independent of
+  this verdict.
+
+### Individual Use of Superpowers
+
+While it is under evaluation:
+
+- **The template does not install or enable it.** Nothing in `.claude/settings.json`,
+  `SETUP.md`, or any rule file depends on it.
+- **Each developer decides.** Install it at user level
+  (`enabledPlugins` in `~/.claude/settings.json`) if you want it; that choice is not
+  recorded in the repository.
+- **Harness rules win where they overlap.** `CLAUDE.md`, `.claude/rules/`, Gate 4 and
+  `/tdd`, and the Git rules (`.claude/rules/70-git.md`) take precedence over Superpowers
+  skills. Two skills share a name with this harness's own Trial skills
+  (`systematic-debugging`, `verification-before-completion`); the harness versions in
+  `.claude/skills/` are the ones the rules refer to.
+- **Switching it off for one project.** A developer who has it enabled globally can turn
+  it off for this repository only, without touching anyone else's setup, in
+  `.claude/settings.local.json` (git-ignored):
+  `{ "enabledPlugins": { "superpowers@superpowers-marketplace": false } }`. Do not put
+  this in the shared `.claude/settings.json` — that would decide for every developer.
 
 ### Rejected Alternatives
 - **Install Superpowers and rely on this repo's CLAUDE.md taking precedence** (per
-  Superpowers' own stated design intent): rejected — the verified GitHub issues show
-  this precedence isn't reliable in practice; the SessionStart injection and TDD
-  non-enforcement both actively fight Gate 4, not just coexist awkwardly with it.
+  Superpowers' own stated design intent): rejected *as a template default* — the
+  verified GitHub issues show this precedence isn't reliable in practice. Leaving it to
+  each developer, as above, is a different decision: the template does not ship it.
+- **Keep Superpowers "Rejected" and forbid it**: not chosen — the template cannot
+  control user-level plugins, the plugin is already in use in some environments, and
+  the comparison is not finished.
 - **Adopt Laravel Boost's full `boost:install` flow and just re-apply the template's
   CLAUDE.md afterward**: rejected as fragile — `boost:update` regenerates the same
   files, so the overwrite would recur on every update, not just once.
@@ -78,6 +110,7 @@ convention in `.claude/commands/adr.md`.
 
 ## Related
 - ADR-0013 (the ideas from Superpowers that *were* adopted in-house)
+- ADR-0015 (Git rules override plugin Git skills, including Superpowers')
 - ADR-0007 (the precedent for recording an evaluated-but-optional/deferred tool)
 - ADR-0010 (the deliberate script-invoked hook design hookify would need to reckon
   with)

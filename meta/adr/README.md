@@ -23,7 +23,7 @@ from `ADR-0001`.
 | ADR-0011 | Existing-codebase adoption path (Gate 0-3 input authorship for projects with existing code) |
 | ADR-0012 | Skills vs. commands criterion, and the standalone-export convention |
 | ADR-0013 | Adopting selected skill concepts from third-party sources, in-house (Trial) |
-| ADR-0014 | Third-party integrations considered and deferred (Laravel Boost, cc-sdd, hookify, Superpowers) |
+| ADR-0014 | Third-party integrations considered and deferred (Laravel Boost, cc-sdd, hookify); Superpowers under evaluation, individual opt-in |
 | ADR-0015 | Git workflow — short-lived branches, `--no-ff` merge record, merge-check tiers |
 | ADR-0016 | Loop Engineering roadmap, and Stage 1 — mechanical TDD enforcement (Trial) |
 | ADR-0017 | Loop Engineering Stage 2a — unattended checks before any loop (Trial) |

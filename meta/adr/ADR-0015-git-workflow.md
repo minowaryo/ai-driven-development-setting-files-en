@@ -40,7 +40,8 @@ Accepted — the merge-check thresholds, the `prepare-merge` skill, and the `lit
   merge method, and stated the "AI commits/pushes only on explicit instruction" rule only
   in `GLOBAL_CLAUDE.md` and the sub-agent files. The force-push ban existed only in
   `AGENTS.md`. Docs spoke of "PRs" although no PR process existed.
-- The Superpowers plugin (rejected as a whole in ADR-0014) is installed in some developer
+- The Superpowers plugin (not adopted by the template; under evaluation and left to each
+  developer per ADR-0014) is installed in some developer
   environments; its Git skills prescribe AI auto-commit per task and an AI-executed local
   merge, which conflict with the rules above.
 
