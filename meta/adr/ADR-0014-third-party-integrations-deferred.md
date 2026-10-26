@@ -10,7 +10,7 @@ now, not the adoption of any of them). Superpowers is the exception: reopened as
 > **"Under evaluation — individual opt-in"**. The comparison against this harness is not
 > finished, and the plugin is already installed in some developer environments
 > (`ADR-0015`). The template still does not install, enable, or depend on it; whether to
-> use it is each developer's own choice. See "Individual Use of Superpowers" below.
+> use it is each developer's own choice.
 
 > Updated 2026-10-05 (ADR-0016 research): **Laravel Boost** — the reason for deferral has
 > partly gone. Since v2.10 (2026-09-23) `php artisan boost:install --mcp --no-interaction`
@@ -63,31 +63,10 @@ convention in `.claude/commands/adr.md`.
   Some of its ideas were already captured in-house under `ADR-0013`, independent of
   this verdict.
 
-### Individual Use of Superpowers
-
-While it is under evaluation:
-
-- **The template does not install or enable it.** Nothing in `.claude/settings.json`,
-  `SETUP.md`, or any rule file depends on it.
-- **Each developer decides.** Install it at user level
-  (`enabledPlugins` in `~/.claude/settings.json`) if you want it; that choice is not
-  recorded in the repository.
-- **Harness rules win where they overlap.** `CLAUDE.md`, `.claude/rules/`, Gate 4 and
-  `/tdd`, and the Git rules (`.claude/rules/70-git.md`) take precedence over Superpowers
-  skills. Two skills share a name with this harness's own Trial skills
-  (`systematic-debugging`, `verification-before-completion`); the harness versions in
-  `.claude/skills/` are the ones the rules refer to.
-- **Switching it off for one project.** A developer who has it enabled globally can turn
-  it off for this repository only, without touching anyone else's setup, in
-  `.claude/settings.local.json` (git-ignored):
-  `{ "enabledPlugins": { "superpowers@superpowers-marketplace": false } }`. Do not put
-  this in the shared `.claude/settings.json` — that would decide for every developer.
-
 ### Rejected Alternatives
 - **Install Superpowers and rely on this repo's CLAUDE.md taking precedence** (per
   Superpowers' own stated design intent): rejected *as a template default* — the
-  verified GitHub issues show this precedence isn't reliable in practice. Leaving it to
-  each developer, as above, is a different decision: the template does not ship it.
+  verified GitHub issues show this precedence isn't reliable in practice.
 - **Keep Superpowers "Rejected" and forbid it**: not chosen — the template cannot
   control user-level plugins, the plugin is already in use in some environments, and
   the comparison is not finished.
